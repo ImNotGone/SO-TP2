@@ -1,8 +1,9 @@
-# Docker ip address
-target remote 172.17.0.1:1234 # yours goes here
+# Computer ip address
+# Run ifconfig, go to en0 section and copy inet
+target remote 192.168.0.145:1234 # yours goes here
 
 add-symbol-file Kernel/kernel.elf 0x100000
-add-symbol-file Userland/0000-shell.elf 0x400000
+add-symbol-file Userland/0000-sampleCodeModule.elf 0x400000
 
 define src-prof
     dashboard -layout source expressions stack variables
