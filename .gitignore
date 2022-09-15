@@ -1,3 +1,6 @@
+#gdb
+.gdbinit
+
 #Binary Files
 *.bin
 *.sys
