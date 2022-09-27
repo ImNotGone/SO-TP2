@@ -1,6 +1,3 @@
-#gdb
-.gdbinit
-
 #Binary Files
 *.bin
 *.sys
@@ -12,3 +9,18 @@
 
 #Object files
 *.o
+
+#gdb files
+.gdb_history
+*.elf
+#docker
+.bash_history
+
+#vscode settings
+.vscode
+
+#Clion settings
+.idea
+
+#clangd lsp
+compile_flags.txt

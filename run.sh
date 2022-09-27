@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [ -z $SO_IMAGE ]; then
     SO_IMAGE='agodio/itba-so:1.0'
 fi
@@ -28,3 +27,4 @@ else
     # abro la imagen en qemu
     qemu-system-x86_64 --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512
 fi
+

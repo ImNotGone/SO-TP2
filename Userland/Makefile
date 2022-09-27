@@ -1,23 +1,17 @@
 include Makefile.inc
 
-SAMPLE_DATA=0001-sampleDataModule.bin
+all: shell
+gdb: all shell_gdb
 
-all: sampleCodeModule sampleDataModule
-gdb: all sampleCodeModule_gdb
+shell:
+	cd shell; make all
 
-sampleCodeModule:
-	cd SampleCodeModule; make all
-
-sampleCodeModule_gdb:
-	cd SampleCodeModule; make gdb
-
-
-sampleDataModule:
-	printf "This is sample data." >> $(SAMPLE_DATA) && dd if=/dev/zero bs=1 count=1 >> $(SAMPLE_DATA)
+shell_gdb:
+	cd shell; make gdb
 
 clean:
-	cd SampleCodeModule; make clean
+	cd shell; make clean
 	rm -rf *.bin *.elf
 
 
-.PHONY: sampleCodeModule all clean
+.PHONY: shell all clean

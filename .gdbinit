@@ -1,9 +1,7 @@
-# Computer ip address
-# Run ifconfig, go to en0 section and copy inet
-target remote 192.168.0.145:1234 # yours goes here
+target remote 172.17.0.1:1234
 
 add-symbol-file Kernel/kernel.elf 0x100000
-add-symbol-file Userland/0000-sampleCodeModule.elf 0x400000
+add-symbol-file Userland/0000-shell.elf 0x400000
 
 define src-prof
     dashboard -layout source expressions stack variables
@@ -11,7 +9,7 @@ define src-prof
 end
 
 define asm-prof
-    dashboard -layout registers assembly memory stack 
+    dashboard -layout registers assembly memory stack
     set disassembly-flavor intel
     dashboard registers -style list 'rax rbx rcx rdx rsi rdi rbp rsp r8 r9 r10 r11 r12 r13 r14 r15 rip eflags cs ss ds es fs gs fs_base gs_base k_gs_base cr0 cr2 cr3 cr4 cr8 efer'
 end

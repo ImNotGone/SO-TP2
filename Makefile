@@ -1,5 +1,4 @@
-
-all:  bootloader kernel userland image
+all: bootloader kernel userland image
 gdb: all kernel_elf userland_elf
 
 bootloader:
