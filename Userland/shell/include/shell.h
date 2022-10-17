@@ -8,8 +8,6 @@
 #include <_string.h>
 #include <_stdbool.h>
 #include <syscalls.h>
-#include <primes.h>
-#include <fibonacci.h>
 
 #define COMMAND_BUFFER_SIZE 256
 #define LEFT_SCREEN 0
@@ -43,13 +41,7 @@ typedef enum ERRORS {ARGUMENT_MISSING = -1, NOT_PRINTMEM = -2, INVALID_ADDRESS =
 #define ZERODIV_DESC    "Generates a zero divison exception"
 #define INVALID_OP_DESC "Generates an invalid operation code exception"
 #define TIME_DESC       "Prints current system time"
-#define PRIMES_DESC     "Prints prime numbers"
-#define FIBONACCI_DESC  "Prints numbers in the fibonacci sequence"
 #define PRINTMEM_DESC   "Prints the 32 bytes following the received address.\nUse example: printmem C0FFEE"
-#define PIPE_DESC       "Divides the screen and runs 2 programs.\n"\
-                        VALUE_TO_STRING(LEFTCMD_PAUSE_KEY)" pauses left side, "\
-                        VALUE_TO_STRING(RIGHTCMD_PAUSE_KEY)" pauses right side.\n"\
-                        VALUE_TO_STRING(CMD_STOP_KEY)" stops execution."
 
 // type definitions
 typedef bool (* hasNextfp)  (int64_t);

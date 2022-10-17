@@ -4,9 +4,7 @@ section .data
     syscalltime     equ 2
     syscallmemdump  equ 3
     syscallregdump  equ 4
-    syscallDivWind  equ 5
-    syscallSetWind  equ 6
-    syscallOneWind  equ 7
+
 
 section .text
 global sysread
@@ -14,9 +12,7 @@ global syswrite
 global systime
 global sysmemdump
 global sysregdump
-global sysDivWind
-global sysSetWind
-global sysOneWind
+
 
 %macro syscallHandler 1
     push rbp
@@ -53,10 +49,3 @@ sysmemdump:
 ; rdi -> TRegs *
 sysregdump:
     syscallHandler syscallregdump
-
-sysDivWind:
-    syscallHandler syscallDivWind
-sysSetWind:
-    syscallHandler syscallSetWind
-sysOneWind:
-    syscallHandler syscallOneWind

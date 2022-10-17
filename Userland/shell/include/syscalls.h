@@ -50,13 +50,4 @@ extern int64_t sysmemdump(uint64_t address, int8_t *memData);
 // Gets the registeres in TRegs format from the kernel register snapshot
 extern int8_t sysregdump(TRegs *regs);
 
-// Clears the screen and sets two windows
-extern int64_t sysDivWind();
-
-// Tells the kernel to which window it should write
-extern int64_t sysSetWind(uint8_t window);
-
-// Clears the screen and sets one fullscreen window
-extern int64_t sysOneWind();
-
 #endif//SYSCALLS_H_

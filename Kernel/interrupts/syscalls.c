@@ -12,10 +12,10 @@ void saveRegs(const int64_t *registers) {
     regSaved = 1;
 }
 
-// rax -> rdi, 
-// rdi -> rsi, 
-// rsi -> rdx, 
-// rdx -> rcx, 
+// rax -> rdi,
+// rdi -> rsi,
+// rsi -> rdx,
+// rdx -> rcx,
 // r10 -> r8,
 // r8 ->  r9
 typedef int64_t (*TSyscallHandler) (uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8);
@@ -25,9 +25,6 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
 void    systime(TTime * ts);
 int64_t sysmemdump(uint64_t address, int8_t *memData);
 int64_t sysregdump(TRegs *regs);
-int64_t sysDivWindow();
-int64_t sysSetWindow(uint8_t window);
-int64_t sysOneWindow();
 
 TSyscallHandler syscallHandlers[] = {
     //0x00
@@ -40,12 +37,7 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysmemdump,
     //0x04
     (TSyscallHandler) sysregdump,
-    //0x05
-    (TSyscallHandler) sysDivWindow,
-    //0x06
-    (TSyscallHandler) sysSetWindow,
-    //0x07
-    (TSyscallHandler) sysOneWindow,
+
 };
 
 static uint64_t syscallHandlersDim = sizeof(syscallHandlers) / sizeof(syscallHandlers[0]);
@@ -53,7 +45,7 @@ static uint64_t syscallHandlersDim = sizeof(syscallHandlers) / sizeof(syscallHan
 int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8) {
     if(rax >= syscallHandlersDim)
         return -1;
-    
+
     // function call
     return syscallHandlers[rax](rdi, rsi, rdx, r10, r8);
 }
@@ -127,16 +119,4 @@ int64_t sysregdump(TRegs *regs) {
     regs->r15 = registerSnapshot[15];
     regs->rip = registerSnapshot[16];
     return 1;
-}
-
-int64_t sysDivWindow() {
-	return divideWindows();
-}
-
-int64_t sysSetWindow(uint8_t window) {
-    return setWindow(window);
-}
-
-int64_t sysOneWindow() {
-    return initGraphics();
 }
