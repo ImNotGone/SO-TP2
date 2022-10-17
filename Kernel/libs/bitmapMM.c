@@ -1,8 +1,7 @@
-#define USE_BITMAP
-#ifdef USE_BITMAP
+#ifdef MM_BITMAP
 #include <memoryManager.h>
-
 #include <string.h>
+#include <types.h>
 
 // Factor of size of bitmap to size of memory
 #define FACTOR 64
@@ -30,10 +29,10 @@ static unsigned int blocks;
 
 
 // Initialize memory manager
-void minit(void *start, size_t size) {
-    
+void minit(void *start, uint64_t size) {
+
     // Calculate the number of blocks needed
-    size_t blocks = size / FACTOR;
+    uint64_t blocks = size / FACTOR;
 
     if (blocks <= 0) {
         // TODO: Error
@@ -51,7 +50,7 @@ void minit(void *start, size_t size) {
 }
 
 // Allocate memory
-void *malloc(size_t size) {
+void *malloc(uint64_t size) {
 
     if (size <= 0) {
         // TODO: Error
@@ -73,7 +72,7 @@ void *malloc(size_t size) {
             // The block is being used
             if (bitmap[i] != FREE) {
                 break;
-            } 
+            }
 
             freeBlocks++;
         }
@@ -100,16 +99,16 @@ void *malloc(size_t size) {
     // No blocks found
     // TODO: Error
     return NULL;
-}  
+}
 
-// Calloc 
-void *calloc(size_t nmemb, size_t size) {
+// Calloc
+void *calloc(uint64_t nmemb, uint64_t size) {
 
     void *out = NULL;
 
     if(!MULT_WILL_OF(nmemb, size)) {
         out = malloc(nmemb * size);
-        
+
         if (out != NULL) {
             memset(out, 0, nmemb * size);
         }
@@ -155,9 +154,9 @@ void free(void *ptr) {
 }
 
 // Reallocate memory
-void *realloc(void *ptr, size_t size) {
+void *realloc(void *ptr, uint64_t size) {
 
-    
+
     if (ptr == NULL) {
         // TODO: Error
         return NULL;
@@ -176,7 +175,7 @@ void *realloc(void *ptr, size_t size) {
         return NULL;
     }
 
- 
+
     // Copy the old data to the new memory
     memcpy(newPtr, ptr, size);
 

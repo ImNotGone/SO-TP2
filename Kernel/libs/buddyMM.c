@@ -1,6 +1,4 @@
-#include <bits/stdint-uintn.h>
-#define USE_BUDDY
-#ifdef USE_BUDDY
+#ifdef MM_BUDDY
 /*
  * Buddy allocator
  *
@@ -43,6 +41,7 @@ static inline uint64_t getRightChild(uint64_t index) {
 static inline uint64_t getLeftChild(uint64_t index) {
     return (index<<1)+2;
 }
+// 2^x = 1<<x;
 
 static void * heapStart;
 static uint64_t heapSize;
