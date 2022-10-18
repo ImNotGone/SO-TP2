@@ -4,6 +4,8 @@ section .data
     syscalltime     equ 2
     syscallmemdump  equ 3
     syscallregdump  equ 4
+    syscallmalloc   equ 5
+    syscallfree     equ 6
 
 
 section .text
@@ -12,7 +14,8 @@ global syswrite
 global systime
 global sysmemdump
 global sysregdump
-
+global sysmalloc
+global sysfree
 
 %macro syscallHandler 1
     push rbp
@@ -49,3 +52,13 @@ sysmemdump:
 ; rdi -> TRegs *
 sysregdump:
     syscallHandler syscallregdump
+
+; TODO: Implement syscall in kernel
+
+; rdi -> size
+sysmalloc:
+    syscallHandler syscallmalloc
+
+; rdi -> ptr *
+sysfree:
+    syscallHandler syscallfree

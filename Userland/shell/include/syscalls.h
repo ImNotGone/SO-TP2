@@ -50,4 +50,11 @@ extern int64_t sysmemdump(uint64_t address, int8_t *memData);
 // Gets the registeres in TRegs format from the kernel register snapshot
 extern int8_t sysregdump(TRegs *regs);
 
+
+// Allocates memory with te rewuired size
+extern void *sysmalloc(uint64_t size);
+
+// Frees the memory allocated with sysmalloc
+extern void sysfree(void *ptr);
+
 #endif//SYSCALLS_H_
