@@ -1,3 +1,5 @@
+include Makefile.inc
+
 all: bootloader kernel userland image
 gdb: all kernel_elf userland_elf
 
@@ -5,10 +7,10 @@ bootloader:
 	cd Bootloader; make all
 
 kernel:
-	cd Kernel; make all
+	cd Kernel; make all MM=$(MM)
 
 kernel_elf:
-	cd Kernel; make gdb
+	cd Kernel; make gdb MM=$(MM)
 
 userland:
 	cd Userland; make all

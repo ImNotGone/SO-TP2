@@ -3,6 +3,7 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <drivers/graphics.h>
+#include <memoryManager.h>
 #include <drivers/RTC.h>
 #include <drivers/keyboard.h>
 #include <interrupts/time.h>
@@ -19,6 +20,8 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 
 static void *const shellAddress = (void *)0x400000;
+static void *const memManagerAddress = (void *)0x600000;
+#define MEMMANAGER_SIZE 0x200000
 
 typedef int (*EntryPoint)();
 
@@ -44,6 +47,10 @@ void * initializeKernelBinary() {
 	clearBSS(&bss, &endOfKernel - &bss);
 
 	load_idt();
+    
+
+    minit(memManagerAddress, MEMMANAGER_SIZE);
+
 	initGraphics();
 	return getStackBase();
 }
