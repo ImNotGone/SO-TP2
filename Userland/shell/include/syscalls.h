@@ -57,4 +57,11 @@ extern void *sysmalloc(uint64_t size);
 // Frees the memory allocated with sysmalloc
 extern void sysfree(void *ptr);
 
+// Reallocation of memory
+// If ptr is NULL, it allocates a new memory block
+extern void *sysrealloc(void *ptr, uint64_t size);
+
+// Gets memory manager information
+extern void sysmeminfo(void *memInfo);
+
 #endif//SYSCALLS_H_

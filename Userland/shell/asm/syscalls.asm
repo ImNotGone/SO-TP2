@@ -6,6 +6,8 @@ section .data
     syscallregdump  equ 4
     syscallmalloc   equ 5
     syscallfree     equ 6
+    syscallrealloc  equ 7
+    syscall meminfo equ 8
 
 
 section .text
@@ -53,8 +55,6 @@ sysmemdump:
 sysregdump:
     syscallHandler syscallregdump
 
-; TODO: Implement syscall in kernel
-
 ; rdi -> size
 sysmalloc:
     syscallHandler syscallmalloc
@@ -62,3 +62,12 @@ sysmalloc:
 ; rdi -> ptr *
 sysfree:
     syscallHandler syscallfree
+
+; rdi -> ptr *
+; rsi -> size
+sysrealloc:
+    syscallHandler syscallrealloc
+
+; rdi -> void *
+sysmeminfo:
+    syscallHandler syscallmeminfo

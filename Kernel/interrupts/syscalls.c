@@ -25,6 +25,10 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
 void    systime(TTime * ts);
 int64_t sysmemdump(uint64_t address, int8_t *memData);
 int64_t sysregdump(TRegs *regs);
+void *  sysmalloc(uint64_t size);
+void    sysfree(void * ptr);
+void *  sysrealloc(void * ptr, uint64_t size);
+void    sysmeminfo(void* memInfo);
 
 TSyscallHandler syscallHandlers[] = {
     //0x00
@@ -37,6 +41,14 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysmemdump,
     //0x04
     (TSyscallHandler) sysregdump,
+    //0x05
+    (TSyscallHandler) sysmalloc,
+    //0x06
+    (TSyscallHandler) sysfree,
+    //0x07
+    (TSyscallHandler) sysrealloc,
+    //0x08
+    (TSyscallHandler) sysmeminfo,
 
 };
 
@@ -119,4 +131,24 @@ int64_t sysregdump(TRegs *regs) {
     regs->r15 = registerSnapshot[15];
     regs->rip = registerSnapshot[16];
     return 1;
+}
+
+// TODO: implement malloc, free, realloc and meminfo
+
+void * sysmalloc(uint64_t size) {
+    //return malloc(size);
+    return 0;
+}
+
+void sysfree(void * ptr) {
+    //free(ptr);
+}
+
+void * sysrealloc(void * ptr, uint64_t size) {
+    //return realloc(ptr, size);
+    return 0;
+}
+
+void sysmeminfo(void* memInfo) {
+    //meminfo(memInfo);
 }
