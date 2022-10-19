@@ -1,4 +1,4 @@
-MM="BUDDY"
+include Makefile.inc
 
 all: bootloader kernel userland image
 gdb: all kernel_elf userland_elf

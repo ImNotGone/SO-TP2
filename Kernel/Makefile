@@ -1,6 +1,5 @@
 include Makefile.inc
-
-MM="BUDDY"
+include ../Makefile.inc
 
 KERNEL=kernel.bin
 KERNEL_ELF=$(KERNEL:.bin=.elf)
