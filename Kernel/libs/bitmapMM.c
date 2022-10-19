@@ -32,7 +32,7 @@ static unsigned int blocks;
 void minit(void *start, uint64_t size) {
 
     // Calculate the number of blocks needed
-    uint64_t blocks = size / FACTOR;
+    blocks = size / FACTOR;
 
     if (blocks <= 0) {
         // TODO: Error
@@ -62,23 +62,27 @@ void *malloc(uint64_t size) {
 
     // Find the free blocks needed
     unsigned int currentBlock = 0;
-
     while(currentBlock <= blocks - blocksNeeded) {
 
         // Count the number of free blocks from currentBlock
         unsigned int freeBlocks = 0;
-        for (int i = currentBlock; i < blocks; i++) {
+        int found = 0;
+        for (int i = currentBlock; i < blocks; i++, freeBlocks++) {
+
+            // Found the blocks needed
+            if (freeBlocks == blocksNeeded) {
+                found = 1;
+                break;
+            }
 
             // The block is being used
             if (bitmap[i] != FREE) {
                 break;
             }
-
-            freeBlocks++;
         }
 
         // We found the blocks blocks needed
-        if (freeBlocks == blocksNeeded) {
+        if (found) {
 
             // Mark the first block as a boundary
             bitmap[currentBlock] = BOUNDARY;
@@ -91,7 +95,7 @@ void *malloc(uint64_t size) {
             // Return the address of the first block
             return (unsigned char*)arena + currentBlock * FACTOR;
         }
-
+        
         // Continue searching
         currentBlock += freeBlocks + 1;
     }
