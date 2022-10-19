@@ -1,3 +1,4 @@
+#define MM_BUDDY
 #ifdef MM_BUDDY
 /*
  * Buddy allocator
@@ -31,27 +32,41 @@
 // nodesInLastLevel = 2^2 (IMPORTANT)
 
 typedef struct Node{
-    bool used;
+    struct Node * prev;
+    struct Node * next;
 } TNode;
 
-static TNode * btree;   // Binary tree array
-static inline uint64_t getRightChild(uint64_t index) {
-    return (index<<1)+1;
-}
-static inline uint64_t getLeftChild(uint64_t index) {
-    return (index<<1)+2;
-}
-// 2^x = 1<<x;
+typedef TNode * TList;
 
-static void * heapStart;
-static uint64_t heapSize;
+#define TWO_TO_THE(x) ((uint64_t)1 << (x))
+
+#define MIN_ALLOC_LOG2 6    // 64B
+#define MIN_ALLOC TWO_TO_THE(MIN_ALLOC_LOG2)
+
+#define MAX_ALLOC_LOG2 30   // 1GB
+#define MAX_ALLOC TWO_TO_THE(MAX_ALLOC_LOG2)
+
+#define NODES (TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1) - 1)
+
+static TNode btree[NODES];   // Binary tree array
+static uint8_t isSplitNode[TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2)/8];
+
+static void * heapStart  = NULL;
+static uint64_t heapSize = 0;
+
+static inline uint64_t rightChildIndex(uint64_t index);
+static inline uint64_t leftChildIndex(uint64_t index);
+static inline uint64_t parentIndex(uint64_t index);
+static inline uint64_t siblingIndex(uint64_t index);
+static uint8_t getNodeLevel(uint64_t request);
 
 void minit(void * start, uint64_t size) {
-    // TODO: ALIGN memory
+    // TODO: ALIGN memory?
     // TODO: CHECK MEMORY SIZE
     // TODO: CALCULATE NODES NEEDED FOR GIVEN MEMORY
     // TODO: UPDATE GLOBAL VARIABLES
-
+    heapStart = start;
+    heapSize = size;
     return;
 }
 
@@ -60,6 +75,8 @@ void * malloc(uint64_t size) {
     // TODO: HANDLE ERRORS
 
     // TODO: FIND FREE BLOCK OF SIZE size
+    getNodeLevel(size + sizeof(TNode));
+
     // TODO: UPDATE BLOCK FLAGS
     // TODO: RETRIEVE DIRECTION
     return out;
@@ -87,12 +104,41 @@ void * calloc(uint64_t nmemb, uint64_t size) {
 }
 
 void * realloc(void *ptr, uint64_t size) {
+    if(ptr == NULL) {
+        return malloc(size);
+    }
     void * out = malloc(size);
     if(out != NULL) {
         memcpy(out, ptr, size);
+        free(ptr);
     }
-    free(ptr);
     return out;
+}
+
+// ========== BUDDY ==========
+static inline uint64_t rightChildIndex(uint64_t index) {
+    return (index << 1) + 1;
+}
+static inline uint64_t leftChildIndex(uint64_t index) {
+    return (index << 1) + 2;
+}
+static inline uint64_t parentIndex(uint64_t index) {
+    return ((index - 1) >> 1);
+}
+static inline uint64_t siblingIndex(uint64_t index) {
+    return ((index - 1) ^ 1) + 1;
+}
+
+static uint8_t getNodeLevel(uint64_t request) {
+    uint8_t level = MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2;
+    uint64_t size = MIN_ALLOC;
+
+    while(size < request) {
+        level--;
+        size <<= 1;
+    }
+
+    return level;
 }
 
 #endif//USE_BUDDY
