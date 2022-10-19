@@ -162,8 +162,7 @@ void *realloc(void *ptr, uint64_t size) {
 
 
     if (ptr == NULL) {
-        // TODO: Error
-        return NULL;
+        return malloc(size);
     }
 
     if (size <= 0) {
