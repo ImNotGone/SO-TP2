@@ -20,12 +20,10 @@ enum {
 static void *arena;
 
 // Bitmap of arena, it contains the state of each block
-static unsigned char *bitmap;
+static uint8_t *bitmap;
 
 // Blocks of memory
-static unsigned int blocks;
-
-
+static uint64_t blocks;
 
 
 // Initialize memory manager
@@ -40,11 +38,11 @@ void minit(void *start, uint64_t size) {
     }
 
     // Assign bitmap and Arena
-    bitmap = (unsigned char*) start;
+    bitmap = (uint8_t*) start;
     arena = bitmap + blocks;
 
     // Set all blocks to free
-    for (int i = 0; i < blocks; i++) {
+    for (uint64_t i = 0; i < blocks; i++) {
         bitmap[i] = FREE;
     }
 }
@@ -58,20 +56,20 @@ void *malloc(uint64_t size) {
     }
 
     // Calculate the number of blocks needed for the allocation rounded up
-    unsigned int blocksNeeded = size / FACTOR + ((size % FACTOR) ? 1 : 0);
+    uint64_t blocksNeeded = size / FACTOR + ((size % FACTOR) ? 1 : 0);
 
     // Find the free blocks needed
-    unsigned int currentBlock = 0;
+    uint64_t currentBlock = 0;
     while(currentBlock <= blocks - blocksNeeded) {
 
         // Count the number of free blocks from currentBlock
-        unsigned int freeBlocks = 0;
-        int found = 0;
-        for (int i = currentBlock; i < blocks; i++, freeBlocks++) {
+        uint64_t freeBlocks = 0;
+        bool found = false;
+        for (uint64_t i = currentBlock; i < blocks; i++, freeBlocks++) {
 
             // Found the blocks needed
             if (freeBlocks == blocksNeeded) {
-                found = 1;
+                found = true;
                 break;
             }
 
@@ -88,14 +86,14 @@ void *malloc(uint64_t size) {
             bitmap[currentBlock] = BOUNDARY;
 
             // Mark the blocks as used
-            for (int i = currentBlock + 1; i < currentBlock + blocksNeeded; i++) {
+            for (uint64_t i = currentBlock + 1; i < currentBlock + blocksNeeded; i++) {
                 bitmap[i] = USED;
             }
 
             // Return the address of the first block
-            return (unsigned char*)arena + currentBlock * FACTOR;
+            return (uint8_t*)arena + currentBlock * FACTOR;
         }
-        
+
         // Continue searching
         currentBlock += freeBlocks + 1;
     }
@@ -130,10 +128,10 @@ void free(void *ptr) {
     }
 
     // Calculate the pointer offset in the arena
-    unsigned int arenaOffset = (unsigned int) ((unsigned char*)ptr - (unsigned char*)arena);
+    uint64_t arenaOffset = (uint64_t) ((uint8_t*)ptr - (uint8_t*)arena);
 
     // Calculate the block index
-    unsigned int blockIndex = arenaOffset / FACTOR;
+    uint64_t blockIndex = arenaOffset / FACTOR;
 
     if (blockIndex >= blocks) {
         // TODO: Error
@@ -152,7 +150,7 @@ void free(void *ptr) {
 
 
     // Mark the blocks as free until we reach a free block or a boundary
-    for (int i = blockIndex; i < blocks && bitmap[i] == USED; i++) {
+    for (uint64_t i = blockIndex; i < blocks && bitmap[i] == USED; i++) {
         bitmap[i] = FREE;
     }
 }
