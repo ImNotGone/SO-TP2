@@ -3,7 +3,7 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <drivers/graphics.h>
-#include <memoryManager.h>
+#include <libs/memoryManager.h>
 #include <drivers/RTC.h>
 #include <drivers/keyboard.h>
 #include <interrupts/time.h>

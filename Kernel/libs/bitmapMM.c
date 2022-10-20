@@ -1,5 +1,5 @@
 #ifdef MM_BITMAP
-#include <memoryManager.h>
+#include <libs/memoryManager.h>
 #include <string.h>
 #include <types.h>
 

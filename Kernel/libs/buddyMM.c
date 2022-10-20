@@ -1,4 +1,3 @@
-#define MM_BUDDY
 #ifdef MM_BUDDY
 /*
  * Buddy allocator
@@ -15,7 +14,7 @@
  *
  */
 
-#include <memoryManager.h>
+#include <libs/memoryManager.h>
 #include <lib.h>
 #include <types.h>
 
