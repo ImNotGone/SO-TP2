@@ -2,7 +2,7 @@
 #define STDERR 2
 
 // -------- main functions -------------------------------------
-static void init();
+//static void init();
 static void command_listener();
 
 // ------------ commands implemented on this file -----------------------

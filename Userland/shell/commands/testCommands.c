@@ -1,3 +1,4 @@
+#include <_stdio.h>
 #include <testCommands.h>
 
 void memtest() {
