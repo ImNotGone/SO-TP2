@@ -1,10 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <_stdio.h>
+#include <_string.h>
 #include <test_util.h>
 #include <syscalls.h>
 
 #define MAX_BLOCKS 128
+#define ITERATIONS 1000
 
 typedef struct MM_rq{
   void *address;
@@ -22,7 +22,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]){
 
   if ((max_memory = satoi(argv[0])) <= 0) return -1;
 
-  while (1){
+  for (uint64_t i = 0; i < ITERATIONS; i++) {
     rq = 0;
     total = 0;
 
@@ -56,4 +56,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]){
       if (mm_rqs[i].address)
         sysfree(mm_rqs[i].address);
   } 
+
+  return 0;
 }

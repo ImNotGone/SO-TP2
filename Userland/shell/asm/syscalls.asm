@@ -7,7 +7,8 @@ section .data
     syscallmalloc   equ 5
     syscallfree     equ 6
     syscallrealloc  equ 7
-    syscallmeminfo equ 8
+    syscallcalloc   equ 8
+    syscallmeminfo  equ 9
 
 
 section .text
@@ -19,6 +20,7 @@ global sysregdump
 global sysmalloc
 global sysfree
 global sysrealloc
+global syscalloc
 global sysmeminfo
 
 %macro syscallHandler 1
@@ -69,6 +71,11 @@ sysfree:
 ; rsi -> size
 sysrealloc:
     syscallHandler syscallrealloc
+
+; rdi -> nmemb
+; rsi -> size
+syscalloc:
+    syscallHandler syscallcalloc
 
 ; rdi -> void *
 sysmeminfo:

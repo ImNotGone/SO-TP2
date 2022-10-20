@@ -9,6 +9,7 @@ static void command_listener();
 
 //----- auxiliary functions ------------
 
+static void help();
 static void displayError(int64_t add, const char *command);
 static int64_t parsePrintmem(char * commandBuffer);
 
@@ -17,7 +18,12 @@ static int64_t printmemAddresses[] = {INVALID_ADDRESS, INVALID_ADDRESS};
 
 // -------------- Terminal commands ---------------------------------
 
-static command commands[] = {};
+static command commands[] = {
+    {"help",    "Prints this help", help},
+    {"printmem","Prints the memory info", (voidfp) memDump},
+    {"memtest", "Tests the memory", (voidfp) memtest},
+    {"meminfo", "Prints memory manager status", printMemInfo},
+};
 
 static int commandsDim = sizeof(commands)/sizeof(commands[0]);
 
@@ -39,7 +45,7 @@ static void command_listener() {
 
     // Vemos si el comando matchea con alguno
     // Que no requiere un parseo especial del input
-    for (i = 0; i < commandsDim - 2; i++) {
+    for (i = 0; i < commandsDim; i++) {
         if (strcmp(commandBuffer, commands[i].name) == 0) {
             commands[i].exec();
             return;

@@ -1,4 +1,5 @@
 #include <interrupts/syscalls.h>
+#include <libs/memoryManager.h>
 #include <drivers/graphics.h>
 #include <drivers/keyboard.h>
 #include <drivers/RTC.h>
@@ -28,7 +29,8 @@ int64_t sysregdump(TRegs *regs);
 void *  sysmalloc(uint64_t size);
 void    sysfree(void * ptr);
 void *  sysrealloc(void * ptr, uint64_t size);
-void    sysmeminfo(void* memInfo);
+void    sysmeminfo(TMemInfo* memInfo);
+void *  syscalloc(uint64_t nmemb, uint64_t size);
 
 TSyscallHandler syscallHandlers[] = {
     //0x00
@@ -48,6 +50,8 @@ TSyscallHandler syscallHandlers[] = {
     //0x07
     (TSyscallHandler) sysrealloc,
     //0x08
+    (TSyscallHandler) syscalloc,
+    //0x09
     (TSyscallHandler) sysmeminfo,
 
 };
@@ -133,22 +137,23 @@ int64_t sysregdump(TRegs *regs) {
     return 1;
 }
 
-// TODO: implement malloc, free, realloc and meminfo
-
+// --------- Memory manager ---------------------------------------------------------------
 void * sysmalloc(uint64_t size) {
-    //return malloc(size);
-    return 0;
+    return malloc(size);
 }
 
 void sysfree(void * ptr) {
-    //free(ptr);
+    free(ptr);
 }
 
 void * sysrealloc(void * ptr, uint64_t size) {
-    //return realloc(ptr, size);
-    return 0;
+    return realloc(ptr, size);
 }
 
-void sysmeminfo(void* memInfo) {
-    //meminfo(memInfo);
+void * syscalloc(uint64_t nmemb, uint64_t size) {
+    return calloc(nmemb, size);
+}
+
+void sysmeminfo(TMemInfo* memInfo) {
+    meminfo(memInfo);
 }

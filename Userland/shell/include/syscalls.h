@@ -35,6 +35,13 @@ typedef struct regs {
     int64_t rip;
 } TRegs;
 
+// MemInfo structure defined in memoryManager.h
+typedef struct meminfo {
+    uint64_t total;
+    uint64_t free;
+    uint64_t used;
+} TMemInfo;
+
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
 
@@ -61,7 +68,10 @@ extern void sysfree(void *ptr);
 // If ptr is NULL, it allocates a new memory block
 extern void *sysrealloc(void *ptr, uint64_t size);
 
+// Calloc
+extern void *syscalloc(uint64_t nmemb, uint64_t size);
+
 // Gets memory manager information
-extern void sysmeminfo(void *memInfo);
+extern void sysmeminfo(TMemInfo *memInfo);
 
 #endif//SYSCALLS_H_
