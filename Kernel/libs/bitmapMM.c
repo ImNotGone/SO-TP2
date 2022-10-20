@@ -1,7 +1,6 @@
 #ifdef MM_BITMAP
 #include <libs/memoryManager.h>
 #include <string.h>
-#include <types.h>
 
 // Factor of size of bitmap to size of memory
 #define FACTOR 64
@@ -25,6 +24,8 @@ static uint8_t *bitmap;
 // Blocks of memory
 static uint64_t blocks;
 
+// Info of memory
+static uint64_t usedBlocks;
 
 // Initialize memory manager
 void minit(void *start, uint64_t size) {
@@ -90,6 +91,9 @@ void *malloc(uint64_t size) {
                 bitmap[i] = USED;
             }
 
+            // Update the number of used blocks
+            usedBlocks += blocksNeeded;
+
             // Return the address of the first block
             return (uint8_t*)arena + currentBlock * FACTOR;
         }
@@ -149,10 +153,16 @@ void free(void *ptr) {
     }
 
 
+    // Mark the boundary as free
+    bitmap[blockIndex] = FREE;
+
     // Mark the blocks as free until we reach a free block or a boundary
-    for (uint64_t i = blockIndex; i < blocks && bitmap[i] == USED; i++) {
+    uint64_t i;
+    for (i = blockIndex + 1; i < blocks && bitmap[i] == USED; i++) {
         bitmap[i] = FREE;
     }
+
+    usedBlocks -= i - blockIndex;
 }
 
 // Reallocate memory
@@ -186,4 +196,10 @@ void *realloc(void *ptr, uint64_t size) {
     return newPtr;
 }
 
+// Get memory info
+void meminfo(TMemInfo* memInfo) {
+    memInfo->total = blocks * FACTOR;
+    memInfo->used = usedBlocks * FACTOR;
+    memInfo->free = (blocks - usedBlocks) * FACTOR;
+}
 #endif
