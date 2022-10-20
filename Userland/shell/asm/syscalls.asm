@@ -7,7 +7,7 @@ section .data
     syscallmalloc   equ 5
     syscallfree     equ 6
     syscallrealloc  equ 7
-    syscall meminfo equ 8
+    syscallmeminfo equ 8
 
 
 section .text
@@ -18,6 +18,8 @@ global sysmemdump
 global sysregdump
 global sysmalloc
 global sysfree
+global sysrealloc
+global sysmeminfo
 
 %macro syscallHandler 1
     push rbp
