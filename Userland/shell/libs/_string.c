@@ -143,4 +143,15 @@ int64_t strDivide(const char * str, char * leftBuff, char * rightBuff, char divi
     return found;
 }
 
+void * memset(void * destination, int32_t c, uint64_t length) {
+	uint8_t chr = (uint8_t)c;
+	char * dst = (char*)destination;
+
+	while(length--)
+		dst[length] = chr;
+
+	return destination;
+}
+
+
 

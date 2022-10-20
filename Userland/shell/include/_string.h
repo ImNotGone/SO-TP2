@@ -29,4 +29,7 @@ int64_t strDivide(const char * str, char * leftBuff, char * rightBuff, char divi
 // Remove spaces at the beginning and at the end of the str
 void trim(char *str);
 
+// Memset 
+void * memset(void * ptr, int32_t c, uint64_t length);
+
 #endif//_STRING_H
