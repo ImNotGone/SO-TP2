@@ -50,7 +50,7 @@ void * initializeKernelBinary() {
 
 	load_idt();
 
-   // minit(memManagerAddress, MEMMANAGER_SIZE);
+    minit(memManagerAddress, MEMMANAGER_SIZE);
 
 	initGraphics();
 	return getStackBase();
