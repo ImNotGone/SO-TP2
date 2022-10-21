@@ -25,6 +25,7 @@ EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getStackBase
 EXTERN main
+EXTERN schedule
 SECTION .text
 
 %macro pushState 0
@@ -150,15 +151,23 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	;irqHandlerMaster 0
 
-	//esto va a decir push registros, cambio de rsp, pop registros
-	//pushState
-	//mov rdi 0
-	//call irqHandlerMaster
-	// llamar al scheduler para que me devuelva un rsp
-	// mov rsp, rax
-	//popstate (aca ya estoy en el stack del otro proceso)
+	;esto va a decir push registros, cambio de rsp, pop registros
+	pushState
+	mov rdi, 0
+	call irqDispatcher
+
+	; llamar al scheduler para que me devuelva un rsp
+	mov rdi, rsp
+	call schedule
+	mov rsp, rax
+
+	mov al, 20h
+	out 20h, al
+
+	popState ; (aca ya estoy en el stack del otro proceso)
+	iretq
 
 
 ;Keyboard

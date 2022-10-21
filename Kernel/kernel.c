@@ -8,7 +8,9 @@
 #include <drivers/keyboard.h>
 #include <interrupts/time.h>
 #include <interrupts/idtLoader.h>
+#include <interrupts/interrupts.h>
 #include <interrupts/syscalls.h>
+#include <libs/processManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -48,27 +50,30 @@ void * initializeKernelBinary() {
 
 	load_idt();
 
-
-    minit(memManagerAddress, MEMMANAGER_SIZE);
+   // minit(memManagerAddress, MEMMANAGER_SIZE);
 
 	initGraphics();
 	return getStackBase();
 }
 
 int init_shell() {
-	return ((EntryPoint)shellAddress)();
+	//return ((EntryPoint)shellAddress)();
+	return newProcess((uint64_t)shellAddress, 0, NULL);
+
 }
 
 int main() {
+
 	static int booted = 0;
 
 	// si es estoy recuperandome de una excepcion voy derecho a la shell
 	// de esta manera la shell pude ejecutar el pipe y aparenta ejecutar
 	// el programa de primos o fibonacci mientras en la otra pantalla
 	// hay una exepcion
-	if (booted) {
-		init_shell();
-	}
+
+	//if (booted) {
+	//	init_shell();
+	//}
 
 	printLogo();
 	gPrint("Presione enter para acceder a la consola");
@@ -79,8 +84,15 @@ int main() {
 		// lo sigo haciendo hasta que la interrupccion sea debido a un enter
 	} while ((c = getchar()) != '\n');
 	gClear();
+
+
 	booted = 1;
+
+	_cli();
+
 	init_shell();
+
+	_sti();
 
 	while (1);
 	return 0;

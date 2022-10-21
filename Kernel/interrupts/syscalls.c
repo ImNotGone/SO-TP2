@@ -3,6 +3,7 @@
 #include <drivers/graphics.h>
 #include <drivers/keyboard.h>
 #include <drivers/RTC.h>
+#include <libs/processManager.h>
 
 int8_t regSaved;
 int64_t registerSnapshot[17];
