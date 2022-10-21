@@ -46,4 +46,9 @@ typedef struct meminfo {
     uint64_t free;
     uint64_t used;
 } TMemInfo;
+
+// sem_t
+// TODO: check if uint8_t is enough
+typedef uint8_t sem_t;
+
 #endif//_TYPES_H
