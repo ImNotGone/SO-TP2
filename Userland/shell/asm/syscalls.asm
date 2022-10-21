@@ -9,6 +9,7 @@ section .data
     syscallrealloc  equ 7
     syscallcalloc   equ 8
     syscallmeminfo  equ 9
+    syscallcreateprocess equ 10
 
 
 section .text
@@ -22,6 +23,7 @@ global sysfree
 global sysrealloc
 global syscalloc
 global sysmeminfo
+global syscreateprocess
 
 %macro syscallHandler 1
     push rbp
@@ -45,6 +47,8 @@ sysread:
 ;
 syswrite:
     syscallHandler syscallwrite
+
+
 
 ; rdi -> Ttime *
 systime:
@@ -80,3 +84,6 @@ syscalloc:
 ; rdi -> void *
 sysmeminfo:
     syscallHandler syscallmeminfo
+
+syscreateprocess:
+    syscallHandler syscallcreateprocess

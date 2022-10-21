@@ -83,7 +83,7 @@ SECTION .text
 	; rsp + 15 * 8 : rip anterior
 	; rsp + 16 * 8 : ??
 	; rsp + 17 * 8 : flags
-	; rsp + 18 * 8 : rsp anterior 
+	; rsp + 18 * 8 : rsp anterior
 	mov [exceptionRegisters + 8*0 ], rax
 	mov [exceptionRegisters + 8*1 ], rbx
 	mov [exceptionRegisters + 8*2 ], rcx
@@ -91,7 +91,7 @@ SECTION .text
 	mov [exceptionRegisters + 8*4 ], rsi
 	mov [exceptionRegisters + 8*5 ], rdi
 	mov [exceptionRegisters + 8*6 ], rbp
-	mov rax, [rsp+18*8] ; buscamos el rsp anterior en el stack 
+	mov rax, [rsp+18*8] ; buscamos el rsp anterior en el stack
 	mov [exceptionRegisters + 8*7 ], rax	; rsp
 	mov [exceptionRegisters + 8*8 ], r8
 	mov [exceptionRegisters + 8*9 ], r9
@@ -109,7 +109,7 @@ SECTION .text
 	mov rdi, %1 ; pasaje de parametro
 	mov rsi, exceptionRegisters
 	call exceptionDispatcher
-	
+
 	; reset hardware interrupts
 	sti
 	popState
@@ -152,6 +152,15 @@ picSlaveMask:
 _irq00Handler:
 	irqHandlerMaster 0
 
+	//esto va a decir push registros, cambio de rsp, pop registros
+	//pushState
+	//mov rdi 0
+	//call irqHandlerMaster
+	// llamar al scheduler para que me devuelva un rsp
+	// mov rsp, rax
+	//popstate (aca ya estoy en el stack del otro proceso)
+
+
 ;Keyboard
 _irq01Handler:
     pushState
@@ -166,7 +175,7 @@ _irq01Handler:
 	popState
 	pushState
 .saveRegs:
-	
+
     mov [registerSnapshot + 8 * 0 ], rax
     mov [registerSnapshot + 8 * 1 ], rbx
     mov [registerSnapshot + 8 * 2 ], rcx
@@ -197,7 +206,7 @@ _irq01Handler:
 	out 20h, al
 
 	popState
-	iretq 
+	iretq
 
 ;Cascade pic never called
 _irq02Handler:
@@ -227,7 +236,7 @@ _syscallHandler:
 	mov rsi, rdi
 	mov rdi, rax
 	call syscallDispatcher
-	
+
 	push rax
 	popState
 	iretq
