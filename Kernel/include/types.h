@@ -1,7 +1,6 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
-#include <bits/stdint-uintn.h>
 #include <stdint.h>
 
 #define false 0
