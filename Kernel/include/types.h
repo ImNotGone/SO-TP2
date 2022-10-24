@@ -1,6 +1,7 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
+#include <bits/stdint-uintn.h>
 #include <stdint.h>
 
 #define false 0
@@ -48,7 +49,8 @@ typedef struct meminfo {
 } TMemInfo;
 
 // sem_t
-// TODO: check if uint8_t is enough
-typedef uint8_t sem_t;
+typedef struct sem {
+    uint32_t value;
+} sem_t;
 
 #endif//_TYPES_H

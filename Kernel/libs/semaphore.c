@@ -1,32 +1,41 @@
 #include <libs/semaphore.h>
 
-void acquire(int *lock){
+typedef int lock_t;
+
+void acquire(lock_t *lock){
   while(_xchg(lock, 1) != 0);
 }
 
-void release(int *lock){
+void release(lock_t *lock){
   _xchg(lock, 0);
 }
 
-//
-static uint8_t globalMutex = 0;
+static lock_t globalMutex = 0;
 
-sem_t sem_open(const char * name, uint8_t value) {
+sem_t sem_open(const char * name, uint32_t value) {
 
+    // TODO: check if resource name is available
+    //if(!nameAvailable) {
+    //  return -1;
+    //}
+
+    sem_t out;
+    out.value = value;
+    return out;
 }
 
-int8_t sem_wait(sem_t * sem) {
+int64_t sem_wait(sem_t * sem) {
     acquire(&globalMutex);
 
     release(&globalMutex);
 }
 
-int8_t sem_post(sem_t * sem) {
+int64_t sem_post(sem_t * sem) {
     acquire(&globalMutex);
 
     release(&globalMutex);
 }
 
-int8_t sem_close(sem_t * sem);
+int64_t sem_close(sem_t * sem);
 
 

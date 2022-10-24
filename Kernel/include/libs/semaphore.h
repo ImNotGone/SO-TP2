@@ -3,15 +3,15 @@
 
 #include <types.h>
 
-extern int64_t _xadd(int64_t inc, uint64_t * value);
-extern int64_t _xchg(uint64_t * lock, int64_t value);
+extern int _xadd(int inc, int * value);
+extern int _xchg(int * lock, int value);
 
-sem_t sem_open(const char * name, uint8_t value);
+sem_t sem_open(const char * name, uint32_t value);
 
-int8_t sem_wait(sem_t * sem);
+int64_t sem_wait(sem_t * sem);
 
-int8_t sem_post(sem_t * sem);
+int64_t sem_post(sem_t * sem);
 
-int8_t sem_close(sem_t * sem);
+int64_t sem_close(sem_t * sem);
 
 #endif // _SEMAPHORE_H
