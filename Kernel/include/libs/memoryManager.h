@@ -6,7 +6,7 @@
 #include <types.h>
 #define HEAP_SIZE 0x10000000 // 256 MiB
 
-void minit(void *start);
+void minit(void *start, uint64_t size);
 void *malloc(uint64_t size);
 void free(void *ptr);
 void *calloc(uint64_t nmemb, uint64_t size);

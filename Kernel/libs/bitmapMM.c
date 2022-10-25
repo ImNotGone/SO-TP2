@@ -30,10 +30,14 @@ static uint64_t blocks;
 static uint64_t usedBlocks;
 
 // Initialize memory manager
-void minit(void *start) {
+void minit(void *start, uint64_t size) {
+
+    // TODO: ERROR
+    if(size != HEAP_SIZE)
+        return;
 
     // Calculate the number of blocks needed
-    blocks = HEAP_SIZE / FACTOR;
+    blocks = size / FACTOR;
 
     if (blocks <= 0) {
         // TODO: Error

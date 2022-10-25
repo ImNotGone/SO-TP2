@@ -61,9 +61,11 @@ static inline uint64_t parentIndex(uint64_t index);
 static inline uint64_t siblingIndex(uint64_t index);
 static uint8_t getNodeLevel(uint64_t request);
 
-void minit(void * start) {
-    // TODO: ALIGN memory?
-    // TODO: CHECK MEMORY SIZE
+void minit(void * start, uint64_t size) {
+    // TODO: ERROR
+    if(size != HEAP_SIZE)
+        return;
+
     // TODO: CALCULATE NODES NEEDED FOR GIVEN MEMORY
     // TODO: UPDATE GLOBAL VARIABLES
     heapStart = start;
