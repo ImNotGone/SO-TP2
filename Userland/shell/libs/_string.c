@@ -39,8 +39,9 @@ int64_t strcmp(const char * str1, const char * str2) {
 int64_t strtol(const char *str, const char **endptr, int base) {
 
     // Base invalida
-    if ((base < 2 || base > 36) || str[0] == '\0' || !VALID_NUM_FOR_BASE(str[0], base))
+    if (base != 0 && ((base < 2 || base > 36) || str[0] == '\0' || !VALID_NUM_FOR_BASE(str[0], base))) {
         return -1;
+    }
 
 
     int digit;
@@ -112,7 +113,7 @@ void trim(char *str) {
     if (str[i] == '\0')
         return;
 
-    for (j = strlen(str) - 1; j >= 0 && str[j] == ' '; j--);
+    for (j = strlen(str) - 1; j != 0 && str[j] == ' '; j--);
 
     for (k = 0; i <= j; k++, i++)
         str[k] = str[i];

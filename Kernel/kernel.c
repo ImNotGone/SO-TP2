@@ -24,7 +24,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 
 static void *const shellAddress = (void *)0x400000;
-static void *const heapAddress = (void *)0x600000;
+static void *const heapAddress  = (void *)0x600000;
 
 typedef int (*EntryPoint)();
 

@@ -29,7 +29,7 @@ typedef enum ERRORS {ARGUMENT_MISSING = -1, NOT_PRINTMEM = -2, INVALID_ADDRESS =
 // To expand defined value to a string
 #define VALUE_TO_STRING(s)      LITERAL_TO_STRING(s)
 #define LITERAL_TO_STRING(s)    #s
-#define CMD_BUFF_FORMAT         "%"VALUE_TO_STRING(COMMAND_BUFFER_SIZE)"s"
+#define CMD_BUFF_FORMAT         "%"VALUE_TO_STRING(COMMAND_BUFFER_SIZE - 1)"s"
 
 // Pipe / iterable command auxiliary keys
 #define CMD_STOP_KEY        's'

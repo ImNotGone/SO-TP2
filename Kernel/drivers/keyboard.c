@@ -67,7 +67,7 @@ static uint8_t map = LOWERMAP;
 static uint8_t keyBuffer[BUFFER_SIZE];
 static uint8_t bufferFirst = 0;
 static uint8_t bufferLast = 0;
-static uint8_t bufferElementCount = 0;
+static uint16_t bufferElementCount = 0;
 static uint8_t blockMayus = 0;
 static uint8_t cntrlPressed = 0;
 static uint8_t inforegFlag = 0;
@@ -90,7 +90,7 @@ static uint8_t handlekey(uint8_t key) {
         blockMayus = !blockMayus;
         return 0;
     }
-    if(!IS_PRESSED(key) || keyMapping[map][key] == 0) return 0;    
+    if(!IS_PRESSED(key) || keyMapping[map][key] == 0) return 0;
     key = keyMapping[map][key];
     if(IS_ALPHA(key) && blockMayus) {
         key = (map == LOWERMAP)? TO_UPPER(key):TO_LOWER(key);
@@ -104,7 +104,7 @@ uint8_t getKey() {
     uint8_t out;
     do {
         out = handlekey(sys_getKey());
-    } while (out == 0);    
+    } while (out == 0);
     return out;
 }
 
@@ -139,7 +139,7 @@ static uint8_t getNextInBuffer() {
 
 void keyboard_handler() {
     uint8_t out = handlekey(sys_getKey());
-    if(out == 0) 
+    if(out == 0)
         return;
     appendInBuffer(out);
 }

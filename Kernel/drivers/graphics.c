@@ -7,7 +7,7 @@
 static gwindow windows[2]; // -> pantallas
 static uint8_t currentWindow = 0;
 static uint8_t cantWindows = 0;
-static char buffer[64] = { '0' };
+static char buffer[64] = { 0 };
 
 static const struct vbe_mode_info_structure * graphicsInfo = (struct vbe_mode_info_structure *) 0x5C00;
 static uint8_t fontHeight;
@@ -50,7 +50,7 @@ static void scrollUp(){
         filaActual = getPixel(windows[currentWindow].sx * fontWidth, windows[currentWindow].sy + i);
         filaSig  = getPixel(windows[currentWindow].sx * fontWidth, windows[currentWindow].sy + fontHeight + i);
 
-        // itero por las columnas y copio la informacion 
+        // itero por las columnas y copio la informacion
         for(int j=0; j < windows[currentWindow].width * fontWidth * COLORCHANELLS ; j++){
             filaActual[j] = filaSig[j];
         }
@@ -73,7 +73,7 @@ static void gSetCursor(gcolor color) {
     if(windows[currentWindow].cx == 0){
         // subo una fila
         windows[currentWindow].cy -= 1;
-        // me paro en la ultima posicion de la fila                    
+        // me paro en la ultima posicion de la fila
         windows[currentWindow].cx = windows[currentWindow].width-1;
         return;
     }
@@ -152,7 +152,7 @@ int8_t divideWindows() {
     // linea de division
     int x = (graphicsInfo->width + fontWidth)/2;
     for(int y = 0; y < graphicsInfo->height; y++) {
-        drawPixel(x, y, DEFAULT_FOREGROUND);            
+        drawPixel(x, y, DEFAULT_FOREGROUND);
     }
     cursorActive = 1;
     return 1;
@@ -172,7 +172,7 @@ void gPutcharColor(uint8_t c, gcolor background, gcolor foreground) {
 
     if(windows[currentWindow].cy == windows[currentWindow].height)
         scrollUp();
-    
+
     const uint8_t * bitmap = getcharFont(c);
     // current bit y
     uint16_t cby = (windows[currentWindow].sy + windows[currentWindow].cy)*fontHeight;
@@ -182,12 +182,12 @@ void gPutcharColor(uint8_t c, gcolor background, gcolor foreground) {
     uint8_t mask;
     for(int i = 0; i < fontHeight; i++, cby++) {
         mask = 0x80;
-        cbx = aux;    
+        cbx = aux;
         for(int j = 0; j < fontWidth; j++, mask >>= 1, cbx++) {
             drawPixel(cbx, cby, (bitmap[i] & mask)?foreground:background);
         }
     }
-    
+
     gUpdatePos();
     cursorActive = 1;
 }
@@ -310,14 +310,14 @@ static void doBackSpace() {
     if(windows[currentWindow].cx == 0){
         // subo una fila
         windows[currentWindow].cy -= 1;
-        // me paro en la ultima posicion de la fila                    
+        // me paro en la ultima posicion de la fila
         windows[currentWindow].cx = windows[currentWindow].width-1;
         // imprimo un "blank"
         gPutcharColor(' ', windows[currentWindow].background, windows[currentWindow].foreground);
         // me vuelvo a mover para atras
         // subo una fila
         windows[currentWindow].cy -= 1;
-        // me paro en la ultima posicion de la fila   
+        // me paro en la ultima posicion de la fila
         windows[currentWindow].cx = windows[currentWindow].width-1;
         return;
     }

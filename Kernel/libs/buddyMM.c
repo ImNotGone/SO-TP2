@@ -32,12 +32,12 @@
 // nodeQty = 2^3 - 1
 // nodesInLastLevel = 2^2 (IMPORTANT)
 
-typedef struct Node{
-    struct Node * prev;
-    struct Node * next;
-} TNode;
+#define SPLIT   0x1
+#define USED    0x2
 
-typedef TNode * TList;
+typedef struct Node{
+    uint8_t flags;
+} TNode;
 
 #define TWO_TO_THE(x) ((uint64_t)1 << (x))
 
@@ -50,7 +50,6 @@ typedef TNode * TList;
 #define NODES (TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1) - 1)
 
 static TNode btree[NODES];   // Binary tree array
-static uint8_t isSplitNode[TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2)/8];
 
 static void * heapStart  = NULL;
 static uint64_t heapSize = 0;
@@ -59,12 +58,16 @@ static inline uint64_t rightChildIndex(uint64_t index);
 static inline uint64_t leftChildIndex(uint64_t index);
 static inline uint64_t parentIndex(uint64_t index);
 static inline uint64_t siblingIndex(uint64_t index);
+static inline uint64_t getFirstNodeIndex(uint8_t level);
 static uint8_t getNodeLevel(uint64_t request);
+static int64_t getFreeNodeIndex(uint8_t level);
+static void * getAddressAtIndex(uint64_t index, uint8_t level);
 
 void minit(void * start, uint64_t size) {
-    // TODO: ERROR
-    if(size != HEAP_SIZE)
+    if(size < HEAP_SIZE) {
+        // TODO: ERROR
         return;
+    }
 
     // TODO: CALCULATE NODES NEEDED FOR GIVEN MEMORY
     // TODO: UPDATE GLOBAL VARIABLES
@@ -73,11 +76,26 @@ void minit(void * start, uint64_t size) {
 }
 
 void * malloc(uint64_t size) {
+    if(size > HEAP_SIZE || size == 0) {
+        return NULL;
+    }
     void * out = NULL;
     // TODO: HANDLE ERRORS
 
     // TODO: FIND FREE BLOCK OF SIZE size
-    getNodeLevel(size + sizeof(TNode));
+    uint8_t level = getNodeLevel(size);
+
+    if(level > MAX_ALLOC_LOG2) {
+        return NULL;
+    }
+
+    int64_t index = getFreeNodeIndex(level);
+
+    if(index == -1) {
+        return NULL;
+    }
+
+    out = getAddressAtIndex(index, level);
 
     // TODO: UPDATE BLOCK FLAGS
     // TODO: RETRIEVE DIRECTION
@@ -131,6 +149,19 @@ static inline uint64_t siblingIndex(uint64_t index) {
     return ((index - 1) ^ 1) + 1;
 }
 
+// level:28 -> index:0
+// level:27 -> index:1
+// level:26 -> index:3
+// level:25 -> index:7
+// 2^(MAX_ALLOC_LOG2 - level) - 1
+static inline uint64_t getFirstNodeIndex(uint8_t level) {
+    return TWO_TO_THE(MAX_ALLOC_LOG2 - level) - 1;
+}
+
+static void * getAddressAtIndex(uint64_t index, uint8_t level) {
+    return heapStart + ((index - getFirstNodeIndex(level)) * TWO_TO_THE(level));
+}
+
 static uint8_t getNodeLevel(uint64_t request) {
     uint8_t level = MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2;
     uint64_t size = MIN_ALLOC;
@@ -141,6 +172,21 @@ static uint8_t getNodeLevel(uint64_t request) {
     }
 
     return level;
+}
+
+static int64_t getFreeNodeIndex(uint8_t level) {
+    uint64_t index = getFirstNodeIndex(level);
+    uint64_t lastIndex = getFirstNodeIndex(level - 1);
+
+    while( index < lastIndex || btree[index].flags & (USED | SPLIT)) {
+        index++;
+    }
+
+    if(index == lastIndex) {
+        return -1;
+    }
+
+    return index;
 }
 
 #endif//USE_BUDDY
