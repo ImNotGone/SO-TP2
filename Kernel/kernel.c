@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <string.h>
 #include <lib.h>
@@ -22,8 +24,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 
 static void *const shellAddress = (void *)0x400000;
-static void *const memManagerAddress = (void *)0x600000;
-#define MEMMANAGER_SIZE 0x10000000 // 128 MiB
+static void *const heapAddress = (void *)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -50,7 +51,7 @@ void * initializeKernelBinary() {
 
 	load_idt();
 
-    minit(memManagerAddress, MEMMANAGER_SIZE);
+    minit(heapAddress);
 
 	initGraphics();
 	return getStackBase();

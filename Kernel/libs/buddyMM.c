@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #ifdef MM_BUDDY
 /*
  * Buddy allocator
@@ -42,7 +44,7 @@ typedef TNode * TList;
 #define MIN_ALLOC_LOG2 6    // 64B
 #define MIN_ALLOC TWO_TO_THE(MIN_ALLOC_LOG2)
 
-#define MAX_ALLOC_LOG2 30   // 1GB
+#define MAX_ALLOC_LOG2 28   // 256MB
 #define MAX_ALLOC TWO_TO_THE(MAX_ALLOC_LOG2)
 
 #define NODES (TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1) - 1)
@@ -59,13 +61,12 @@ static inline uint64_t parentIndex(uint64_t index);
 static inline uint64_t siblingIndex(uint64_t index);
 static uint8_t getNodeLevel(uint64_t request);
 
-void minit(void * start, uint64_t size) {
+void minit(void * start) {
     // TODO: ALIGN memory?
     // TODO: CHECK MEMORY SIZE
     // TODO: CALCULATE NODES NEEDED FOR GIVEN MEMORY
     // TODO: UPDATE GLOBAL VARIABLES
     heapStart = start;
-    heapSize = size;
     return;
 }
 

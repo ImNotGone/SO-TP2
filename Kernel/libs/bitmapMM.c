@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #ifdef MM_BITMAP
 #include <libs/memoryManager.h>
 #include <string.h>
@@ -28,10 +30,10 @@ static uint64_t blocks;
 static uint64_t usedBlocks;
 
 // Initialize memory manager
-void minit(void *start, uint64_t size) {
+void minit(void *start) {
 
     // Calculate the number of blocks needed
-    blocks = size / FACTOR;
+    blocks = HEAP_SIZE / FACTOR;
 
     if (blocks <= 0) {
         // TODO: Error

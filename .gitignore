@@ -22,5 +22,11 @@
 #Clion settings
 .idea
 
+#pvs-studio
+PVS-Studio.log
+report.tasks
+strace_out
+.config/*
+
 #clangd lsp
 compile_flags.txt

@@ -11,6 +11,10 @@ docker exec -it $name make all          --directory=/root/Toolchain
 docker exec -it $name make clean        --directory=/root
 if [ "$1" == "gdb" ]; then
     docker exec -it $name make gdb      --directory=/root
+elif [ "$1" == "pvs" ]; then
+    docker exec -it $name make pvs      --directory=/root
+elif [ "$1" == "cpp-check" ]; then
+    docker exec -it $name make cpp-check --directory=/root
 else
     docker exec -it $name make all      --directory=/root
 fi
@@ -23,7 +27,7 @@ docker rm $name
 if [ "$1" == "gdb" ]; then
     # modo debug (hay que hacer attach mediante gdb en otra imagen)
     qemu-system-x86_64 -S -s --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512 -d int -monitor stdio
-else
+elif [ $# == 0 ]; then
     # abro la imagen en qemu
     qemu-system-x86_64 --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512
 fi
