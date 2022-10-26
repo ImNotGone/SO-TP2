@@ -36,7 +36,7 @@
 #define USED    0x2
 
 typedef struct Node{
-    uint8_t flags;
+    uint8_t flag;
 } TNode;
 
 #define TWO_TO_THE(x) ((uint64_t)1 << (x))
@@ -51,7 +51,7 @@ typedef struct Node{
 
 static TNode btree[NODES];   // Binary tree array
 
-static void * heapStart  = NULL;
+static uint8_t * heapStart  = NULL;
 static uint64_t heapSize = 0;
 
 static inline uint64_t rightChildIndex(uint64_t index);
@@ -59,9 +59,19 @@ static inline uint64_t leftChildIndex(uint64_t index);
 static inline uint64_t parentIndex(uint64_t index);
 static inline uint64_t siblingIndex(uint64_t index);
 static inline uint64_t getFirstNodeIndex(uint8_t level);
-static uint8_t getNodeLevel(uint64_t request);
+static uint8_t levelForRequest(uint64_t request);
 static int64_t getFreeNodeIndex(uint8_t level);
-static void * getAddressAtIndex(uint64_t index, uint8_t level);
+static uint8_t * getAddressAtIndex(uint64_t index, uint8_t level);
+static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t level);
+
+static inline bool isFlag(uint64_t index, uint8_t flag);
+static inline void flipFlag(uint64_t index, uint8_t flag);
+static inline void setFlag(uint64_t index, uint8_t flag);
+static inline void unsetFlag(uint64_t index, uint8_t flag);
+
+static void setSplitParent(uint64_t index);
+static void setUsedChildren(uint64_t index);
+
 
 void minit(void * start, uint64_t size) {
     if(size < HEAP_SIZE) {
@@ -69,8 +79,6 @@ void minit(void * start, uint64_t size) {
         return;
     }
 
-    // TODO: CALCULATE NODES NEEDED FOR GIVEN MEMORY
-    // TODO: UPDATE GLOBAL VARIABLES
     heapStart = start;
     return;
 }
@@ -79,12 +87,10 @@ void * malloc(uint64_t size) {
     if(size > HEAP_SIZE || size == 0) {
         return NULL;
     }
-    void * out = NULL;
-    // TODO: HANDLE ERRORS
 
-    // TODO: FIND FREE BLOCK OF SIZE size
-    uint8_t level = getNodeLevel(size);
+    uint8_t level = levelForRequest(size);
 
+    // should not happen, since i checked the size before
     if(level > MAX_ALLOC_LOG2) {
         return NULL;
     }
@@ -95,20 +101,30 @@ void * malloc(uint64_t size) {
         return NULL;
     }
 
-    out = getAddressAtIndex(index, level);
+    setSplitParent(index);
+    setUsedChildren(index);
 
-    // TODO: UPDATE BLOCK FLAGS
-    // TODO: RETRIEVE DIRECTION
-    return out;
+    return getAddressAtIndex(index, level);
 }
 
 void free(void *ptr) {
     if(ptr == NULL) {
         return;
     }
-    // TODO: FIND BLOCK WITH ptr ADDRESS
-    // TODO: UPDATE BLOCK FLAGS
-    // TODO: COMPRESS BUDDY IF POSSIBLE
+    uint8_t level = levelForRequest(*(uint64_t *)ptr);
+    uint64_t index = getIndexAtAdress(ptr, level);
+    // FLIP USED FLAG
+    flipFlag(index, USED);
+    bool indexChanged = true;
+    while (index != 0 && indexChanged) {
+        uint64_t sibling = siblingIndex(index);
+        indexChanged = false;
+        if(!(isFlag(sibling, USED) || isFlag(sibling, SPLIT))) {
+            index = parentIndex(index);
+            unsetFlag(index, SPLIT);
+            indexChanged = true;
+        }
+    }
     return;
 }
 
@@ -158,16 +174,20 @@ static inline uint64_t getFirstNodeIndex(uint8_t level) {
     return TWO_TO_THE(MAX_ALLOC_LOG2 - level) - 1;
 }
 
-static void * getAddressAtIndex(uint64_t index, uint8_t level) {
-    return heapStart + ((index - getFirstNodeIndex(level)) * TWO_TO_THE(level));
+static uint8_t * getAddressAtIndex(uint64_t index, uint8_t level) {
+    return heapStart + ((index - (TWO_TO_THE(MAX_ALLOC_LOG2 - level) -1) ) << level);
 }
 
-static uint8_t getNodeLevel(uint64_t request) {
-    uint8_t level = MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2;
+static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t level) {
+    return ((ptr - heapStart) >> (level)) + TWO_TO_THE(MAX_ALLOC_LOG2 - level) - 1;
+}
+
+static uint8_t levelForRequest(uint64_t request) {
+    uint8_t level = MIN_ALLOC_LOG2;
     uint64_t size = MIN_ALLOC;
 
     while(size < request) {
-        level--;
+        level++;
         size <<= 1;
     }
 
@@ -178,7 +198,7 @@ static int64_t getFreeNodeIndex(uint8_t level) {
     uint64_t index = getFirstNodeIndex(level);
     uint64_t lastIndex = getFirstNodeIndex(level - 1);
 
-    while( index < lastIndex || btree[index].flags & (USED | SPLIT)) {
+    while( index < lastIndex || isFlag(index, USED) || isFlag(index, SPLIT)) {
         index++;
     }
 
@@ -189,4 +209,32 @@ static int64_t getFreeNodeIndex(uint8_t level) {
     return index;
 }
 
+static inline bool isFlag(uint64_t index, uint8_t flag) {
+    return btree[index].flag & flag;
+}
+
+static inline void flipFlag(uint64_t index, uint8_t flag) {
+    btree[index].flag ^= flag;
+}
+
+static inline void setFlag(uint64_t index, uint8_t flag) {
+    btree[index].flag |= flag;
+}
+
+static inline void unsetFlag(uint64_t index, uint8_t flag) {
+    btree[index].flag &= ~flag;
+}
+
+static void setSplitParent(uint64_t index) {
+    while(index != 0) {
+        index = parentIndex(index);
+        setFlag(index, SPLIT);
+    }
+}
+static void setUsedChildren(uint64_t index) {
+    if(index > NODES) return;
+    setFlag(index, USED);
+    setUsedChildren(leftChildIndex(index));
+    setUsedChildren(rightChildIndex(index));
+}
 #endif//USE_BUDDY
