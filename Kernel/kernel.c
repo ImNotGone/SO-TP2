@@ -51,7 +51,7 @@ void * initializeKernelBinary() {
 
 	load_idt();
 
-    minit(heapAddress, HEAP_SIZE);
+    minit(heapAddress, HEAP_SIZE + HEAP_STRUCTURE_SIZE);
 
 	initGraphics();
 	return getStackBase();

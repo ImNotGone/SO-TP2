@@ -5,6 +5,12 @@
 #include <stdint.h>
 #include <types.h>
 #define HEAP_SIZE 0x10000000 // 256 MiB
+#define HEAP_STRUCTURE_SIZE 0
+
+#ifdef MM_BUDDY
+#undef  HEAP_STRUCTURE_SIZE
+#define HEAP_STRUCTURE_SIZE 0x800000
+#endif // MM_BUDDY
 
 void minit(void *start, uint64_t size);
 void *malloc(uint64_t size);

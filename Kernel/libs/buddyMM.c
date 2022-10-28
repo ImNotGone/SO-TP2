@@ -49,10 +49,11 @@ typedef struct Node{
 
 #define NODES (TWO_TO_THE(MAX_ALLOC_LOG2 - MIN_ALLOC_LOG2 + 1) - 1)
 
-static TNode btree[NODES];   // Binary tree array
+static TNode * btree;   // Binary tree array
 
 static uint8_t * heapStart  = NULL;
 static uint64_t heapSize = 0;
+static uint64_t usedMemory = 0;
 
 static inline uint64_t rightChildIndex(uint64_t index);
 static inline uint64_t leftChildIndex(uint64_t index);
@@ -62,7 +63,8 @@ static inline uint64_t getFirstNodeIndex(uint8_t level);
 static uint8_t levelForRequest(uint64_t request);
 static int64_t getFreeNodeIndex(uint8_t level);
 static uint8_t * getAddressAtIndex(uint64_t index, uint8_t level);
-static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t level);
+static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t * level);
+static uint8_t levelForAdress(void * ptr);
 
 static inline bool isFlag(uint64_t index, uint8_t flag);
 static inline void flipFlag(uint64_t index, uint8_t flag);
@@ -74,17 +76,19 @@ static void setUsedChildren(uint64_t index);
 
 
 void minit(void * start, uint64_t size) {
-    if(size < HEAP_SIZE) {
+    if(size < HEAP_SIZE + HEAP_STRUCTURE_SIZE) {
         // TODO: ERROR
         return;
     }
 
     heapStart = start;
+    heapSize = HEAP_SIZE;
+    btree = heapStart + HEAP_SIZE;
     return;
 }
 
 void * malloc(uint64_t size) {
-    if(size > HEAP_SIZE || size == 0) {
+    if(size > heapSize || size == 0) {
         return NULL;
     }
 
@@ -103,7 +107,8 @@ void * malloc(uint64_t size) {
 
     setSplitParent(index);
     setUsedChildren(index);
-
+    setFlag(index, USED);
+    usedMemory += TWO_TO_THE(level);
     return getAddressAtIndex(index, level);
 }
 
@@ -111,8 +116,8 @@ void free(void *ptr) {
     if(ptr == NULL) {
         return;
     }
-    uint8_t level = levelForRequest(*(uint64_t *)ptr);
-    uint64_t index = getIndexAtAdress(ptr, level);
+    uint8_t level = levelForAdress(ptr);
+    uint64_t index = getIndexAtAdress(ptr, &level);
     // FLIP USED FLAG
     flipFlag(index, USED);
     bool indexChanged = true;
@@ -125,6 +130,7 @@ void free(void *ptr) {
             indexChanged = true;
         }
     }
+    usedMemory -= TWO_TO_THE(level);
     return;
 }
 
@@ -149,6 +155,12 @@ void * realloc(void *ptr, uint64_t size) {
         free(ptr);
     }
     return out;
+}
+
+void meminfo(TMemInfo* memInfo) {
+    memInfo->total = heapSize;
+    memInfo->used = usedMemory;
+    memInfo->free = heapSize - usedMemory;
 }
 
 // ========== BUDDY ==========
@@ -178,8 +190,29 @@ static uint8_t * getAddressAtIndex(uint64_t index, uint8_t level) {
     return heapStart + ((index - (TWO_TO_THE(MAX_ALLOC_LOG2 - level) -1) ) << level);
 }
 
-static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t level) {
-    return ((ptr - heapStart) >> (level)) + TWO_TO_THE(MAX_ALLOC_LOG2 - level) - 1;
+static int64_t getIndexAtAdress(uint8_t * ptr, uint8_t * level) {
+    uint64_t index = 0;
+    uint8_t aux = *level + 1;
+    do {
+        aux--;
+        index = ((ptr - heapStart) >> (aux)) + TWO_TO_THE(MAX_ALLOC_LOG2 - aux) - 1;
+    } while(!isFlag(index, USED));
+
+    *level = aux;
+
+    return index;
+}
+
+
+static uint8_t levelForAdress(void * ptr) {
+    uint64_t addr = (uint8_t *)ptr - heapStart;
+    uint8_t level = MAX_ALLOC_LOG2;
+    uint64_t size = MAX_ALLOC;
+    while(addr % size != 0) {
+        level--;
+        size >>= 1;
+    }
+    return level;
 }
 
 static uint8_t levelForRequest(uint64_t request) {
@@ -198,7 +231,7 @@ static int64_t getFreeNodeIndex(uint8_t level) {
     uint64_t index = getFirstNodeIndex(level);
     uint64_t lastIndex = getFirstNodeIndex(level - 1);
 
-    while( index < lastIndex || isFlag(index, USED) || isFlag(index, SPLIT)) {
+    while( index < lastIndex && (isFlag(index, USED) || isFlag(index, SPLIT))) {
         index++;
     }
 
