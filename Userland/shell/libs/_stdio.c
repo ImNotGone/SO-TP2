@@ -5,7 +5,7 @@
 
 
 // --------- Auxiliary macros and functions for internal use -------
-#define IS_DIGIT(c) (c <= '9' && c >= '0')
+#define IS_DIGIT(c) ((c) <= '9' && (c) >= '0')
 
 static char * numToString(uint64_t num, uint64_t base) {
     static char REPRESENTATION[] = "0123456789ABCDEF";
@@ -52,7 +52,7 @@ static int64_t vfprintf(uint64_t fd, const char * fmt, va_list args) {
             }
         }
     }
-    
+
     return bytesWritten;
 }
 
@@ -62,9 +62,9 @@ static int64_t vfprintf(uint64_t fd, const char * fmt, va_list args) {
 int64_t fprintf(uint64_t fd, const char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    
+
     int64_t out = vfprintf(fd, fmt, args);
-    
+
     va_end(args);
     return out;
 }
@@ -72,9 +72,9 @@ int64_t fprintf(uint64_t fd, const char * fmt, ...) {
 int64_t printf(const char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    
+
     int64_t out = vfprintf(STDOUT, fmt, args);
-    
+
     va_end(args);
     return out;
 }
@@ -119,8 +119,9 @@ int64_t scanf(const char * fmt, ...){
                 case 's': {
                     char * aux = (char *) va_arg( vl, char * );
                     int k;
-                    for (k = 0; buff[k] != '\0' && k < buffLen - 1; k++)
+                    for (k = 0; k < buffLen - 1 && buff[k] != '\0'; k++) {
                         aux[k] = buff[j++];
+                    }
                     aux[k] = '\0';
                     break;
                 }

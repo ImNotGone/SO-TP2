@@ -32,17 +32,14 @@ static uint64_t usedBlocks;
 // Initialize memory manager
 void minit(void *start, uint64_t size) {
 
-    // TODO: ERROR
-    if(size != HEAP_SIZE)
+    if(size < HEAP_SIZE) {
+        // TODO: ERROR
         return;
+    }
+    // size != 0
 
     // Calculate the number of blocks needed
     blocks = size / FACTOR;
-
-    if (blocks <= 0) {
-        // TODO: Error
-        return;
-    }
 
     // Assign bitmap and Arena
     bitmap = (uint8_t*) start;
