@@ -74,6 +74,11 @@ extern void *syscalloc(uint64_t nmemb, uint64_t size);
 // Gets memory manager information
 extern void sysmeminfo(TMemInfo *memInfo);
 
-extern void syscreateprocess(uint64_t rip, int argc, char * argv[] );
+//returns pid
+extern uint64_t syscreateprocess(uint64_t rip, int ground, int argc, char * argv[] );
+
+extern void sysexits();
+
+extern void sysexec();
 
 #endif//SYSCALLS_H_

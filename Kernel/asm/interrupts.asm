@@ -13,6 +13,7 @@ GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 GLOBAL _syscallHandler
 GLOBAL _exception0Handler
+GLOBAL _int20
 
 GLOBAL _exception6Handler
 
@@ -25,7 +26,7 @@ EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getStackBase
 EXTERN main
-EXTERN schedule
+EXTERN switchContext
 SECTION .text
 
 %macro pushState 0
@@ -160,7 +161,7 @@ _irq00Handler:
 
 	; llamar al scheduler para que me devuelva un rsp
 	mov rdi, rsp
-	call schedule
+	call switchContext
 	mov rsp, rax
 
 	mov al, 20h
@@ -169,6 +170,9 @@ _irq00Handler:
 	popState ; (aca ya estoy en el stack del otro proceso)
 	iretq
 
+_int20:
+	int 20h
+	ret
 
 ;Keyboard
 _irq01Handler:

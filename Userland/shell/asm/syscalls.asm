@@ -10,6 +10,8 @@ section .data
     syscallcalloc   equ 8
     syscallmeminfo  equ 9
     syscallcreateprocess equ 10
+    syscallexit     equ 11
+    syscallexec     equ 12
 
 
 section .text
@@ -24,6 +26,8 @@ global sysrealloc
 global syscalloc
 global sysmeminfo
 global syscreateprocess
+global sysexits
+global sysexec
 
 %macro syscallHandler 1
     push rbp
@@ -85,5 +89,18 @@ syscalloc:
 sysmeminfo:
     syscallHandler syscallmeminfo
 
+; rdi -> void *
+; rsi -> ground
+; rdx -> argc
+; rcx -> argv[]
 syscreateprocess:
     syscallHandler syscallcreateprocess
+
+sysexits:
+    syscallHandler syscallexit
+
+;rdi -> pid
+sysexec
+    syscallHandler syscallexec
+    ;int 20h
+    ;ret

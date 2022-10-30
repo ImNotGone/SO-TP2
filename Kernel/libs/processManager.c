@@ -1,50 +1,63 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <libs/processManager.h>
+#include <libs/scheduler.h> //dont move from here, necessary to avoid .h recursion
 
-#define MAX_PROCESS 5
+
+#define MAX_PROCESS 10
 #define STACK_SIZE 4048
 #define KERNEL_PID -1
-
-typedef struct processData{
-    uint16_t pid, ppid;
-    uint64_t rsp, stack_base, rip;
-    int argc;
-    char ** argv;
-} PCBType;
 
 static PCBType pcb[MAX_PROCESS]={0};
 static int stack[MAX_PROCESS][STACK_SIZE]={0};
 static int processCount = 0;
-static int pid = 0;
-static int activePid = KERNEL_PID;
 
-uint64_t newProcess( uint64_t rip, int argc, char * argv[]){
+uint64_t newProcess( uint64_t rip, int ground, int argc, char * argv[]){
+
     pcb[processCount].stack_base = stack[processCount]+ STACK_SIZE;
     pcb[processCount].rip = rip;
     pcb[processCount].argc = argc;
+    pcb[processCount].ground = ground;
     pcb[processCount].argv = argv;
-    pcb[processCount].pid = pid;
+    pcb[processCount].status= "ready";
+    pcb[processCount].pid = processCount;
+    pcb[processCount].ppid = getActivePid();
 
-    pcb[processCount].rsp =createProcess(pcb[processCount].stack_base, rip, argc, argv);
-
-    processCount++;
-    return pid++;
+    pcb[processCount].rsp = createProcess(pcb[processCount].stack_base, pcb[processCount].rip, argc, argv);
+    // Pdata process = {&pcb[processCount], pcb[processCount].pid};
+    // addToReadyQueue(process);
+    //exec(processCount);
+    return processCount++;
 }
 
-//en el context switch debo chequear primero si el pid es 0 => entonces no debo switchear
-uint64_t schedule(uint64_t rsp){
-    //in this case there should be no saving of the Kernels context
-    if (processCount == 0){
-        return rsp;
+void exec(uint64_t pid){
+    Pdata process = {&pcb[pid], pcb[pid].pid};
+    addToReadyQueue(process);
+
+    if(isForeground(pid)){
+        block(pcb[pid].ppid);
     }
-
-    if(activePid == KERNEL_PID){
-        activePid = 0;
-        return pcb[activePid].rsp;
-    }
-
-    return rsp;
-
-    //else, fully context switch
 }
+
+void killProcess(uint64_t pid){
+    pcb[pid].status = "killed";
+
+    if(isForeground(pid))
+        unblock(pcb[pid].ppid);
+}
+
+void block(pid){
+    pcb[pid].status="blocked";
+    if (pid == getActivePid()){
+        yield();
+    }
+}
+
+void unblock(uint64_t pid){
+    pcb[pid].status = "ready";
+}
+
+int isForeground(int pid){
+    return !pcb[pid].ground;
+}
+

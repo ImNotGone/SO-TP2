@@ -1,4 +1,4 @@
-target remote  192.168.0.61:1234
+target remote 192.168.0.21:1234
 
 add-symbol-file Kernel/kernel.elf 0x100000
 add-symbol-file Userland/0000-shell.elf 0x400000

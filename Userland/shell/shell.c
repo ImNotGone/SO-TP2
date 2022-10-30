@@ -1,7 +1,10 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shell.h>
+#include <stdio.h>
 #define STDERR 2
+#define FORE 0
+#define BACK 0
 
 // -------- main functions -------------------------------------
 //static void init();
@@ -49,7 +52,13 @@ static void command_listener() {
     // Que no requiere un parseo especial del input
     for (i = 0; i < commandsDim; i++) {
         if (strcmp(commandBuffer, commands[i].name) == 0) {
-            commands[i].exec();
+            //commands[i].exec();
+
+            //ptr to func, amount of args, and argv
+            //hardcoded for now
+            uint64_t rip = (uint64_t)commands[i].exec;
+            int pid = syscreateprocess(rip, FORE , 0, 0);
+            sysexec(pid);
             return;
         }
     }
@@ -83,6 +92,8 @@ static void help() {
     for(int i = 0; i < commandsDim; i++) {
         printf("%d) %s:\n%s\n\n", i + 1, commands[i].name, commands[i].desc);
     }
+
+    //sysexits();
 }
 
 

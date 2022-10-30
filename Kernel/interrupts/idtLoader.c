@@ -32,10 +32,11 @@ void load_idt() {
   setup_IDT_entry (0x80, (uint64_t)&_syscallHandler);
 
 
+
 	// timer tick & keyboard only
-	picMasterMask(0xFC); 
+	picMasterMask(0xFC);
 	picSlaveMask(0xFF);
-        
+
 	_sti();
 }
 
