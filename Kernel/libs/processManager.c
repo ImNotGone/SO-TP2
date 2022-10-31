@@ -5,7 +5,7 @@
 
 
 #define MAX_PROCESS 30
-#define STACK_SIZE 4048
+#define STACK_SIZE 4096
 #define KERNEL_PID -1
 #define MIN_PRIORITY 1
 #define MAX_PRIORITY 10
