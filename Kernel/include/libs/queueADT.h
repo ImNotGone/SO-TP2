@@ -1,5 +1,5 @@
 #ifndef QUEUEADT_H
-#define QUEUE_H
+#define QUEUEADT_H
 
 #include <libs/processManager.h>
 #include <libs/memoryManager.h>
@@ -27,4 +27,4 @@ int hasNext(queueADT q);
 
 //elementType next(queueADT q);
 
-#endif //QUEUE_H
+#endif //QUEUEADT_H

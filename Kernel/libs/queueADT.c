@@ -13,10 +13,7 @@ struct queueCDT {
 };
 
 queueADT newQueue(void){
-    queueADT q = calloc(1,sizeof(struct queueCDT));
-    q->first = NULL;
-    q->last = NULL;
-    return q;
+    return calloc(1,sizeof(struct queueCDT));
 }
 
 void toBegin(queueADT q){
