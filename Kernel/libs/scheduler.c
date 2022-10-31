@@ -8,12 +8,13 @@ static int started = 0;
 static int activePid = KERNEL_PID;
 static Pdata shell;
 static Pdata * activeProcess = NULL;
+static int gusts=0;
 
 void startScheduler(){
     started=1;
     readyQueue = newQueue();
     toBegin(readyQueue);
-    blockedQueue = newQueue();
+    //blockedQueue = newQueue();
 
 }
 
@@ -30,37 +31,40 @@ uint64_t switchContext(uint64_t rsp){
         //shell
         // a lo mejor conviene hacer peek aca
         dequeue(readyQueue, toReturn);
-        toReturn->pcb->rsp;
         queue(readyQueue, *toReturn);
         shell = *toReturn;
+        gusts = shell.pcb->priority;
         return toReturn->pcb->rsp;
     }
 
-
     //saves previous context
-    //ver de no agregarlo siempre si esta killed por ejemplo
+    //remove killed processes from queue
     activeProcess->pcb->rsp = rsp;
-    if (strcmp(toReturn->pcb->status, "killed"))
-        queue(readyQueue, *activeProcess);
+    if(!gusts){
+        if (strcmp(activeProcess->pcb->status, "killed")){
+            queue(readyQueue, *activeProcess);
+        }
 
-    int proceed = 0;
-    while(!proceed){
+    }
+
+    //int proceed = 0;
+    while(!gusts){
         if(dequeue(readyQueue, toReturn)==NULL){
             //maybe do something?
         }
 
         if(!strcmp(toReturn->pcb->status, "ready")){
-            proceed=1;
-        }else if (!strcmp(toReturn->pcb->status, "blocked"))
-        {
+            activeProcess = toReturn;
+            activePid = toReturn->pid;
+            gusts = activeProcess->pcb->priority;
+            //proceed=1;
+        }else if (!strcmp(toReturn->pcb->status, "blocked")){
             queue(readyQueue, *toReturn);
         }
 
     }
 
-    //set next process
-    activeProcess = toReturn;
-    activePid = toReturn->pid;
+    gusts--;
     return activeProcess->pcb->rsp;
 }
 
@@ -70,11 +74,6 @@ void addToReadyQueue(Pdata process){
 
 int getActivePid(){
     return activePid;
-}
-
-void removeFromReadyQueue(){
-    //poner algun idle, o algo
-    //hacer yield
 }
 
 void yield(){

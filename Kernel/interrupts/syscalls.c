@@ -36,7 +36,7 @@ void    sysfree(void * ptr);
 void *  sysrealloc(void * ptr, uint64_t size);
 void    sysmeminfo(TMemInfo* memInfo);
 void *  syscalloc(uint64_t nmemb, uint64_t size);
-uint64_t syscreateprocess(uint64_t rip, int ground, int argc, char * argv[]);
+uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
 void sysexec(uint64_t pid);
 
@@ -174,8 +174,8 @@ void sysmeminfo(TMemInfo* memInfo) {
 }
 
 // ------------ Process Manager ----------------
-uint64_t syscreateprocess(uint64_t rip, int ground, int argc, char * argv[]){
-    return newProcess(rip, ground, argc, argv);
+uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
+    return newProcess(rip, ground, priority, argc, argv);
     //switchContext(newProcess(rip, ground, argc, argv));
     //_irq00Handler();
 }

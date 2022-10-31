@@ -59,8 +59,7 @@ void * initializeKernelBinary() {
 }
 
 int init_shell() {
-	//return ((EntryPoint)shellAddress)();
-	int pid= newProcess((uint64_t)shellAddress,0, 0, NULL);
+	int pid= newProcess((uint64_t)shellAddress, 0 , 1, 0, NULL);
 	exec(pid);
 	return 1;
 

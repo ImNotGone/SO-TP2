@@ -4,15 +4,17 @@
 #include <libs/scheduler.h> //dont move from here, necessary to avoid .h recursion
 
 
-#define MAX_PROCESS 10
+#define MAX_PROCESS 30
 #define STACK_SIZE 4048
 #define KERNEL_PID -1
+#define MIN_PRIORITY 1
+#define MAX_PRIORITY 5
 
 static PCBType pcb[MAX_PROCESS]={0};
 static int stack[MAX_PROCESS][STACK_SIZE]={0};
 static int processCount = 0;
 
-uint64_t newProcess( uint64_t rip, int ground, int argc, char * argv[]){
+uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
 
     pcb[processCount].stack_base = stack[processCount]+ STACK_SIZE;
     pcb[processCount].rip = rip;
@@ -20,13 +22,13 @@ uint64_t newProcess( uint64_t rip, int ground, int argc, char * argv[]){
     pcb[processCount].ground = ground;
     pcb[processCount].argv = argv;
     pcb[processCount].status= "ready";
+    //pcb[processCount].name = name;
+    pcb[processCount].priority=priority;
     pcb[processCount].pid = processCount;
     pcb[processCount].ppid = getActivePid();
 
     pcb[processCount].rsp = createProcess(pcb[processCount].stack_base, pcb[processCount].rip, argc, argv);
-    // Pdata process = {&pcb[processCount], pcb[processCount].pid};
-    // addToReadyQueue(process);
-    //exec(processCount);
+
     return processCount++;
 }
 

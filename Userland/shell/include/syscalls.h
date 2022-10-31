@@ -75,7 +75,7 @@ extern void *syscalloc(uint64_t nmemb, uint64_t size);
 extern void sysmeminfo(TMemInfo *memInfo);
 
 //returns pid
-extern uint64_t syscreateprocess(uint64_t rip, int ground, int argc, char * argv[] );
+extern uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[] );
 
 extern void sysexits();
 

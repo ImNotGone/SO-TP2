@@ -57,7 +57,7 @@ static void command_listener() {
             //ptr to func, amount of args, and argv
             //hardcoded for now
             uint64_t rip = (uint64_t)commands[i].exec;
-            int pid = syscreateprocess(rip, FORE , 0, 0);
+            int pid = syscreateprocess(rip, FORE , 1 ,0, 0);
             sysexec(pid);
             return;
         }

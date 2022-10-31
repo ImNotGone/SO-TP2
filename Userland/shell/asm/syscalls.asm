@@ -91,6 +91,7 @@ sysmeminfo:
 
 ; rdi -> void *
 ; rsi -> ground
+; priority
 ; rdx -> argc
 ; rcx -> argv[]
 syscreateprocess:
