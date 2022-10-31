@@ -39,6 +39,7 @@ void *  syscalloc(uint64_t nmemb, uint64_t size);
 uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
 void sysexec(uint64_t pid);
+void sysps();
 
 
 TSyscallHandler syscallHandlers[] = {
@@ -68,6 +69,8 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysexit,
     //0x0C
     (TSyscallHandler) sysexec,
+    //0x0D
+    (TSyscallHandler) sysps,
 
 };
 
@@ -176,8 +179,6 @@ void sysmeminfo(TMemInfo* memInfo) {
 // ------------ Process Manager ----------------
 uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
     return newProcess(rip, ground, priority, argc, argv);
-    //switchContext(newProcess(rip, ground, argc, argv));
-    //_irq00Handler();
 }
 
 void sysexit(){
@@ -188,4 +189,8 @@ void sysexit(){
 void sysexec(uint64_t pid){
     exec(pid);
     yield();
+}
+
+void sysps(){
+    printAllProcess();
 }

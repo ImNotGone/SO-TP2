@@ -4,7 +4,7 @@
 #include <stdio.h>
 #define STDERR 2
 #define FORE 0
-#define BACK 0
+#define BACK 1
 
 // -------- main functions -------------------------------------
 //static void init();
@@ -15,6 +15,7 @@ static void command_listener();
 //----- auxiliary functions ------------
 
 static void help();
+static void ps();
 static void displayError(int64_t add, const char *command);
 static int64_t parsePrintmem(char * commandBuffer);
 
@@ -28,6 +29,7 @@ static command commands[] = {
     {"printmem","Prints the memory info", (voidfp) memDump},
     {"memtest", "Tests the memory", (voidfp) memtest},
     {"meminfo", "Prints memory manager status", printMemInfo},
+    {"ps", "Prints all process' information", ps},
 };
 
 static int commandsDim = sizeof(commands)/sizeof(commands[0]);
@@ -57,6 +59,8 @@ static void command_listener() {
             //ptr to func, amount of args, and argv
             //hardcoded for now
             uint64_t rip = (uint64_t)commands[i].exec;
+
+            //armar wrapper commands para esto
             int pid = syscreateprocess(rip, FORE , 1 ,0, 0);
             sysexec(pid);
             return;
@@ -94,6 +98,10 @@ static void help() {
     }
 
     //sysexits();
+}
+
+static void ps(){
+    sysps();
 }
 
 

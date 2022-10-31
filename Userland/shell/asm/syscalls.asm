@@ -12,6 +12,7 @@ section .data
     syscallcreateprocess equ 10
     syscallexit     equ 11
     syscallexec     equ 12
+    syscallps       equ 13
 
 
 section .text
@@ -28,6 +29,7 @@ global sysmeminfo
 global syscreateprocess
 global sysexits
 global sysexec
+global sysps
 
 %macro syscallHandler 1
     push rbp
@@ -101,7 +103,8 @@ sysexits:
     syscallHandler syscallexit
 
 ;rdi -> pid
-sysexec
+sysexec:
     syscallHandler syscallexec
-    ;int 20h
-    ;ret
+
+sysps:
+    syscallHandler syscallps

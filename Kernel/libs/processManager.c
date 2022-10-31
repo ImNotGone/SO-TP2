@@ -8,7 +8,7 @@
 #define STACK_SIZE 4048
 #define KERNEL_PID -1
 #define MIN_PRIORITY 1
-#define MAX_PRIORITY 5
+#define MAX_PRIORITY 10
 
 static PCBType pcb[MAX_PROCESS]={0};
 static int stack[MAX_PROCESS][STACK_SIZE]={0};
@@ -48,7 +48,7 @@ void killProcess(uint64_t pid){
         unblock(pcb[pid].ppid);
 }
 
-void block(pid){
+void block(uint64_t pid){
     pcb[pid].status="blocked";
     if (pid == getActivePid()){
         yield();
@@ -59,7 +59,25 @@ void unblock(uint64_t pid){
     pcb[pid].status = "ready";
 }
 
+void changePriority(uint64_t pid, uint64_t priority){
+    if(priority>MAX_PRIORITY || priority<MIN_PRIORITY)
+        priority = (MAX_PRIORITY + MIN_PRIORITY)/2;
+    pcb[pid].priority = priority;
+}
+
 int isForeground(int pid){
     return !pcb[pid].ground;
+}
+
+void printAllProcess(){
+    gPrint("These are your all time processes:");
+    gNewline();
+    for (int i = 0; i < processCount; i++)
+    {
+        gPrint("PID: ");
+        gPrintDec(pcb[i].pid);
+        gNewline();
+    }
+
 }
 

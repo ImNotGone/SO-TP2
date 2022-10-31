@@ -77,8 +77,13 @@ extern void sysmeminfo(TMemInfo *memInfo);
 //returns pid
 extern uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[] );
 
+//exits process
 extern void sysexits();
 
+//executes process
 extern void sysexec();
+
+//prints out all process' data
+extern void sysps();
 
 #endif//SYSCALLS_H_

@@ -47,7 +47,6 @@ uint64_t switchContext(uint64_t rsp){
 
     }
 
-    //int proceed = 0;
     while(!gusts){
         if(dequeue(readyQueue, toReturn)==NULL){
             //maybe do something?
@@ -57,7 +56,6 @@ uint64_t switchContext(uint64_t rsp){
             activeProcess = toReturn;
             activePid = toReturn->pid;
             gusts = activeProcess->pcb->priority;
-            //proceed=1;
         }else if (!strcmp(toReturn->pcb->status, "blocked")){
             queue(readyQueue, *toReturn);
         }

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <libs/process.h>
 #include <interrupts/interrupts.h>
+#include <drivers/graphics.h>
 
 
 typedef struct processData{
@@ -17,7 +18,8 @@ typedef struct processData{
     char * name;
 }PCBType;
 
-
+//TODO work here and in scheduler to remove this struct
+//the scheduler should only take PCBType * pcb
 typedef struct pdata{
     PCBType * pcb;
     int pid;
@@ -29,6 +31,14 @@ uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * arg
 void exec(uint64_t pid);
 
 void killProcess();
+
+void changePriority(uint64_t pid, uint64_t priority);
+
+void unblock(uint64_t pid);
+
+void block(uint64_t pid);
+
+void printAllProcess();
 
 #endif //PROCESSMANAGER_H
 
