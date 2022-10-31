@@ -60,8 +60,9 @@ static void command_listener() {
             //hardcoded for now
             uint64_t rip = (uint64_t)commands[i].exec;
 
+            char * argv[]={commands[i].name, (void*)0};
             //armar wrapper commands para esto
-            int pid = syscreateprocess(rip, FORE , 1 ,0, 0);
+            int pid = syscreateprocess(rip, FORE , 1 ,1, argv);
             sysexec(pid);
             return;
         }

@@ -1,12 +1,8 @@
 section .text
-
 global createProcess
 
-;call r9 due to the fact that entryWrapper is larger than a register.
-; what happens with de last registers, is this a problem?
-; maybe removing the entrypoint could solve this
 entryWrapper:
-    call r9
+    call rdx
     mov rax, 0x0B
     int 80h
 
@@ -16,28 +12,32 @@ createProcess:
     push rbp
     mov rbp, rsp
 
-    mov rsp, rdi
+    mov rsp, rdi ; stack base
     push 0x0
     push rdi
     push 0x202
     push 0x8
     push entryWrapper
 
-    push rax
-    push rbx
-    push rcx
-    push rdx
-    push rbp
-    push rdi ; aca va rdx capaz
-    push rsi ; aca rcx capaz
-    push r8
-    push r9
-    push r10
-	push r11
-	push r12
-	push r13
+   ;obs: rdi rsi , rdx and rcx have been swapped
+    push r15
 	push r14
-	push r15
+	push r13
+	push r12
+	push r11
+	push r10
+	push r9
+	push r8
+
+    ;for processes arguments
+	push rcx ; argv -> rsi
+	push rdx ; argc -> rdi
+
+	push rbp
+	push rsi ; rip (rdx)
+	push rdi ; stackbase (not necessary) (rcx)
+	push rbx
+	push rax
 
     mov rax, rsp
     mov rsp, rbp

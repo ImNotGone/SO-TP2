@@ -93,9 +93,9 @@ sysmeminfo:
 
 ; rdi -> void *
 ; rsi -> ground
-; priority
-; rdx -> argc
-; rcx -> argv[]
+; rdx -> priority
+; rcx -> argc
+; r8 -> argv[]
 syscreateprocess:
     syscallHandler syscallcreateprocess
 
