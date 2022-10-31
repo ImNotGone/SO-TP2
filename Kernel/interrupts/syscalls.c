@@ -22,9 +22,9 @@ void saveRegs(const int64_t *registers) {
 // rdi -> rsi,
 // rsi -> rdx,
 // rdx -> rcx,
-// r10 -> r8,
+// rcx -> r8,
 // r8 ->  r9
-typedef int64_t (*TSyscallHandler) (uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8);
+typedef int64_t (*TSyscallHandler) (uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8);
 
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes);
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
@@ -76,12 +76,12 @@ TSyscallHandler syscallHandlers[] = {
 
 static uint64_t syscallHandlersDim = sizeof(syscallHandlers) / sizeof(syscallHandlers[0]);
 
-int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8) {
+int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8) {
     if(rax >= syscallHandlersDim)
         return -1;
 
     // function call
-    return syscallHandlers[rax](rdi, rsi, rdx, r10, r8);
+    return syscallHandlers[rax](rdi, rsi, rdx, rcx, r8);
 }
 
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
