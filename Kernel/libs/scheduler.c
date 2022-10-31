@@ -41,7 +41,7 @@ uint64_t switchContext(uint64_t rsp){
     //remove killed processes from queue
     activeProcess->pcb->rsp = rsp;
     if(!gusts){
-        if (strcmp(activeProcess->pcb->status, "killed")){
+        if (strcmp(activeProcess->pcb->status, "killed") != 0){
             queue(readyQueue, *activeProcess);
         }
 
@@ -52,11 +52,11 @@ uint64_t switchContext(uint64_t rsp){
             //maybe do something?
         }
 
-        if(!strcmp(toReturn->pcb->status, "ready")){
+        if(strcmp(toReturn->pcb->status, "ready") == 0){
             activeProcess = toReturn;
             activePid = toReturn->pid;
             gusts = activeProcess->pcb->priority;
-        }else if (!strcmp(toReturn->pcb->status, "blocked")){
+        }else if (strcmp(toReturn->pcb->status, "blocked") == 0){
             queue(readyQueue, *toReturn);
         }
 
