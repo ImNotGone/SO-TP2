@@ -6,6 +6,9 @@
 #include <interrupts/interrupts.h>
 #include <drivers/graphics.h>
 
+#define READY 0
+#define BLOCKED 1
+#define KILLED 2
 
 typedef struct processData{
     uint16_t pid, ppid;
@@ -13,7 +16,7 @@ typedef struct processData{
     int argc;
     int ground;
     int priority;
-    char * status;
+    int status;
     char ** argv;
     char * name;
 }PCBType;

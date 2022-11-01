@@ -22,8 +22,8 @@ uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * arg
     pcb[processCount].argc = argc;
     pcb[processCount].ground = ground;
     pcb[processCount].argv = argv;
-    pcb[processCount].status= "ready";
-    pcb[processCount].name = argv[0];
+    pcb[processCount].status= READY;
+    //pcb[processCount].name = name;
     pcb[processCount].priority=priority;
     pcb[processCount].pid = processCount;
     pcb[processCount].ppid = getActivePid();
@@ -43,21 +43,21 @@ void exec(uint64_t pid){
 }
 
 void killProcess(uint64_t pid){
-    pcb[pid].status = "killed";
+    pcb[pid].status = KILLED;
 
     if(isForeground(pid))
         unblock(pcb[pid].ppid);
 }
 
 void block(uint64_t pid){
-    pcb[pid].status="blocked";
+    pcb[pid].status = BLOCKED;
     if (pid == getActivePid()){
         yield();
     }
 }
 
 void unblock(uint64_t pid){
-    pcb[pid].status = "ready";
+    pcb[pid].status = READY;
 }
 
 void changePriority(uint64_t pid, uint64_t priority){
