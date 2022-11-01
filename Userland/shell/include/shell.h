@@ -2,6 +2,7 @@
 #define _SHELL_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <dumps.h>
 #include <time.h>
 #include <meminfo.h>
@@ -12,6 +13,8 @@
 #include <syscalls.h>
 
 #define COMMAND_BUFFER_SIZE 256
+#define MAX_ARGS 64
+#define MAX_ARG_SIZE 128
 #define LEFT_SCREEN 0
 #define FULL_SCREEN 0
 #define RIGHT_SCREEN 1
