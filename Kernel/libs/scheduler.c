@@ -4,18 +4,30 @@
 static queueADT readyQueue = NULL;
 static queueADT blockedQueue = NULL;
 static int processCount =0;
+static int idlePid;
 static int started = 0;
 static int activePid = KERNEL_PID;
 static Pdata shell;
 static Pdata * activeProcess = NULL;
 static int gusts=0;
 
+static void idle();
+
 void startScheduler(){
     started=1;
     readyQueue = newQueue();
-    toBegin(readyQueue);
-    //blockedQueue = newQueue();
 
+    //char *argv[] = {NULL};
+    //idlePid = newProcess(idle, 1, 0, 0, argv);
+    //exec(idlePid);
+
+    toBegin(readyQueue);
+}
+
+static void idle() {
+    while (1){
+        _hlt();    
+    }
 }
 
 uint64_t switchContext(uint64_t rsp){
@@ -24,7 +36,10 @@ uint64_t switchContext(uint64_t rsp){
         return rsp;
     }
 
-    Pdata * toReturn = NULL;
+    
+
+    Pdata aux;
+    Pdata * toReturn = &aux;
 
     if(activePid == KERNEL_PID){
         activePid = 0;
@@ -34,6 +49,8 @@ uint64_t switchContext(uint64_t rsp){
         queue(readyQueue, *toReturn);
         shell = *toReturn;
         gusts = shell.pcb->priority;
+        activePid = toReturn->pid;
+        activeProcess = toReturn;
         return toReturn->pcb->rsp;
     }
 
@@ -41,7 +58,7 @@ uint64_t switchContext(uint64_t rsp){
     //remove killed processes from queue
     activeProcess->pcb->rsp = rsp;
     if(!gusts){
-        if (strcmp(activeProcess->pcb->status, "killed") != 0){
+        if (activeProcess->pcb->status != KILLED){
             queue(readyQueue, *activeProcess);
         }
 
@@ -52,11 +69,11 @@ uint64_t switchContext(uint64_t rsp){
             //maybe do something?
         }
 
-        if(strcmp(toReturn->pcb->status, "ready") == 0){
+        if(toReturn->pcb->status == READY){
             activeProcess = toReturn;
             activePid = toReturn->pid;
             gusts = activeProcess->pcb->priority;
-        }else if (strcmp(toReturn->pcb->status, "blocked") == 0){
+        }else if (toReturn->pcb->status == BLOCKED){
             queue(readyQueue, *toReturn);
         }
 

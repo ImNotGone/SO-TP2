@@ -13,6 +13,7 @@ createProcess:
     mov rbp, rsp
 
     mov rsp, rdi ; stack base
+    and rsp, -16
     push 0x0
     push rdi
     push 0x202
