@@ -40,5 +40,7 @@ void block(uint64_t pid);
 
 void printAllProcess();
 
+int isForeground(int pid);
+
 #endif //PROCESSMANAGER_H
 

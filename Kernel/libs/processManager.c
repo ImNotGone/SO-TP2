@@ -10,19 +10,20 @@
 #define MIN_PRIORITY 1
 #define MAX_PRIORITY 10
 
-static PCBType pcb[MAX_PROCESS]={0};
-static int stack[MAX_PROCESS][STACK_SIZE]={0};
+static PCBType pcb[MAX_PROCESS]={{0}};
+static int stack[MAX_PROCESS][STACK_SIZE]={{0}};
 static int processCount = 0;
 
 uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
 
-    pcb[processCount].stack_base = stack[processCount]+ STACK_SIZE;
+    //stack size -+1?
+    pcb[processCount].stack_base = stack[processCount]+STACK_SIZE;
     pcb[processCount].rip = rip;
     pcb[processCount].argc = argc;
     pcb[processCount].ground = ground;
     pcb[processCount].argv = argv;
     pcb[processCount].status= "ready";
-    //pcb[processCount].name = name;
+    pcb[processCount].name = argv[0];
     pcb[processCount].priority=priority;
     pcb[processCount].pid = processCount;
     pcb[processCount].ppid = getActivePid();
@@ -72,10 +73,16 @@ int isForeground(int pid){
 void printAllProcess(){
     gPrint("These are your all time processes:");
     gNewline();
-    for (int i = 0; i < processCount; i++)
-    {
+    gPrint("-----");
+    gNewline();
+    for (int i = 0; i < processCount; i++){
         gPrint("PID: ");
         gPrintDec(pcb[i].pid);
+        gNewline();
+        gPrint("NAME: ");
+        gPrint(pcb[i].name);
+        gNewline();
+        gPrint("------");
         gNewline();
     }
 
