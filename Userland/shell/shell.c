@@ -52,13 +52,13 @@ static void command_listener() {
     if (strcmp(commandBuffer, "") == 0)
         return;
 
+    int argc;
+    int isBackground;
+    char **argv = parseArgs(commandBuffer, &argc, &isBackground);
+
     // Vemos si el comando matchea con alguno
     // Que no requiere un parseo especial del input
     for (i = 0; i < commandsDim; i++) {
-
-        int argc;
-        int isBackground;
-        char **argv = parseArgs(commandBuffer, &argc, &isBackground);
 
         if (strcmp(argv[0], commands[i].name) == 0) {
             // commands[i].exec();
@@ -68,11 +68,18 @@ static void command_listener() {
             uint64_t rip = (uint64_t)commands[i].exec;
 
             // armar wrapper commands para esto
-            int pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
+            int pid =
+                syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
             sysexec(pid);
             return;
         }
     }
+
+    // Free arguments
+    for (i = 0; i < argc; i++) {
+        sysfree(argv[i]);
+    }
+    sysfree(argv);
 
     // El comando no es el pipe, queda validar que es printmem para una sola
     // pantalla
