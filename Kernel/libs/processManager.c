@@ -23,7 +23,7 @@ uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * arg
     pcb[processCount].ground = ground;
     pcb[processCount].argv = argv;
     pcb[processCount].status= READY;
-    //pcb[processCount].name = name;
+    pcb[processCount].name = argv[0];
     pcb[processCount].priority=priority;
     pcb[processCount].pid = processCount;
     pcb[processCount].ppid = getActivePid();
