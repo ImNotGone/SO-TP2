@@ -1,4 +1,7 @@
+#include <libs/processManager.h>
 #include <libs/scheduler.h>
+#include <ADTS/queueADT.h>
+
 #define KERNEL_PID -1
 
 static queueADT readyQueue = NULL;
@@ -16,7 +19,7 @@ static void idle();
 
 void startScheduler(){
     started=1;
-    readyQueue = newQueue();
+    readyQueue = newQueue(sizeof(Pdata));
 
     //char *argv[] = {NULL};
     //idlePid = newProcess(idle, 1, 0, 0, argv);
@@ -44,7 +47,7 @@ uint64_t switchContext(uint64_t rsp){
         //shell
         // a lo mejor conviene hacer peek aca
         dequeue(readyQueue, toReturn);
-        queue(readyQueue, *toReturn);
+        queue(readyQueue, toReturn);
         shell = *toReturn;
         gusts = shell.pcb->priority;
         activePid = toReturn->pid;
@@ -57,13 +60,13 @@ uint64_t switchContext(uint64_t rsp){
     activeProcess->pcb->rsp = rsp;
     if(!gusts){
         if (activeProcess->pcb->status != KILLED){
-            queue(readyQueue, *activeProcess);
+            queue(readyQueue, activeProcess);
         }
 
     }
 
     while(!gusts){
-        if(dequeue(readyQueue, toReturn)==NULL){
+        if(!dequeue(readyQueue, toReturn)){
             //maybe do something?
         }
 
@@ -72,7 +75,7 @@ uint64_t switchContext(uint64_t rsp){
             activePid = toReturn->pid;
             gusts = activeProcess->pcb->priority;
         }else if (toReturn->pcb->status == BLOCKED){
-            queue(readyQueue, *toReturn);
+            queue(readyQueue, toReturn);
         }
 
     }
@@ -82,7 +85,7 @@ uint64_t switchContext(uint64_t rsp){
 }
 
 void addToReadyQueue(Pdata process){
-    queue(readyQueue, process);
+    queue(readyQueue, &process);
 }
 
 int getActivePid(){
