@@ -8,6 +8,7 @@ static int idlePid;
 static int started = 0;
 static int activePid = KERNEL_PID;
 static Pdata shell;
+static Pdata aux;
 static Pdata * activeProcess = NULL;
 static int gusts=0;
 
@@ -26,7 +27,7 @@ void startScheduler(){
 
 static void idle() {
     while (1){
-        _hlt();    
+        _hlt();
     }
 }
 
@@ -36,9 +37,6 @@ uint64_t switchContext(uint64_t rsp){
         return rsp;
     }
 
-    
-
-    Pdata aux;
     Pdata * toReturn = &aux;
 
     if(activePid == KERNEL_PID){
