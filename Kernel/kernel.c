@@ -63,7 +63,7 @@ void * initializeKernelBinary() {
 
 int init_shell() {
 	char * argv[]= {"Shell", (void*)0};
-	int pid= newProcess((uint64_t)shellAddress, 0 , 1, 0, argv);
+	int pid= newProcess((uint64_t)shellAddress, 0 , 1, 1, argv);
 	exec(pid);
 	return 1;
 
@@ -96,7 +96,6 @@ int main() {
 	booted = 1;
 
 	_cli();
-
 	startScheduler();
 	init_shell();
 

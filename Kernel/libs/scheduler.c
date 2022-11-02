@@ -10,16 +10,22 @@ static int processCount =0;
 static int idlePid;
 static int started = 0;
 static int activePid = KERNEL_PID;
-static Pdata shell;
-static Pdata aux;
-static Pdata * activeProcess = NULL;
+static PCBType * activeProcess = NULL;
 static int gusts=0;
 
 static void idle();
 
+queueADT getQueue(){
+    return readyQueue;
+}
+
+void printProcess(PCBType * pcb);
+
+void freeProcess(PCBType * process);
+
 void startScheduler(){
     started=1;
-    readyQueue = newQueue(sizeof(Pdata));
+    readyQueue = newQueue(sizeof(PCBType *));
 
     //char *argv[] = {NULL};
     //idlePid = newProcess(idle, 1, 0, 0, argv);
@@ -40,52 +46,50 @@ uint64_t switchContext(uint64_t rsp){
         return rsp;
     }
 
-    Pdata * toReturn = &aux;
-
     if(activePid == KERNEL_PID){
         activePid = 0;
         //shell
         // a lo mejor conviene hacer peek aca
-        dequeue(readyQueue, toReturn);
-        queue(readyQueue, toReturn);
-        shell = *toReturn;
-        gusts = shell.pcb->priority;
-        activePid = toReturn->pid;
-        activeProcess = toReturn;
-        return toReturn->pcb->rsp;
+        dequeue(readyQueue, &activeProcess);
+        gusts = activeProcess->priority;
+        activePid = activeProcess->pid;
+        return activeProcess->rsp;
     }
 
     //saves previous context
     //remove killed processes from queue
-    activeProcess->pcb->rsp = rsp;
+    activeProcess->rsp = rsp;
     if(!gusts){
-        if (activeProcess->pcb->status != KILLED){
-            queue(readyQueue, activeProcess);
+        if (activeProcess->status != KILLED){
+            queue(readyQueue, &activeProcess);
+        }else{
+            freeProcess(activeProcess);
         }
-
     }
 
     while(!gusts){
-        if(!dequeue(readyQueue, toReturn)){
+        if(!dequeue(readyQueue, &activeProcess)){
             //maybe do something?
         }
 
-        if(toReturn->pcb->status == READY){
-            activeProcess = toReturn;
-            activePid = toReturn->pid;
-            gusts = activeProcess->pcb->priority;
-        }else if (toReturn->pcb->status == BLOCKED){
-            queue(readyQueue, toReturn);
+        if(activeProcess->status == READY){
+            activePid = activeProcess->pid;
+            gusts = activeProcess->priority;
+            //return activeProcess->rsp;
+        }else if (activeProcess->status == BLOCKED){
+            queue(readyQueue, &activeProcess);
+        }else if(activeProcess->status == KILLED){
+            freeProcess(activeProcess);
         }
 
     }
 
     gusts--;
-    return activeProcess->pcb->rsp;
+    return activeProcess->rsp;
 }
 
-void addToReadyQueue(Pdata process){
-    queue(readyQueue, &process);
+void addToReadyQueue(PCBType ** process){
+    queue(readyQueue, process);
 }
 
 int getActivePid(){
@@ -97,5 +101,67 @@ void yield(){
     _int20();
 }
 
+PCBType * find(int pid){
+    toBegin(readyQueue);
+    PCBType * aux;
+    if (activePid == pid){
+        return activeProcess;
+    }
+
+    while(hasNext(readyQueue)){
+        next(readyQueue, &aux);
+        if(aux->pid == pid)
+            return aux;
+    }
+    return NULL;
+}
+
+void printPs(){
+    gNewline();
+    gPrint("---------");
+    gNewline();
+    toBegin(readyQueue);
+    PCBType * pcb;
+    while(hasNext(readyQueue)){
+        next(readyQueue, &pcb);
+        printProcess(pcb);
+    }
+    printProcess(activeProcess);
+}
+
+void printProcess(PCBType * pcb){
+    gPrint("NAME: ");
+    gPrint(pcb->name);
+    gNewline();
+    gPrint("PID: ");
+    gPrintDec(pcb->pid);
+    gNewline();
+    gPrint("Priority: ");
+    gPrintDec(pcb->priority);
+    gNewline();
+    gPrint("Stack base: ");
+    gPrintDec(pcb->stack_base);
+    gNewline();
+    gPrint("Stack pointer: ");
+    gPrintDec(pcb->rsp);
+    gNewline();
+    gPrint("Ground: ");
+    gPrint(isForeground(pcb->ground) ? "foreground" : "background");
+    gNewline();
+    gPrint("Status: ");
+    gPrintDec(pcb->status);
+    gNewline();
+    gPrint("------");
+    gNewline();
+}
+
+void freeProcess(PCBType * process){
+    for(int i = 0 ; i < process->argc ; i++){
+        free(process->argv[i]);
+    }
+    free(process->argv);
+    free(process->stack_base - STACK_SIZE);
+    free(process);
+}
 
 
