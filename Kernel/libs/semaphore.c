@@ -118,6 +118,11 @@ int64_t sem_post(sem_t sem) {
     return 0;
 }
 
+// Gets data from the semaphore collection
+TSemInfo *sem_info() {
+    return semCollectionInfo(semCollection);
+}
+
 // ==================== Auxiliary Functions ====================
 // Acquire the lock
 static void acquire(lock_t *lock) {

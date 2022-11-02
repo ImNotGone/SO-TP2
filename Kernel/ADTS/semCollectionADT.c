@@ -25,6 +25,7 @@ typedef struct semCollectionCDT {
     // Semaphore collection
     // TODO: maybe use a hash map?
     semdata_t *semaphores[MAX_SEM];
+    uint64_t semaphoresSize;
 } semCollectionCDT;
 
 
@@ -35,7 +36,7 @@ typedef struct semCollectionCDT {
 // Create a new semaphore collection
 semCollectionADT newSemCollection() {
 
-    semCollectionADT semCollection = calloc(sizeof(semCollectionCDT), 0);
+    semCollectionADT semCollection = calloc(1, sizeof(semCollectionCDT));
 
     return semCollection;
 };
@@ -59,7 +60,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
     // Search for the semaphore
     int firstFree = -1;
     for (int i = 0; i < MAX_SEM; i++) {
-        if (strcmp(semCollection->semaphores[i]->name, name) == 0) {
+        if (semCollection->semaphores[i] != NULL && strcmp(semCollection->semaphores[i]->name, name) == 0) {
 
             // Semaphore found
             return semCollection->semaphores[i]->sem;
@@ -79,7 +80,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
     }
 
     // Create the semaphore
-    semdata_t *semData = calloc(sizeof(semdata_t), 0);
+    semdata_t *semData = calloc(1, sizeof(semdata_t));
     semData->name = name;
     semData->value = initialValue;
     semData->waitingQueue = newQueue(sizeof(int));
@@ -90,6 +91,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     // Add the semaphore to the collection
     semCollection->semaphores[firstFree] = semData;
+    semCollection->semaphoresSize++;
 
     return semData->sem;
 };
@@ -196,7 +198,9 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
     // Free the semaphore
     freeQueue(semCollection->semaphores[sem]->waitingQueue);
     free(semCollection->semaphores[sem]);
+
     semCollection->semaphores[sem] = NULL;
+    semCollection->semaphoresSize--;
 
     return 0;
 };
@@ -217,4 +221,34 @@ void freeSemCollection(semCollectionADT semCollection) {
     }
 
     free(semCollection);
+};
+
+// ------------------- Dump -------------------
+// Dump the semaphore collection
+TSemInfo *semCollectionInfo(semCollectionADT semCollection) {
+
+    // Create the array
+    TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresSize);
+
+    // Fill the array
+    int i = 0;
+    for (int j = 0; j < MAX_SEM; j++) {
+        if (semCollection->semaphores[j] != NULL) {
+
+            // Get semaphore data
+            res[i].value = semCollection->semaphores[j]->value;
+            res[i].waitingQueueSize = semCollection->semaphores[j]->waitingQueueSize;
+
+            // Get Blocked processes
+            int *blockedProcesses = calloc(1, sizeof(int) * res[i].waitingQueueSize);
+            for (int k = 0; k < res[i].waitingQueueSize; k++) {
+                dequeue(semCollection->semaphores[j]->waitingQueue, &blockedProcesses[k]);
+            }
+            res[i].waitingQueue = blockedProcesses;
+
+            i++;
+        }
+    }
+
+    return res;
 };

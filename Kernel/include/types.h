@@ -47,6 +47,14 @@ typedef struct meminfo {
     uint64_t used;
 } TMemInfo;
 
+// Semaphores Info structure
+typedef struct seminfo {
+    uint64_t value;
+
+    uint64_t waitingQueueSize;
+    int *waitingQueue;
+} TSemInfo;
+
 // sem_t
 typedef int64_t sem_t;
 

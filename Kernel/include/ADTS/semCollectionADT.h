@@ -46,4 +46,7 @@ int getNextWaitingProcess(semCollectionADT semCollection, sem_t sem);
 // Free the semaphore collection
 void freeSemCollection(semCollectionADT semCollection);
 
+// Dump the semaphore collection
+TSemInfo *semCollectionInfo(semCollectionADT semCollection);
+
 #endif //SEMCOLLECTIONADT_H
