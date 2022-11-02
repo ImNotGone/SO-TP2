@@ -1,0 +1,220 @@
+#include <ADTS/semCollectionADT.h>
+
+
+// ====================== Definitions =================================
+
+typedef struct semData {
+    // Semaphore
+    sem_t sem;
+    // Semaphore name
+    const char *name;
+    // Semaphore value
+    uint64_t value;
+    // Semaphore lock
+    lock_t lock;
+
+
+    // Waiting queue
+    queueADT waitingQueue;
+    uint64_t waitingQueueSize;
+
+} semdata_t;
+
+
+typedef struct semCollectionCDT {
+    // Semaphore collection
+    // TODO: maybe use a hash map?
+    semdata_t *semaphores[MAX_SEM];
+} semCollectionCDT;
+
+
+// ==================== Functions ====================
+
+// ------------------- New -------------------
+
+// Create a new semaphore collection
+semCollectionADT newSemCollection() {
+
+    semCollectionADT semCollection = calloc(sizeof(semCollectionCDT), 0);
+
+    return semCollection;
+};
+
+// ------------------- Getters -------------------
+
+// Check if the semaphore exists
+int semExists(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (semCollection->semaphores[sem] == NULL) {
+        return false;
+    }
+
+    return true;
+}
+
+// Get a semaphore from the collection, if it exists or create a new one
+sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialValue) {
+
+    // Search for the semaphore
+    int firstFree = -1;
+    for (int i = 0; i < MAX_SEM; i++) {
+        if (strcmp(semCollection->semaphores[i]->name, name) == 0) {
+
+            // Semaphore found
+            return semCollection->semaphores[i]->sem;
+
+        } else if (firstFree == -1 && semCollection->semaphores[i] == NULL) {
+            
+            // First free position
+            firstFree = i;
+        }
+    }
+
+    // If the semaphore doesn't exist, create a new one
+
+    // No free position
+    if (firstFree == -1) {
+        return -1;
+    }
+
+    // Create the semaphore
+    semdata_t *semData = calloc(sizeof(semdata_t), 0);
+    semData->name = name;
+    semData->value = initialValue;
+    semData->waitingQueue = newQueue(sizeof(int));
+    semData->waitingQueueSize = 0;
+    
+    // SemId
+    semData->sem = firstFree;
+
+    // Add the semaphore to the collection
+    semCollection->semaphores[firstFree] = semData;
+
+    return semData->sem;
+};
+
+
+// Get the semaphore value
+uint64_t getSemValue(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    return semCollection->semaphores[sem]->value;
+};
+
+// Get semaphore lock
+lock_t getSemLock(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    return semCollection->semaphores[sem]->lock;
+};
+
+// Gets the amount of processes waiting for the semaphore
+int getWaitingQueueSize(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    return semCollection->semaphores[sem]->waitingQueueSize;
+};
+
+// ------------------- Setters -------------------
+
+// Increment the semaphore value
+int incSemValue(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    semCollection->semaphores[sem]->value++;
+
+    return 0;
+};
+
+// Decrement the semaphore value
+int decSemValue(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    semCollection->semaphores[sem]->value--;
+
+    return 0;
+};
+
+// Add a process to the waiting queue
+int addWaitingProcess(semCollectionADT semCollection, sem_t sem, int pid) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    queue(semCollection->semaphores[sem]->waitingQueue, &pid);
+    semCollection->semaphores[sem]->waitingQueueSize++;
+
+    return 0;
+};
+
+// Get the next process in the waiting queue
+int getNextWaitingProcess(semCollectionADT semCollection, sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    int pid;
+    dequeue(semCollection->semaphores[sem]->waitingQueue, &pid);
+    semCollection->semaphores[sem]->waitingQueueSize--;
+    return pid;
+};
+
+
+// Close a semaphore
+int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
+
+    // If sem is not valid return -1
+    if (sem < 0 || sem >= MAX_SEM || semCollection->semaphores[sem] == NULL) {
+        return -1;
+    }
+
+    // Free the semaphore
+    freeQueue(semCollection->semaphores[sem]->waitingQueue);
+    free(semCollection->semaphores[sem]);
+    semCollection->semaphores[sem] = NULL;
+
+    return 0;
+};
+
+// ------------------- Free -------------------
+// Free the semaphore collection
+void freeSemCollection(semCollectionADT semCollection) {
+    
+    // Free the semaphores
+    for (int i = 0; i < MAX_SEM; i++) {
+        if (semCollection->semaphores[i] != NULL) {
+
+            // Free the waiting queue
+            freeQueue(semCollection->semaphores[i]->waitingQueue);
+
+            free(semCollection->semaphores[i]);
+        }
+    }
+
+    free(semCollection);
+};

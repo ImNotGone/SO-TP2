@@ -48,8 +48,9 @@ typedef struct meminfo {
 } TMemInfo;
 
 // sem_t
-typedef struct sem {
-    uint32_t value;
-} sem_t;
+typedef int64_t sem_t;
+
+// lock_t
+typedef int lock_t;
 
 #endif//_TYPES_H
