@@ -50,6 +50,7 @@ typedef struct meminfo {
 // Semaphores Info structure
 typedef struct seminfo {
     uint64_t value;
+    const char *name;
 
     uint64_t waitingQueueSize;
     int *waitingQueue;

@@ -119,8 +119,8 @@ int64_t sem_post(sem_t sem) {
 }
 
 // Gets data from the semaphore collection
-TSemInfo *sem_info() {
-    return semCollectionInfo(semCollection);
+TSemInfo *sem_info(uint64_t *size) {
+    return semCollectionInfo(semCollection, size);
 }
 
 // ==================== Auxiliary Functions ====================

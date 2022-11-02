@@ -159,5 +159,6 @@ syssempost:
 syssemclose:
     syscallHandler syscallsemclose
 
+;rdi->size
 sysseminfo:
     syscallHandler syscallseminfo

@@ -52,7 +52,7 @@ sem_t    syssemopen(const char * name, uint32_t value);
 int64_t  syssemwait(sem_t sem);
 int64_t  syssempost(sem_t sem);
 int64_t  syssemclose(sem_t sem);
-TSemInfo *sysseminfo();
+TSemInfo *sysseminfo(uint64_t *size);
 
 
 
@@ -257,8 +257,8 @@ int64_t syssemclose(sem_t sem){
     return sem_close(sem);
 }
 
-TSemInfo *sysseminfo(){
-    return sem_info();
+TSemInfo *sysseminfo(uint64_t *size){
+    return sem_info(size);
 }
 
 

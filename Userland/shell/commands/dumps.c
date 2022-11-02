@@ -45,3 +45,54 @@ void regDump() {
     printf("R15: %x\n", regs.r15);
     printf("RIP: %x\n", regs.rip);
 }
+
+void memManagerDump() {
+
+    // Get memory info
+    TMemInfo memInfo;
+    sysmeminfo(&memInfo);
+
+    // Print memory memory info
+    printf("Total memory: %d bytes (%d MB)\n", memInfo.total, memInfo.total / 1024 / 1024);
+    printf("Used memory: %d bytes (%d MB)\n", memInfo.used, memInfo.used / 1024 / 1024);
+    printf("Free memory: %d bytes (%d MB)\n", memInfo.free, memInfo.free / 1024 / 1024);
+    //sysexits();
+
+}
+
+void semDump() {
+
+    // Get semaphore info
+    uint64_t semAmount;
+    TSemInfo *semInfo = sysseminfo(&semAmount);
+
+    if (semAmount < 0) {
+        return;
+    }
+
+    if (semAmount == 0) {
+        puts("No semaphores found");
+        return;
+    }
+
+    // Print semaphores info
+    printf("There are %d semaphores:\n", semAmount);
+    for (int i = 0; i < semAmount; i++) {
+
+        printf("Semaphore %d:\n", i);
+        printf("  Name: %s\n", semInfo[i].name);
+        printf("  Value: %d\n", semInfo[i].value);
+
+        // Print waiting queue
+        printf("  There are %d waiting processes\n", semInfo[i].waitingQueueSize);
+        for (int j = 0; j < semInfo[i].waitingQueueSize; j++) {
+            printf("    PID: %d\n", semInfo[i].waitingQueue[j]);
+        }
+    }
+
+    // Free memory
+    for (int i = 0; i < semAmount; i++) {
+        sysfree(semInfo[i].waitingQueue);
+    }
+    sysfree(semInfo);
+}

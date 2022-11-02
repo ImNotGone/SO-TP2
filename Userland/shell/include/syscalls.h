@@ -45,6 +45,7 @@ typedef struct meminfo {
 // Semaphores Info structure
 typedef struct seminfo {
     uint64_t value;
+    const char *name;
 
     uint64_t waitingQueueSize;
     int *waitingQueue;
@@ -116,7 +117,7 @@ extern int64_t syssempost(sem_t sem);
 extern int64_t syssemclose(sem_t sem);
 
 // Gets semaphore information
-extern TSemInfo *sysseminfo();
+extern TSemInfo *sysseminfo(uint64_t * size);
 
 
 

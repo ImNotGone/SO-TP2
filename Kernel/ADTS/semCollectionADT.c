@@ -225,7 +225,7 @@ void freeSemCollection(semCollectionADT semCollection) {
 
 // ------------------- Dump -------------------
 // Dump the semaphore collection
-TSemInfo *semCollectionInfo(semCollectionADT semCollection) {
+TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
 
     // Create the array
     TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresSize);
@@ -237,18 +237,26 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection) {
 
             // Get semaphore data
             res[i].value = semCollection->semaphores[j]->value;
+            res[i].name = semCollection->semaphores[j]->name;
             res[i].waitingQueueSize = semCollection->semaphores[j]->waitingQueueSize;
 
             // Get Blocked processes
             int *blockedProcesses = calloc(1, sizeof(int) * res[i].waitingQueueSize);
-            for (int k = 0; k < res[i].waitingQueueSize; k++) {
-                dequeue(semCollection->semaphores[j]->waitingQueue, &blockedProcesses[k]);
+
+            // Iterate the queue
+            toBegin(semCollection->semaphores[j]->waitingQueue);
+            int k = 0;
+            while (hasNext(semCollection->semaphores[j]->waitingQueue)) {
+                next(semCollection->semaphores[j]->waitingQueue, &blockedProcesses[k]);
+                k++;
             }
+
             res[i].waitingQueue = blockedProcesses;
 
             i++;
         }
     }
 
+    *size = i;
     return res;
 };

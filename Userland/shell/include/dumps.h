@@ -9,5 +9,7 @@
 
 void memDump(uint64_t address);
 void regDump();
+void memManagerDump();
+void semDump();
 
 #endif
