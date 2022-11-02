@@ -15,10 +15,13 @@ static void command_listener();
 //----- auxiliary functions ------------
 
 static void help();
+static void incTest();
 static void ps();
 static void displayError(int64_t add, const char *command);
 static int64_t parsePrintmem(char *commandBuffer);
 static char **parseArgs(char *commandBuffer, int *argc, int *isBackground);
+
+static int global = 0;
 
 //--- Flags ---
 static int64_t printmemAddresses[] = {INVALID_ADDRESS, INVALID_ADDRESS};
@@ -29,6 +32,7 @@ static command commands[] = {
     {"help", "Prints this help", help},
     {"printmem", "Prints the memory info", (voidfp)memDump},
     {"memtest", "Tests the memory", (voidfp)memtest},
+    {"inctest", "Tests semaphores", incTest},
     {"meminfo", "Prints memory manager status", printMemInfo},
     {"ps", "Prints all process' information", ps},
     {"nice", "Changes priority to pid", nice},
@@ -99,6 +103,33 @@ static void command_listener() {
 }
 
 //------------------- commands implemented in this file ---------------
+void slowInc(int *p, int64_t inc) {
+    uint64_t aux = *p;
+    sysyield(); // This makes the race condition highly probable
+    aux += inc;
+    *p = aux;
+}
+
+static void incTest() {
+
+    sem_t sem = syssemopen("help", 1);
+
+    // Increment global variable 100 times
+    int i;
+    for (i = 0; i < 100; i++) {
+        syssemwait(sem);
+        slowInc(&global, 1);
+        printf("Global: %d \n", global);
+        syssempost(sem);
+    }
+
+    // Print global variable
+    syssemwait(sem);
+    printf("Global variable: %d \n", global);
+    syssempost(sem);
+
+}
+
 static void help() {
     puts("\n=== GENERAL INFO ===\n");
     puts("\'s\' stops iterable or pipe programs");
