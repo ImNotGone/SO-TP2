@@ -37,6 +37,9 @@ lock_t getSemLock(semCollectionADT semCollection, sem_t sem);
 // Close the semaphore
 int64_t closeSem(semCollectionADT semCollection, sem_t sem);
 
+// Unlink a semaphore
+int64_t unlinkSem(semCollectionADT semCollection, const char *name);
+
 // Add a process to the waiting queue
 int addWaitingProcess(semCollectionADT semCollection, sem_t sem, int pid);
 

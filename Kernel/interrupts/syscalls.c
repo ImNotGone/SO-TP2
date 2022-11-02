@@ -52,6 +52,7 @@ sem_t    syssemopen(const char * name, uint32_t value);
 int64_t  syssemwait(sem_t sem);
 int64_t  syssempost(sem_t sem);
 int64_t  syssemclose(sem_t sem);
+int64_t  syssemunlink(const char * name);
 TSemInfo *sysseminfo(uint64_t *size);
 
 
@@ -103,6 +104,8 @@ TSyscallHandler syscallHandlers[] = {
     //0x13
     (TSyscallHandler) syssemclose,
     //0x14
+    (TSyscallHandler) syssemunlink,
+    //0x15
     (TSyscallHandler) sysseminfo
 
 
@@ -255,6 +258,10 @@ int64_t syssempost(sem_t sem){
 
 int64_t syssemclose(sem_t sem){
     return sem_close(sem);
+}
+
+int64_t syssemunlink(const char * name){
+    return sem_unlink(name);
 }
 
 TSemInfo *sysseminfo(uint64_t *size){

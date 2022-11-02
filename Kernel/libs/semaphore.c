@@ -32,8 +32,12 @@ int64_t sem_close(sem_t sem) {
         return -1;
     }
 
-    // TODO: what shoud happen to waiting processes?
     return closeSem(semCollection, sem);
+}
+
+// Unlinks the semaphore, if there are no processes attached to it removes it
+int64_t sem_unlink(const char *name) {
+    return unlinkSem(semCollection, name);
 }
 
 // Waits for the semaphore to be available

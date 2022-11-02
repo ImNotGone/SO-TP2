@@ -21,5 +21,7 @@ int64_t sem_post(sem_t sem);
 
 int64_t sem_close(sem_t sem);
 
+int64_t sem_unlink(const char *name);
+
 TSemInfo *sem_info(uint64_t * size);
 #endif // _SEMAPHORE_H

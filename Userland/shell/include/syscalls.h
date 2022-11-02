@@ -116,6 +116,9 @@ extern int64_t syssempost(sem_t sem);
 // Closes a semaphore 
 extern int64_t syssemclose(sem_t sem);
 
+// Unlinks a semaphore
+extern int64_t syssemunlink(const char * name);
+
 // Gets semaphore information
 extern TSemInfo *sysseminfo(uint64_t * size);
 

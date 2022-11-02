@@ -24,7 +24,8 @@ section .data
     syscallsemwait  equ 17
     syscallsempost  equ 18
     syscallsemclose equ 19
-    syscallseminfo  equ 20
+    syscallsemunlink equ 20
+    syscallseminfo  equ 21
 
 
 section .text
@@ -158,6 +159,10 @@ syssempost:
 ;rdi->sem
 syssemclose:
     syscallHandler syscallsemclose
+
+;rdi->name
+syssemunlink:
+    syscallHandler syscallsemunlink
 
 ;rdi->size
 sysseminfo:
