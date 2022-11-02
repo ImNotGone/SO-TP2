@@ -9,6 +9,7 @@
 #define READY 0
 #define BLOCKED 1
 #define KILLED 2
+#define STACK_SIZE 4096
 
 typedef struct processData{
     uint16_t pid, ppid;
@@ -23,13 +24,9 @@ typedef struct processData{
 
 //TODO work here and in scheduler to remove this struct
 //the scheduler should only take PCBType * pcb
-typedef struct pdata{
-    PCBType * pcb;
-    int pid;
-}Pdata;
+
 
 // C functions
-void initProcessManager();
 
 uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 

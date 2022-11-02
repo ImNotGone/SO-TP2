@@ -93,7 +93,6 @@ int main() {
 	booted = 1;
 
 	_cli();
-	initProcessManager();
 	startScheduler();
 	init_shell();
 

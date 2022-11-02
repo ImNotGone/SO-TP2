@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <syscalls.h>
 
-#define BUFF_SIZE 8096
+#define BUFF_SIZE 512
 // File Descriptors
 #define STDIN   0
 #define STDOUT  1

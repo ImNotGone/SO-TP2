@@ -52,4 +52,6 @@ elemType listnextAsc(listADT list);
 /* Libera la memoria reservada por la lista */
 void listfreeList(listADT list);
 
+elemType listfind();
+
 #endif //LISTADT_H
