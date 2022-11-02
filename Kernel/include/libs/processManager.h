@@ -35,7 +35,7 @@ void exec(uint64_t pid);
 
 void killProcess();
 
-void changePriority(uint64_t pid, uint64_t priority);
+void changePriority(int pid, int priority);
 
 void unblock(uint64_t pid);
 

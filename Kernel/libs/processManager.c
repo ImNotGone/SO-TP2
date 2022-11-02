@@ -60,7 +60,7 @@ void unblock(uint64_t pid){
     pcb[pid].status = READY;
 }
 
-void changePriority(uint64_t pid, uint64_t priority){
+void changePriority(int pid, int priority){
     if(priority>MAX_PRIORITY || priority<MIN_PRIORITY)
         priority = (MAX_PRIORITY + MIN_PRIORITY)/2;
     pcb[pid].priority = priority;
@@ -76,11 +76,26 @@ void printAllProcess(){
     gPrint("-----");
     gNewline();
     for (int i = 0; i < processCount; i++){
+        gPrint("NAME: ");
+        gPrint(pcb[i].name);
+        gNewline();
         gPrint("PID: ");
         gPrintDec(pcb[i].pid);
         gNewline();
-        gPrint("NAME: ");
-        gPrint(pcb[i].name);
+        gPrint("Priority: ");
+        gPrintDec(pcb[i].priority);
+        gNewline();
+        gPrint("Stack base: ");
+        gPrintDec(pcb[i].stack_base);
+        gNewline();
+        gPrint("Stack pointer: ");
+        gPrintDec(pcb[i].rsp);
+        gNewline();
+        gPrint("Ground: ");
+        gPrint(isForeground(pcb[i].ground)? "foreground": "background");
+        gNewline();
+        gPrint("Status: ");
+        gPrintDec(pcb[i].status);
         gNewline();
         gPrint("------");
         gNewline();

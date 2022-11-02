@@ -13,6 +13,8 @@ section .data
     syscallexit     equ 11
     syscallexec     equ 12
     syscallps       equ 13
+    syscallnice     equ 14
+    syscallyield    equ 15
 
 
 section .text
@@ -30,6 +32,8 @@ global syscreateprocess
 global sysexits
 global sysexec
 global sysps
+global sysnice
+global sysyield
 
 %macro syscallHandler 1
     push rbp
@@ -108,3 +112,12 @@ sysexec:
 
 sysps:
     syscallHandler syscallps
+
+
+;rdi->pid
+;rsi->priority
+sysnice:
+    syscallHandler syscallnice
+
+sysyield:
+    syscallHandler syscallyield

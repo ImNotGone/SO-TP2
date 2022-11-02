@@ -86,4 +86,6 @@ extern void sysexec();
 //prints out all process' data
 extern void sysps();
 
+extern void sysnice(int pid, int priority);
+
 #endif//SYSCALLS_H_

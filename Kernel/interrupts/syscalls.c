@@ -40,6 +40,8 @@ uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char
 void sysexit();
 void sysexec(uint64_t pid);
 void sysps();
+void sysnice(int pid, int priority);
+void sysyield();
 
 
 TSyscallHandler syscallHandlers[] = {
@@ -71,6 +73,12 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysexec,
     //0x0D
     (TSyscallHandler) sysps,
+    //0x0E
+    (TSyscallHandler) sysnice,
+    //0x0F
+    (TSyscallHandler) sysyield,
+
+
 
 };
 
@@ -178,7 +186,9 @@ void sysmeminfo(TMemInfo* memInfo) {
 
 // ------------ Process Manager ----------------
 uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
-    return newProcess(rip, ground, priority, argc, argv);
+    int pid =  newProcess(rip, ground, priority, argc, argv);
+    exec(pid);
+    return pid;
 }
 
 void sysexit(){
@@ -193,4 +203,12 @@ void sysexec(uint64_t pid){
 
 void sysps(){
     printAllProcess();
+}
+
+void sysnice(int pid, int priority){
+    changePriority(pid, priority);
+};
+
+void sysyield(){
+    yield();
 }

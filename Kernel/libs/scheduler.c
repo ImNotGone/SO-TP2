@@ -93,7 +93,9 @@ int getActivePid(){
 }
 
 void yield(){
+    gusts = 0;
     _int20();
 }
+
 
 

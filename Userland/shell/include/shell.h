@@ -11,6 +11,7 @@
 #include <_string.h>
 #include <_stdbool.h>
 #include <syscalls.h>
+#include <processCmds.h>
 
 #define COMMAND_BUFFER_SIZE 256
 #define MAX_ARGS 64

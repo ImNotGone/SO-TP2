@@ -31,6 +31,7 @@ static command commands[] = {
     {"memtest", "Tests the memory", (voidfp)memtest},
     {"meminfo", "Prints memory manager status", printMemInfo},
     {"ps", "Prints all process' information", ps},
+    {"nice", "Changes priority to pid", nice},
 };
 
 static int commandsDim = sizeof(commands) / sizeof(commands[0]);
@@ -61,16 +62,15 @@ static void command_listener() {
     for (i = 0; i < commandsDim; i++) {
 
         if (strcmp(argv[0], commands[i].name) == 0) {
-            // commands[i].exec();
 
-            // ptr to func, amount of args, and argv
-            // hardcoded for now
             uint64_t rip = (uint64_t)commands[i].exec;
 
             // armar wrapper commands para esto
-            int pid =
-                syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
-            sysexec(pid);
+            int pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
+            //sysexec(pid);
+            //sysyield();
+
+
             return;
         }
     }
