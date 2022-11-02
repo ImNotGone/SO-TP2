@@ -29,6 +29,8 @@ typedef struct pdata{
 }Pdata;
 
 // C functions
+void initProcessManager();
+
 uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 
 void exec(uint64_t pid);
