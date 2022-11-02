@@ -8,6 +8,7 @@
 #include <libs/processManager.h>
 #include <libs/scheduler.h>
 #include <interrupts/interrupts.h>
+#include <libs/semaphore.h>
 
 int8_t regSaved;
 int64_t registerSnapshot[17];
@@ -28,14 +29,18 @@ typedef int64_t (*TSyscallHandler) (uint64_t rdi, uint64_t rsi, uint64_t rdx, ui
 
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes);
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
+
 void    systime(TTime * ts);
+
 int64_t sysmemdump(uint64_t address, int8_t *memData);
 int64_t sysregdump(TRegs *regs);
+
 void *  sysmalloc(uint64_t size);
 void    sysfree(void * ptr);
 void *  sysrealloc(void * ptr, uint64_t size);
 void    sysmeminfo(TMemInfo* memInfo);
 void *  syscalloc(uint64_t nmemb, uint64_t size);
+
 uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
 void sysexec(uint64_t pid);
@@ -43,18 +48,28 @@ void sysps();
 void sysnice(int pid, int priority);
 void sysyield();
 
+sem_t    syssemopen(const char * name, uint32_t value);
+int64_t  syssemwait(sem_t sem);
+int64_t  syssempost(sem_t sem);
+int64_t  syssemclose(sem_t sem);
+TSemInfo *sysseminfo();
+
+
 
 TSyscallHandler syscallHandlers[] = {
     //0x00
     (TSyscallHandler) sysread,
     //0x01
     (TSyscallHandler) syswrite,
+
     //0x02
     (TSyscallHandler) systime,
+
     //0x03
     (TSyscallHandler) sysmemdump,
     //0x04
     (TSyscallHandler) sysregdump,
+
     //0x05
     (TSyscallHandler) sysmalloc,
     //0x06
@@ -65,6 +80,7 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) syscalloc,
     //0x09
     (TSyscallHandler) sysmeminfo,
+
     //0x0A
     (TSyscallHandler) syscreateprocess,
     //0x0B
@@ -77,6 +93,17 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysnice,
     //0x0F
     (TSyscallHandler) sysyield,
+
+    //0x10
+    (TSyscallHandler) syssemopen,
+    //0x11
+    (TSyscallHandler) syssemwait,
+    //0x12
+    (TSyscallHandler) syssempost,
+    //0x13
+    (TSyscallHandler) syssemclose,
+    //0x14
+    (TSyscallHandler) sysseminfo
 
 
 
@@ -212,3 +239,26 @@ void sysnice(int pid, int priority){
 void sysyield(){
     yield();
 }
+
+// -------------- Semaphores -------------------
+sem_t syssemopen(const char * name, uint32_t value){
+    return sem_open(name, value);
+}
+
+int64_t syssemwait(sem_t sem){
+    return sem_wait(sem);
+}
+
+int64_t syssempost(sem_t sem){
+    return sem_post(sem);
+}
+
+int64_t syssemclose(sem_t sem){
+    return sem_close(sem);
+}
+
+TSemInfo *sysseminfo(){
+    return sem_info();
+}
+
+

@@ -14,6 +14,7 @@
 #include <interrupts/interrupts.h>
 #include <interrupts/syscalls.h>
 #include <libs/processManager.h>
+#include <libs/semaphore.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -53,6 +54,8 @@ void * initializeKernelBinary() {
 	load_idt();
 
     minit(heapAddress, HEAP_SIZE + HEAP_STRUCTURE_SIZE);
+
+    initSemaphores();
 
 	initGraphics();
 	return getStackBase();

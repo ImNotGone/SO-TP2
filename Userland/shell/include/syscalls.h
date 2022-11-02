@@ -42,6 +42,17 @@ typedef struct meminfo {
     uint64_t used;
 } TMemInfo;
 
+// Semaphores Info structure
+typedef struct seminfo {
+    uint64_t value;
+
+    uint64_t waitingQueueSize;
+    int *waitingQueue;
+} TSemInfo;
+
+// sem_t
+typedef int64_t sem_t;
+
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
 
@@ -86,6 +97,27 @@ extern void sysexec();
 //prints out all process' data
 extern void sysps();
 
+// Changes the priority of the process
 extern void sysnice(int pid, int priority);
+
+// Gives up the CPU
+extern void sysyield();
+
+// Opens a semaphore
+extern sem_t syssemopen(const char * name, uint32_t value);
+
+// Waits for a semaphore
+extern int64_t syssemwait(sem_t sem);
+
+// Posts a semaphore
+extern int64_t syssempost(sem_t sem);
+
+// Closes a semaphore 
+extern int64_t syssemclose(sem_t sem);
+
+// Gets semaphore information
+extern TSemInfo *sysseminfo();
+
+
 
 #endif//SYSCALLS_H_
