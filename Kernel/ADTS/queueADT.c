@@ -26,7 +26,10 @@ bool queue(queueADT q, void * elem) {
         return false;
     }
     tList node = malloc(sizeof(tNode));
-    node->elem = malloc(q->elementSize);
+    if(node == NULL || (node->elem = malloc(q->elementSize)) == NULL) {
+        free(node);
+        return false;
+    }
     memcpy(node->elem, elem, q->elementSize);
     node->tail = NULL;
     if(isEmpty(q)) {
