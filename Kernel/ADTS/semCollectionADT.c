@@ -214,6 +214,18 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
     // Decrement the attached processes
     semCollection->semaphores[sem]->attachedProcesses--;
 
+    // If there are no more attached processes and the semaphore is not linked, delete it
+    if (semCollection->semaphores[sem]->attachedProcesses == 0 && !semCollection->semaphores[sem]->isLinked) {
+
+        // Free the semaphore
+        freeQueue(semCollection->semaphores[sem]->waitingQueue);
+        free(semCollection->semaphores[sem]);
+
+        // Remove the semaphore from the collection
+        semCollection->semaphores[sem] = NULL;
+        semCollection->semaphoresSize--;
+    }
+
     return 0;
 };
 
@@ -242,7 +254,7 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
     if (semCollection->semaphores[sem]->attachedProcesses == 0) {
 
         // Free the semaphore
-        free(semCollection->semaphores[sem]->waitingQueue);
+        freeQueue(semCollection->semaphores[sem]->waitingQueue);
         free(semCollection->semaphores[sem]);
 
         // Remove the semaphore from the collection
