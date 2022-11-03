@@ -1,14 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include <interrupts/syscalls.h>
-#include <libs/memoryManager.h>
-#include <drivers/graphics.h>
-#include <drivers/keyboard.h>
-#include <drivers/RTC.h>
-#include <libs/processManager.h>
-#include <libs/scheduler.h>
-#include <interrupts/interrupts.h>
-#include <libs/semaphore.h>
 
 int8_t regSaved;
 int64_t registerSnapshot[17];
@@ -123,7 +116,7 @@ int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx
 }
 
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
-    if(fd != STDOUT && fd != STDERR) return -1;
+    if((fd != STDOUT && fd != STDERR) || buffer == NULL) return -1;
     int64_t bytesWritten;
     static gcolor RED   = {0xFF, 0x00, 0x00};
     gcolor foreground = (fd == STDOUT)? gGetDefaultForeground():RED;
@@ -134,7 +127,7 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
 }
 
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
-    if(fd != STDIN) return -1;
+    if(fd != STDIN || buffer == NULL) return -1;
     int64_t i = 0;
     char c;
     for(;i < bytes && (c = getchar()) != 0; i++) {
@@ -145,18 +138,20 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
 
 // Escribe la info recibida del rtc en la estructura t
 void systime(TTime * t) {
+    if(t == NULL) return; //TODO: clearer return
     t->year = getRTCYear();
     t->month = getRTCMonth();
     t->day = getRTCDayOfMonth();
     t->hour = getRTCHours();
     t->min = getRTCMinutes();
     t->sec = getRTCSeconds();
+    return;
 }
 
 // Escribe los MEM_DUMP_SIZE bytes desde la direccion de memoria indicada en memData
 int64_t sysmemdump(uint64_t address, int8_t *memData) {
     // No pudimos resolver el acceso a una direccion de memoria mayor a MAX_MEM_ADDRESS
-    if (address > MAX_MEM_ADDRESS)
+    if (address > MAX_MEM_ADDRESS || memData == NULL)
         return -1;
     int8_t *memDir = (int8_t *) address;
     int i;
@@ -171,7 +166,7 @@ int64_t sysmemdump(uint64_t address, int8_t *memData) {
 // Si se guardaron registros los escribe en regs y retorna 1
 // Si no se habian guardado ningun registro retorna 0 y no escribe nada
 int64_t sysregdump(TRegs *regs) {
-    if (!regSaved)
+    if (!regSaved || regs == NULL)
         return 0;
     regs->rax = registerSnapshot[0];
     regs->rbx = registerSnapshot[1];
@@ -211,11 +206,13 @@ void * syscalloc(uint64_t nmemb, uint64_t size) {
 }
 
 void sysmeminfo(TMemInfo* memInfo) {
+    if(memInfo == NULL) return; //TODO: Clearer return
     meminfo(memInfo);
 }
 
 // ------------ Process Manager ----------------
 pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
+    //TODO: argv == NULL?
     pid_t pid =  newProcess(rip, ground, priority, argc, argv);
     exec(pid);
     return pid;
@@ -237,7 +234,7 @@ void sysps(){
 
 void sysnice(pid_t pid, int priority){
     changePriority(pid, priority);
-};
+}
 
 void sysyield(){
     yield();
@@ -245,6 +242,7 @@ void sysyield(){
 
 // -------------- Semaphores -------------------
 sem_t syssemopen(const char * name, uint32_t value){
+    // TODO: name == NULL?
     return sem_open(name, value);
 }
 
@@ -261,10 +259,12 @@ int64_t syssemclose(sem_t sem){
 }
 
 int64_t syssemunlink(const char * name){
+    // TODO: name == NULL?
     return sem_unlink(name);
 }
 
 TSemInfo *sysseminfo(uint64_t *size){
+    // TODO: size == NULL?
     return sem_info(size);
 }
 

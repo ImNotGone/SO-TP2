@@ -6,7 +6,6 @@
 
 static queueADT readyQueue = NULL;
 static queueADT blockedQueue = NULL;
-static int processCount =0;
 static int started = 0;
 static pid_t activePid = KERNEL_PID;
 static PCBType * activeProcess = NULL;

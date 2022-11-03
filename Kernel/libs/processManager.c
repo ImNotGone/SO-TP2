@@ -38,6 +38,10 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->ppid = getActivePid();
     pcb->rsp = createProcess(pcb->stack_base, pcb->rip, argc, argv);
 
+    pcb->fd[STDIN] = STDIN;
+    pcb->fd[STDOUT] = STDOUT;
+    pcb->fd[STDERR] = STDERR;
+
     addToReadyQueue(&pcb);
     if(pcb->ground == 0  && pcb->pid != 0){
         block(pcb->ppid);

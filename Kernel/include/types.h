@@ -6,6 +6,10 @@
 #define false 0
 #define true !false
 
+#define STDIN   0
+#define STDOUT  1
+#define STDERR  2
+
 typedef int8_t bool;
 
 // ------------ Data structures for kernel interaction -----------

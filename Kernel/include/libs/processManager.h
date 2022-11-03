@@ -20,6 +20,7 @@ typedef struct processData{
     int status;
     char ** argv;
     char * name;
+    int fd[3];
 }PCBType;
 
 //TODO work here and in scheduler to remove this struct
