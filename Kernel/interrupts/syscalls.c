@@ -41,11 +41,11 @@ void *  sysrealloc(void * ptr, uint64_t size);
 void    sysmeminfo(TMemInfo* memInfo);
 void *  syscalloc(uint64_t nmemb, uint64_t size);
 
-uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
+pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
-void sysexec(uint64_t pid);
+void sysexec(pid_t pid);
 void sysps();
-void sysnice(int pid, int priority);
+void sysnice(pid_t pid, int priority);
 void sysyield();
 
 sem_t    syssemopen(const char * name, uint32_t value);
@@ -215,8 +215,8 @@ void sysmeminfo(TMemInfo* memInfo) {
 }
 
 // ------------ Process Manager ----------------
-uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
-    int pid =  newProcess(rip, ground, priority, argc, argv);
+pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
+    pid_t pid =  newProcess(rip, ground, priority, argc, argv);
     exec(pid);
     return pid;
 }
@@ -226,7 +226,7 @@ void sysexit(){
     yield();
 }
 
-void sysexec(uint64_t pid){
+void sysexec(pid_t pid){
     exec(pid);
     yield();
 }
@@ -235,7 +235,7 @@ void sysps(){
     printAllProcess();
 }
 
-void sysnice(int pid, int priority){
+void sysnice(pid_t pid, int priority){
     changePriority(pid, priority);
 };
 

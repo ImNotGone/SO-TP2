@@ -103,7 +103,7 @@ int64_t sem_post(sem_t sem) {
     if (getWaitingQueueSize(semCollection, sem) > 0) {
 
         // Unblock a process
-        int pid = getNextWaitingProcess(semCollection, sem);
+        pid_t pid = getNextWaitingProcess(semCollection, sem);
         unblock(pid);
 
         // Unlock the semaphore

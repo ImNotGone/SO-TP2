@@ -41,10 +41,10 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem);
 int64_t unlinkSem(semCollectionADT semCollection, const char *name);
 
 // Add a process to the waiting queue
-int addWaitingProcess(semCollectionADT semCollection, sem_t sem, int pid);
+int addWaitingProcess(semCollectionADT semCollection, sem_t sem, pid_t pid);
 
 // Get the next process in the waiting queue
-int getNextWaitingProcess(semCollectionADT semCollection, sem_t sem);
+pid_t getNextWaitingProcess(semCollectionADT semCollection, sem_t sem);
 
 // Free the semaphore collection
 void freeSemCollection(semCollectionADT semCollection);

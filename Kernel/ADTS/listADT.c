@@ -103,18 +103,6 @@ static void listfreeRec(tList list) {
     free(list);
 }
 
-elemType listfind(tList list, int pid){
-    listtoBeginAsc(list);
-    elemType toReturn;
-    while(listhasNext(list)){
-        toReturn  = listnextAsc(list);
-        if(toReturn->pid==pid){
-            return toReturn;
-        }
-    }
-    return NULL;
-}
-
 void listfreeList(listADT list) {
     listfreeRec(list->list_ord);
     listfreeRec(list->list_asc);

@@ -7,9 +7,8 @@
 static queueADT readyQueue = NULL;
 static queueADT blockedQueue = NULL;
 static int processCount =0;
-static int idlePid;
 static int started = 0;
-static int activePid = KERNEL_PID;
+static pid_t activePid = KERNEL_PID;
 static PCBType * activeProcess = NULL;
 static int gusts=0;
 
@@ -25,19 +24,8 @@ void freeProcess(PCBType * process);
 
 void startScheduler(){
     started=1;
-    readyQueue = newQueue(sizeof(PCBType *));
-
-    //char *argv[] = {NULL};
-    //idlePid = newProcess(idle, 1, 0, 0, argv);
-    //exec(idlePid);
-
-    toBegin(readyQueue);
-}
-
-static void idle() {
-    while (1){
-        _hlt();
-    }
+    readyQueue = newQueue(sizeof(PCBType *), comparePCB);
+    blockedQueue = newQueue(sizeof(PCBType *), comparePCB);
 }
 
 uint64_t switchContext(uint64_t rsp){
@@ -92,7 +80,7 @@ void addToReadyQueue(PCBType ** process){
     queue(readyQueue, process);
 }
 
-int getActivePid(){
+pid_t getActivePid(){
     return activePid;
 }
 
@@ -101,13 +89,13 @@ void yield(){
     _int20();
 }
 
-PCBType * find(int pid){
-    toBegin(readyQueue);
-    PCBType * aux;
+PCBType * find(pid_t pid){
     if (activePid == pid){
         return activeProcess;
     }
 
+    toBegin(readyQueue);
+    PCBType * aux;
     while(hasNext(readyQueue)){
         next(readyQueue, &aux);
         if(aux->pid == pid)
@@ -146,7 +134,7 @@ void printProcess(PCBType * pcb){
     gPrintDec(pcb->rsp);
     gNewline();
     gPrint("Ground: ");
-    gPrint(isForeground(pcb->ground) ? "foreground" : "background");
+    gPrint(!pcb->ground ? "foreground" : "background");
     gNewline();
     gPrint("Status: ");
     gPrintDec(pcb->status);
@@ -160,8 +148,12 @@ void freeProcess(PCBType * process){
         free(process->argv[i]);
     }
     free(process->argv);
-    free(process->stack_base - STACK_SIZE);
+    free((void*)(process->stack_base - STACK_SIZE));
     free(process);
 }
 
-
+static void idle() {
+    while (1){
+        _hlt();
+    }
+}

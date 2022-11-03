@@ -54,6 +54,8 @@ typedef struct seminfo {
 // sem_t
 typedef int64_t sem_t;
 
+typedef uint16_t pid_t;
+
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
 
@@ -68,7 +70,6 @@ extern int64_t sysmemdump(uint64_t address, int8_t *memData);
 
 // Gets the registeres in TRegs format from the kernel register snapshot
 extern int8_t sysregdump(TRegs *regs);
-
 
 // Allocates memory with te rewuired size
 extern void *sysmalloc(uint64_t size);
@@ -87,7 +88,7 @@ extern void *syscalloc(uint64_t nmemb, uint64_t size);
 extern void sysmeminfo(TMemInfo *memInfo);
 
 //returns pid
-extern uint64_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[] );
+extern pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[] );
 
 //exits process
 extern void sysexits();
@@ -99,7 +100,7 @@ extern void sysexec();
 extern void sysps();
 
 // Changes the priority of the process
-extern void sysnice(int pid, int priority);
+extern void sysnice(pid_t pid, int priority);
 
 // Gives up the CPU
 extern void sysyield();
@@ -113,7 +114,7 @@ extern int64_t syssemwait(sem_t sem);
 // Posts a semaphore
 extern int64_t syssempost(sem_t sem);
 
-// Closes a semaphore 
+// Closes a semaphore
 extern int64_t syssemclose(sem_t sem);
 
 // Unlinks a semaphore

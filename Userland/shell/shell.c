@@ -71,7 +71,7 @@ static void command_listener() {
             uint64_t rip = (uint64_t)commands[i].exec;
 
             // armar wrapper commands para esto
-            int pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
+            pid_t pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
             //sysexec(pid);
             //sysyield();
 

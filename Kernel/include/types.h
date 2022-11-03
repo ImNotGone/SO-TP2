@@ -62,4 +62,6 @@ typedef int64_t sem_t;
 // lock_t
 typedef int lock_t;
 
+typedef int16_t pid_t;
+
 #endif//_TYPES_H

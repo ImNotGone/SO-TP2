@@ -38,6 +38,16 @@ typedef struct semCollectionCDT {
 
 // ==================== Functions ====================
 
+// ------------------- CMP -------------------
+static int64_t comparePid(void * pid1, void * pid2) {
+    if(pid1 == NULL || pid2 == NULL) {
+        return pid1 != NULL || pid2 != NULL;
+    }
+    pid_t a = *(pid_t *)pid1;
+    pid_t b = *(pid_t *)pid2;
+    return (a > b) - (a < b);
+}
+
 // ------------------- New -------------------
 
 // Create a new semaphore collection
@@ -67,7 +77,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
     // Search for the semaphore
     int firstFree = -1;
     for (int i = 0; i < MAX_SEM; i++) {
-    
+
         // Semaphore found
         if (semCollection->semaphores[i] != NULL && semCollection->semaphores[i]->isLinked && strcmp(semCollection->semaphores[i]->name, name) == 0) {
 
@@ -76,7 +86,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
             return semCollection->semaphores[i]->sem;
 
         } else if (firstFree == -1 && semCollection->semaphores[i] == NULL) {
-            
+
             // First free position
             firstFree = i;
         }
@@ -99,9 +109,9 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     semData->attachedProcesses = 1;
 
-    semData->waitingQueue = newQueue(sizeof(int));
+    semData->waitingQueue = newQueue(sizeof(pid_t), comparePid);
     semData->waitingQueueSize = 0;
-    
+
     // SemId
     semData->sem = firstFree;
 
@@ -175,7 +185,7 @@ int decSemValue(semCollectionADT semCollection, sem_t sem) {
 };
 
 // Add a process to the waiting queue
-int addWaitingProcess(semCollectionADT semCollection, sem_t sem, int pid) {
+int addWaitingProcess(semCollectionADT semCollection, sem_t sem, pid_t pid) {
 
     // Check if the semaphore exists
     if (!semExists(semCollection, sem)) {
@@ -189,14 +199,14 @@ int addWaitingProcess(semCollectionADT semCollection, sem_t sem, int pid) {
 };
 
 // Get the next process in the waiting queue
-int getNextWaitingProcess(semCollectionADT semCollection, sem_t sem) {
+pid_t getNextWaitingProcess(semCollectionADT semCollection, sem_t sem) {
 
     // Check if the semaphore exists
     if (!semExists(semCollection, sem)) {
         return -1;
     }
 
-    int pid;
+    pid_t pid;
     dequeue(semCollection->semaphores[sem]->waitingQueue, &pid);
     semCollection->semaphores[sem]->waitingQueueSize--;
     return pid;
@@ -268,7 +278,7 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
 // ------------------- Free -------------------
 // Free the semaphore collection
 void freeSemCollection(semCollectionADT semCollection) {
-    
+
     // Free the semaphores
     for (int i = 0; i < MAX_SEM; i++) {
         if (semCollection->semaphores[i] != NULL) {

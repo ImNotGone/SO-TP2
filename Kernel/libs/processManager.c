@@ -8,19 +8,18 @@
 #define MIN_PRIORITY 1
 #define MAX_PRIORITY 10
 
-static int processCount = 0;
+static pid_t nextPid = 0;
 
 uint64_t strlen(char *string);
 void strcpy(char *string, char *target);
 
 static PCBType * pcb;
 
-
-uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
+pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
 
     pcb = malloc(sizeof(PCBType));
 
-    pcb->stack_base = malloc(STACK_SIZE) + STACK_SIZE;
+    pcb->stack_base = (uint64_t)malloc(STACK_SIZE) + STACK_SIZE;
     pcb->rip = rip;
     pcb->argc = argc;
     pcb->ground = ground;
@@ -35,7 +34,7 @@ uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * arg
 
     pcb->status= READY;
     pcb->priority=priority;
-    pcb->pid = processCount;
+    pcb->pid = nextPid;
     pcb->ppid = getActivePid();
     pcb->rsp = createProcess(pcb->stack_base, pcb->rip, argc, argv);
 
@@ -44,10 +43,19 @@ uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * arg
         block(pcb->ppid);
     }
 
-    return processCount++;
+    return nextPid++;
 }
 
-void exec(uint64_t pid){
+int64_t comparePCB(void * pcb1, void * pcb2) {
+    if(pcb1 == NULL || pcb2 == NULL) {
+        return (pcb1 != NULL) - (pcb2 != NULL);
+    }
+    PCBType a = *(PCBType *)pcb1;
+    PCBType b = *(PCBType *)pcb2;
+    return (a.pid > b.pid) - (a.pid < b.pid);
+}
+
+void exec(pid_t pid){
 
     //Pdata process = {&pcb[pid], pcb[pid].pid};
     // PCBType * process = NULL;
@@ -66,8 +74,9 @@ void exec(uint64_t pid){
     // }
 }
 
-void killProcess(uint64_t pid){
+void killProcess(pid_t pid){
     PCBType * process = find(pid);
+    if(process == NULL) return;
     process->status = KILLED;
 
     // si es foreground:
@@ -75,35 +84,35 @@ void killProcess(uint64_t pid){
         unblock(process->ppid);
 }
 
-void block(uint64_t pid){
+void block(pid_t pid){
     PCBType * process = find(pid);
+    if(process == NULL) return;
     process->status = BLOCKED;
     if (pid == getActivePid()){
         yield();
     }
 }
 
-void unblock(uint64_t pid){
+void unblock(pid_t pid){
     PCBType * process = find(pid);
+    if(process == NULL) return;
     process->status = READY;
 }
 
-void changePriority(int pid, int priority){
+void changePriority(pid_t pid, int priority){
     if(priority>MAX_PRIORITY || priority<MIN_PRIORITY)
         priority = (MAX_PRIORITY + MIN_PRIORITY)/2;
 
     PCBType * process = find(pid);
+    if(process == NULL) return;
     process->priority = priority;
-}
-
-int isForeground(int pid){
-    PCBType * process = find(pid);
-    return !process->ground;
 }
 
 void printAllProcess(){
     printPs();
 }
+
+
 
 // -- aux string functions --
 

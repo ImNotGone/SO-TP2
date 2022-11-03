@@ -13,13 +13,13 @@ queueADT getQueue();
 
 void printPs();
 
-PCBType * find(int pid);
+PCBType * find(pid_t pid);
 
 uint64_t switchContext(uint64_t rsp);
 
 void addToReadyQueue(PCBType ** process);
 
-int getActivePid();
+pid_t getActivePid();
 
 void yield();
 

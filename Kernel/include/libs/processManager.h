@@ -1,7 +1,7 @@
 #ifndef PROCESSMANAGER_H
 #define PROCESSMANAGER_H
 
-#include <stdint.h>
+#include <types.h>
 #include <libs/process.h>
 #include <interrupts/interrupts.h>
 #include <drivers/graphics.h>
@@ -12,7 +12,7 @@
 #define STACK_SIZE 4096
 
 typedef struct processData{
-    uint16_t pid, ppid;
+    pid_t pid, ppid;
     uint64_t rsp, stack_base, rip;
     int argc;
     int ground;
@@ -28,21 +28,21 @@ typedef struct processData{
 
 // C functions
 
-uint64_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
+pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 
-void exec(uint64_t pid);
+void exec(pid_t pid);
 
-void killProcess();
+void killProcess(pid_t pid);
 
-void changePriority(int pid, int priority);
+void changePriority(pid_t pid, int priority);
 
-void unblock(uint64_t pid);
+void unblock(pid_t pid);
 
-void block(uint64_t pid);
+void block(pid_t pid);
 
 void printAllProcess();
 
-int isForeground(int pid);
+int64_t comparePCB(void * pcb1, void * pcb2);
 
 #endif //PROCESSMANAGER_H
 
