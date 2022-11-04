@@ -54,20 +54,29 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     for (i = 0; i < n; i++) {
 
         if (use_sem) {
-            syssemwait(sem);
+            if (syssemwait(sem) == -1) {
+                printf("test_sync: ERROR waiting semaphore\n");
+                return -1;
+            }
         }
 
         slowInc(&global, inc);
 
         if (use_sem) {
-            syssempost(sem);
+            if (syssempost(sem) == -1) {
+                printf("test_sync: ERROR posting semaphore\n");
+            }
         }
     }
 
     printf("Process %d finished\n", (int)sysgetpid());
 
-    if (use_sem)
-        syssemclose(sem);
+    if (use_sem == 1) {
+        if (syssemclose(sem) == -1) {
+            printf("test_sync: ERROR closing named semaphore\n");
+            return -1;
+        }
+    }
 
     return 0;
 }
@@ -79,10 +88,10 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
         return -1;
     }
 
-    if (strcmp(argv[1], "2") == 0) {
+    if (strcmp(argv[1], "unnamed") == 0) {
         unnamed_sem = sysseminit(1);
         if (unnamed_sem == -1) {
-            printf("test_sync: ERROR opening unnamed semaphore (2)\n");
+            printf("test_sync: ERROR opening unnamed semaphore\n");
             return -1;
         }
     }
@@ -92,7 +101,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
                                                     : "0";
 
     char *argvDec[] = {argv[0], "-1", semType, 0};
-    char *argvInc[] = {argv[0], "1", semType, 0};
+    char *argvInc[] = {argv[0], "1", semType,  0};
 
     printf("Starting test_sync with %s semaphore and %s iterations per process\n",argv[1], argv[0]);
 
@@ -113,6 +122,18 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         syswaitpid(pids[i]);
         syswaitpid(pids[i + TOTAL_PAIR_PROCESSES]);
+    }
+
+    if (strcmp(argv[1], "unnamed") == 0) {
+        if (syssemdestroy(unnamed_sem) == -1) {
+            printf("test_sync: ERROR closing unnamed semaphore\n");
+            return -1;
+        }
+    } else if (strcmp(argv[1], "named") == 0) {
+        if (syssemunlink(SEM_ID) == -1) {
+            printf("test_sync: ERROR unlinking named semaphore\n");
+            return -1;
+        }
     }
 
     printf("Final value: %d\n", global);

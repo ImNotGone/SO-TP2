@@ -66,6 +66,7 @@ global syssemopen
 global syssemwait
 global syssempost
 global syssemclose
+global syssemunlink
 global sysseminfo
 global sysseminit
 global syssemdestroy
