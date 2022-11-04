@@ -5,7 +5,7 @@
 
 void * memset(void * destination, int32_t character, uint64_t length);
 void * memcpy(void * destination, const void * source, uint64_t length);
-
+uint64_t memcmp(const void * ptr1, const void * ptr2, uint64_t num);
 char *cpuVendor(char *result);
 
 #endif

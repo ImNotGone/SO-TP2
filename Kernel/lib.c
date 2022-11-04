@@ -50,3 +50,20 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+uint64_t memcmp(const void * ptr1, const void * ptr2, uint64_t num)
+{
+    const uint8_t *p1 = (const uint8_t *)ptr1;
+    const uint8_t *p2 = (const uint8_t *)ptr2;
+
+    while (num--)
+    {
+        if (*p1 != *p2)
+            return *p1 - *p2;
+
+        p1++;
+        p2++;
+    }
+
+    return 0;
+}

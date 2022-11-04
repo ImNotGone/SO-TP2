@@ -68,4 +68,6 @@ typedef int lock_t;
 
 typedef int16_t pid_t;
 
+typedef int fd_t;
+
 #endif//_TYPES_H
