@@ -13,6 +13,8 @@ queueADT getQueue();
 
 void printPs();
 
+PCBType * getActiveProcess();
+
 PCBType * find(pid_t pid);
 
 uint64_t switchContext(uint64_t rsp);

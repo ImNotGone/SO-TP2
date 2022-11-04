@@ -145,10 +145,22 @@ int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx
 }
 
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
-    if((fd != STDOUT && fd != STDERR) || buffer == NULL) return -1;
+    if(fd != STDOUT && fd != STDERR)
+        return -1;
+
+    if(fd == STDOUT){
+        PCBType * process = getActiveProcess();
+        fd = process->fd[STDOUT];
+    }
+
+    if (fd>=3){
+        //return pipewrite
+    }
+
     int64_t bytesWritten;
     static gcolor RED   = {0xFF, 0x00, 0x00};
-    gcolor foreground = (fd == STDOUT)? gGetDefaultForeground():RED;
+    gcolor foreground = (fd == STDOUT)? gGetDefaultForeground() : RED;
+
     for(bytesWritten = 0; bytesWritten < bytes; bytesWritten++) {
         gPutcharColor(buffer[bytesWritten], gGetDefaultBackground(), foreground);
     }
@@ -156,7 +168,17 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
 }
 
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
-    if(fd != STDIN || buffer == NULL) return -1;
+    if(fd != STDIN)
+        return -1;
+
+    PCBType * process = getActiveProcess();
+    fd = process->fd[STDIN];
+
+    if(fd >= 3){
+        //return piperead
+    }
+
+    //read normally
     int64_t i = 0;
     char c;
     for(;i < bytes && (c = getchar()) != 0; i++) {

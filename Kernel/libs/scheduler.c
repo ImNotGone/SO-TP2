@@ -167,6 +167,10 @@ void freeProcess(PCBType * process){
     free(process);
 }
 
+PCBType * getActiveProcess(){
+    return activeProcess;
+}
+
 static void idle() {
     while (1){
         _hlt();
