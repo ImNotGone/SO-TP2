@@ -126,6 +126,24 @@ TSemInfo *sem_info(uint64_t *size) {
     return semCollectionInfo(semCollection, size);
 }
 
+// --------------------- Unnamed Semaphores ---------------------
+// Creates a new unnamed semaphore with the given initial value
+// Returns the semaphore id
+sem_t sem_init(uint64_t value) {
+    return initUnnamedSem(semCollection, value);
+}
+
+// Destroys the semaphore
+int64_t sem_destroy(sem_t sem) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    return destroyUnnamedSem(semCollection, sem);
+}
+
 // ==================== Auxiliary Functions ====================
 // Acquire the lock
 static void acquire(lock_t *lock) {

@@ -121,7 +121,7 @@ extern void sysyield();
 extern uint64_t sysgetpid();
 
 // Opens a semaphore
-extern sem_t syssemopen(const char * name, uint32_t value);
+extern sem_t syssemopen(const char * name, uint64_t value);
 
 // Waits for a semaphore
 extern int64_t syssemwait(sem_t sem);
@@ -138,6 +138,11 @@ extern int64_t syssemunlink(const char * name);
 // Gets semaphore information
 extern TSemInfo *sysseminfo(uint64_t * size);
 
+// Initializes unnamed semaphore
+extern sem_t sysseminit(uint64_t value);
+
+// Destroys unnamed semaphore
+extern int64_t syssemdestroy(sem_t sem);
 
 
 #endif//SYSCALLS_H_

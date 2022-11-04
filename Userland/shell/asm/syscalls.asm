@@ -25,12 +25,14 @@ section .data
     syscallyield    equ 19
     syscallgetpid   equ 20
     
-    syscallsemopen  equ 21
-    syscallsemwait  equ 22
-    syscallsempost  equ 23
-    syscallsemclose equ 24
-    syscallsemunlink equ 25
-    syscallseminfo  equ 26
+    syscallsemopen    equ 21
+    syscallsemwait    equ 22
+    syscallsempost    equ 23
+    syscallsemclose   equ 24
+    syscallsemunlink  equ 25
+    syscallseminfo    equ 26
+    syscallseminit    equ 27
+    syscallsemdestroy equ 28
 
 
 section .text
@@ -65,6 +67,8 @@ global syssemwait
 global syssempost
 global syssemclose
 global sysseminfo
+global sysseminit
+global syssemdestroy
 
 %macro syscallHandler 1
     push rbp
@@ -194,3 +198,11 @@ syssemunlink:
 ;rdi->size
 sysseminfo:
     syscallHandler syscallseminfo
+
+;rdi->value
+sysseminit:
+    syscallHandler syscallseminit
+
+;rdi->sem
+syssemdestroy:
+    syscallHandler syscallsemdestroy

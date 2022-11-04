@@ -53,12 +53,15 @@ int64_t sysunblock(pid_t pid);
 void sysyield();
 int64_t sysgetpid();
 
-sem_t    syssemopen(const char * name, uint32_t value);
+sem_t    syssemopen(const char * name, uint64_t value);
 int64_t  syssemwait(sem_t sem);
 int64_t  syssempost(sem_t sem);
 int64_t  syssemclose(sem_t sem);
 int64_t  syssemunlink(const char * name);
 TSemInfo *sysseminfo(uint64_t *size);
+
+sem_t    sysseminit(uint64_t value);
+int64_t  syssemdestroy(sem_t sem);
 
 
 
@@ -121,7 +124,11 @@ TSyscallHandler syscallHandlers[] = {
     //0x19
     (TSyscallHandler) syssemunlink,
     //0x1A
-    (TSyscallHandler) sysseminfo
+    (TSyscallHandler) sysseminfo,
+    //0x1B
+    (TSyscallHandler) sysseminit,
+    //0x1C
+    (TSyscallHandler) syssemdestroy,
 
 
 
@@ -283,8 +290,11 @@ int64_t sysgetpid(){
 }
 
 // -------------- Semaphores -------------------
-sem_t syssemopen(const char * name, uint32_t value){
-    // TODO: name == NULL?
+sem_t syssemopen(const char * name, uint64_t value){
+    if (name == NULL) {
+        return -1;
+    }
+
     return sem_open(name, value);
 }
 
@@ -301,13 +311,25 @@ int64_t syssemclose(sem_t sem){
 }
 
 int64_t syssemunlink(const char * name){
-    // TODO: name == NULL?
+    if (name == NULL) {
+        return -1;
+    }
+
     return sem_unlink(name);
 }
 
 TSemInfo *sysseminfo(uint64_t *size){
-    // TODO: size == NULL?
+    if (size == NULL) {
+        return NULL;
+    }
+
     return sem_info(size);
 }
 
+sem_t sysseminit(uint64_t value){
+    return sem_init(value);
+}
 
+int64_t syssemdestroy(sem_t sem){
+    return sem_destroy(sem);
+}

@@ -63,6 +63,10 @@ semCollectionADT newSemCollection() {
 // Check if the semaphore exists
 int semExists(semCollectionADT semCollection, sem_t sem) {
 
+    if (semCollection == NULL) {
+        return false;
+    }
+
     // Check if the semaphore exists
     if (sem < 0 || sem >= MAX_SEM || semCollection->semaphores[sem] == NULL) {
         return false;
@@ -73,6 +77,10 @@ int semExists(semCollectionADT semCollection, sem_t sem) {
 
 // Get a semaphore from the collection, if it exists or create a new one
 sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialValue) {
+
+    if (semCollection == NULL || name == NULL) {
+        return -1;
+    }
 
     // Search for the semaphore
     int firstFree = -1;
@@ -121,6 +129,47 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     return semData->sem;
 };
+
+// Get unnamed semaphore
+sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
+
+    if (semCollection == NULL) {
+        return -1;
+    }
+
+    // Find first free position
+    int firstFree = -1;
+    for (int i = 0; i < MAX_SEM; i++) {
+
+        if (semCollection->semaphores[i] == NULL) {
+
+            // First free position
+            firstFree = i;
+            break;
+        }
+    }
+
+    // No free position
+    if (firstFree == -1) {
+        return -1;
+    }
+
+    // Create the semaphore
+    semdata_t *semData = calloc(1, sizeof(semdata_t));
+
+    semData->value = value;
+
+    semData->waitingQueue = newQueue(sizeof(pid_t), comparePid);
+    semData->waitingQueueSize = 0;
+
+    // SemId
+    semData->sem = firstFree;
+
+    // Add the semaphore to the collection
+    semCollection->semaphores[firstFree] = semData;
+
+    return semData->sem;
+}
 
 
 // Get the semaphore value
@@ -221,6 +270,11 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
         return -1;
     }
 
+    // If the semaphore is unnamed, return -1
+    if (!semCollection->semaphores[sem]->isLinked) {
+        return -1;
+    }
+
     // Decrement the attached processes
     semCollection->semaphores[sem]->attachedProcesses--;
 
@@ -241,6 +295,10 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
 
 // Unlink a semaphore
 int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
+
+    if (semCollection == NULL || name == NULL) {
+        return -1;
+    }
 
     // Search for the semaphore
     int sem = -1;
@@ -275,6 +333,25 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
     return 0;
 };
 
+// Destroy an unnamed semaphore
+int64_t destroyUnnamedSem(semCollectionADT semCollection, sem_t sem) {
+
+    // If sem is not valid return -1
+    if (!semExists(semCollection, sem)) {
+        return -1;
+    }
+
+    // Free the semaphore
+    freeQueue(semCollection->semaphores[sem]->waitingQueue);
+    free(semCollection->semaphores[sem]);
+
+    // Remove the semaphore from the collection
+    semCollection->semaphores[sem] = NULL;
+    semCollection->semaphoresSize--;
+
+    return 0;
+};
+
 // ------------------- Free -------------------
 // Free the semaphore collection
 void freeSemCollection(semCollectionADT semCollection) {
@@ -296,6 +373,10 @@ void freeSemCollection(semCollectionADT semCollection) {
 // ------------------- Dump -------------------
 // Dump the semaphore collection
 TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
+
+    if (semCollection == NULL) {
+        return NULL;
+    }
 
     // Create the array
     TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresSize);
