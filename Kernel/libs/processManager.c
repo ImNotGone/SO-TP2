@@ -38,7 +38,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->waiting_processes = newQueue(sizeof(pid_t), comparePid);
 
     pcb->ppid = getActivePid();
-    pcb->rsp = createProcess(pcb->stack_base, pcb->rip, argc, argv);
+    pcb->rsp = createProcess(pcb->stack_base, pcb->rip, pcb->argc, pcb->argv);
 
     pcb->fd[STDIN] = STDIN;
     pcb->fd[STDOUT] = STDOUT;
@@ -146,16 +146,16 @@ int64_t waitProcess(pid_t pid) {
     uint64_t activePid = getActivePid();
 
     // Validate if the process exists
-    if (process == NULL) {
+    if (process == NULL || process->status == KILLED) {
         return -1;
     }
 
     // Add the current process to the waiting queue of the process
     queue(process->waiting_processes, &activePid);
 
-    if(process->status != KILLED) {
-        blockProcess(activePid);
-    }
+    // if(process->status != KILLED) {
+         blockProcess(activePid);
+    // }
 
     return 0;
 }
