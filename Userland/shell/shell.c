@@ -70,6 +70,12 @@ static void command_listener() {
 
             pid_t pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
 
+            // Free the memory allocated for the arguments
+            for (i = 0; i < argc; i++) {
+                sysfree(argv[i]);
+            }
+            sysfree(argv);
+
             if (!isBackground) {
                 syswaitpid(pid);
             }
