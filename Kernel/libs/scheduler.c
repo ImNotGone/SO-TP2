@@ -138,6 +138,20 @@ void printProcess(PCBType * pcb){
     gPrint("Status: ");
     gPrintDec(pcb->status);
     gNewline();
+    gPrint("Waiting on this process: ");
+    gNewline();
+
+    // Iterate over waiting processes
+    toBegin(pcb->waiting_processes);
+    int * pid;
+    while (hasNext(pcb->waiting_processes)) {
+        next(pcb->waiting_processes, &pid);
+
+        gPrint("PID: ");
+        gPrintDec(*pid);
+        gNewline();
+    }
+
     gPrint("------");
     gNewline();
 }
@@ -146,8 +160,10 @@ void freeProcess(PCBType * process){
     for(int i = 0 ; i < process->argc ; i++){
         free(process->argv[i]);
     }
+
     free(process->argv);
-    free((void*)(process->stack_base - STACK_SIZE));
+    free((void *) process->stack_base - STACK_SIZE);
+    freeQueue(process->waiting_processes);
     free(process);
 }
 

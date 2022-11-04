@@ -1,7 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <drivers/graphics.h>
@@ -62,7 +61,7 @@ void * initializeKernelBinary() {
 }
 
 int init_shell() {
-	char * argv[]= {"Shell", (void*)0};
+	char * argv[]= {"Shell", (void *) 0};
     pid_t pid= newProcess((uint64_t)shellAddress, 0 , 1, 1, argv);
 	exec(pid);
 	return 1;
