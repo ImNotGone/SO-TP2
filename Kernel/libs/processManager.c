@@ -112,6 +112,24 @@ int64_t killProcess(pid_t pid) {
     return 0;
 }
 
+int64_t sleepProcess(pid_t pid, uint64_t seconds) {
+    PCBType * process = find(pid);
+
+    // Validate if the process exists
+    if(process == NULL || process->status != READY) {
+        return -1;
+    }
+
+    addToSleepingQueue(process, seconds);
+    process->status = BLOCKED;
+
+    if (process->pid == getActivePid()) {
+        yield();
+    }
+
+    return 0;
+}
+
 int64_t blockProcess(pid_t pid) {
     PCBType * process = find(pid);
 

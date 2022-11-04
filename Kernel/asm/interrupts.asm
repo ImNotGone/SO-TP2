@@ -26,6 +26,7 @@ EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getStackBase
 EXTERN main
+EXTERN wakeUpProcesses
 EXTERN switchContext
 SECTION .text
 
@@ -158,6 +159,9 @@ _irq00Handler:
 	pushState
 	mov rdi, 0
 	call irqDispatcher
+
+    ; levantar procesos que esta esperando el timer
+    call wakeUpProcesses
 
 	; llamar al scheduler para que me devuelva un rsp
 	mov rdi, rsp

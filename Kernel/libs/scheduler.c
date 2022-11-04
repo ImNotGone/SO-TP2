@@ -1,6 +1,9 @@
 #include <libs/processManager.h>
 #include <libs/scheduler.h>
 #include <ADTS/queueADT.h>
+#include <ADTS/priorityQueueADT.h>
+#include <drivers/RTC.h>
+
 
 #define KERNEL_PID -1
 
@@ -11,7 +14,14 @@ static pid_t activePid = KERNEL_PID;
 static PCBType * activeProcess = NULL;
 static int gusts=0;
 
+// Priority queue for sleeping processes, ordered by wakeup time
+static pQueueADT sleepingQueue = NULL;
+
 static void idle();
+
+static int64_t compareTime(void * a, void * b) {
+    return *((int64_t *) a) - *((int64_t *) b);
+}
 
 queueADT getQueue(){
     return readyQueue;
@@ -25,19 +35,83 @@ void startScheduler(){
     started=1;
     readyQueue = newQueue(sizeof(PCBType *), comparePCB);
     blockedQueue = newQueue(sizeof(PCBType *), comparePCB);
+    sleepingQueue = newPQueue(compareTime, sizeof(PCBType *), sizeof(uint64_t));
+
+    // Create idle process
+    newProcess((uint64_t) idle, 0, 1, 0, NULL);
+}
+
+// Adds a process to the sleeping queue
+void addToSleepingQueue(PCBType * process, uint64_t seconds) {
+
+    if (process == NULL || process->status != READY) {
+        return;
+    }
+
+    uint64_t wakeupTime = getTotalSeconds() + seconds;
+
+    pushPq(sleepingQueue, &process, &wakeupTime);
+}
+
+// Wakes up all processes that have a wakeup time before the current time
+void wakeUpProcesses() {
+
+    if (sleepingQueue == NULL || isEmptyPq(sleepingQueue)) {
+        return;
+    }
+
+    uint64_t currentTime = getTotalSeconds();
+    
+    uint64_t toWakeUpSize = 0;
+    PCBType ** toWakeUp = getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
+
+    for (int i = 0; i < toWakeUpSize; i++) {
+        toWakeUp[i]->status = READY;
+    }
+}
+
+// Iterates over the ready queue to see if there are any processes that are ready to run
+int hasReadyProcess() {
+    if (readyQueue == NULL || isEmpty(readyQueue)) {
+        return 0;
+    }
+
+    PCBType * process = NULL;
+    int hasReady = 0;
+
+    toBegin(readyQueue);
+
+    while (hasNext(readyQueue)) {
+        next(readyQueue, &process);
+
+        if (process->status == READY && process->rip != (uint64_t)idle) {
+            return 1;
+        }
+    }
+
+    return hasReady;
 }
 
 uint64_t switchContext(uint64_t rsp){
     //in this case there should be no saving of the Kernels context
-    if (!started){
+    if (!started) {
         return rsp;
     }
 
+    
     if(activePid == KERNEL_PID){
         activePid = 0;
         //shell
         // a lo mejor conviene hacer peek aca
         dequeue(readyQueue, &activeProcess);
+
+        // If its idle, ignore it
+        if (activeProcess->rip == (uint64_t)idle) {
+            queue(readyQueue, &activeProcess);
+            dequeue(readyQueue, &activeProcess);
+        }
+
+
         gusts = activeProcess->priority;
         activePid = activeProcess->pid;
         return activeProcess->rsp;
@@ -60,6 +134,13 @@ uint64_t switchContext(uint64_t rsp){
         }
 
         if(activeProcess->status == READY){
+
+            // If its idle and there are other processes, ignore it
+            if (activeProcess->rip == (uint64_t)idle && hasReadyProcess()) {
+                queue(readyQueue, &activeProcess);
+                continue;
+            }
+
             activePid = activeProcess->pid;
             gusts = activeProcess->priority;
             //return activeProcess->rsp;

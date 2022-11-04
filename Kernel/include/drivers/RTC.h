@@ -22,4 +22,5 @@ uint8_t getRTCDayOfMonth();
 uint8_t getRTCMonth();
 uint8_t getRTCYear();
 
+uint64_t getTotalSeconds();
 #endif//RTC_H

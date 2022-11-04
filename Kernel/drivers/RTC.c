@@ -40,4 +40,18 @@ uint8_t getRTCYear() {
     return getRTC(RTC_YEAR);
 }
 
+// Returns the current time in seconds
+uint64_t getTotalSeconds() {
+    uint64_t seconds = getRTCSeconds();
+    seconds += getRTCMinutes() * 60;
+    seconds += getRTCHours() * 3600;
+    seconds += getRTCDayOfMonth() * 86400;
+
+    // TODO: tener en cuenta los años bisiestos y los distintos meses, creo q no importa?
+
+    seconds += getRTCMonth() * 2592000; // Month is not exact, but it's close enough
+    seconds += getRTCYear() * 31104000; // Year is not exact, but it's close enough
+    return seconds;
+}
+
 

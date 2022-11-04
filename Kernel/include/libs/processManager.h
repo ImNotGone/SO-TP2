@@ -49,6 +49,9 @@ int64_t blockProcess(pid_t pid);
 
 int64_t waitProcess(pid_t pid);
 
+
+int64_t sleepProcess(pid_t pid, uint64_t seconds);
+
 void printAllProcess();
 
 int64_t comparePCB(void * pcb1, void * pcb2);
