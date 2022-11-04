@@ -8,10 +8,9 @@
 #define MIN_PRIORITY 1
 #define MAX_PRIORITY 10
 
-static pid_t nextPid = 0;
+int64_t comparePid(void* pid1, void* pid2);
 
-uint64_t strlen(char *string);
-void strcpy(char *string, char *target);
+static pid_t nextPid = 0;
 
 static PCBType * pcb;
 
@@ -19,7 +18,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
 
     pcb = malloc(sizeof(PCBType));
 
-    pcb->stack_base = (uint64_t)malloc(STACK_SIZE) + STACK_SIZE;
+    pcb->stack_base = (uint64_t) malloc(STACK_SIZE) + STACK_SIZE;
     pcb->rip = rip;
     pcb->argc = argc;
     pcb->ground = ground;
@@ -32,9 +31,12 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->argv[argc] = (void *)0;
     pcb->name = pcb->argv[0];
 
-    pcb->status= READY;
-    pcb->priority=priority;
+    pcb->status = READY;
+    pcb->priority = priority;
     pcb->pid = nextPid;
+
+    pcb->waiting_processes = newQueue(sizeof(pid_t), comparePid);
+
     pcb->ppid = getActivePid();
     pcb->rsp = createProcess(pcb->stack_base, pcb->rip, argc, argv);
 
@@ -43,9 +45,6 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->fd[STDERR] = STDERR;
 
     addToReadyQueue(&pcb);
-    if(pcb->ground == 0  && pcb->pid != 0){
-        block(pcb->ppid);
-    }
 
     return nextPid++;
 }
@@ -57,6 +56,15 @@ int64_t comparePCB(void * pcb1, void * pcb2) {
     PCBType a = *(PCBType *)pcb1;
     PCBType b = *(PCBType *)pcb2;
     return (a.pid > b.pid) - (a.pid < b.pid);
+}
+
+int64_t comparePid(void * pid1, void * pid2) {
+    if(pid1 == NULL || pid2 == NULL) {
+        return (pid1 != NULL) - (pid2 != NULL);
+    }
+    pid_t a = *(pid_t *)pid1;
+    pid_t b = *(pid_t *)pid2;
+    return (a > b) - (a < b);
 }
 
 void exec(pid_t pid){
@@ -78,32 +86,81 @@ void exec(pid_t pid){
     // }
 }
 
-void killProcess(pid_t pid){
+int64_t killProcess(pid_t pid) {
     PCBType * process = find(pid);
-    if(process == NULL) return;
+
+    // Validate if the process exists
+    if(process == NULL) {
+        return -1;
+    }
+
     process->status = KILLED;
 
-    // si es foreground:
-    if(process->ground == 0)
-        unblock(process->ppid);
-}
+    // Unblock all the processes that were waiting for this process
+    toBegin(process->waiting_processes);
+    while(hasNext(process->waiting_processes)) {
+        pid_t pid;
+        next(process->waiting_processes, &pid);
 
-void block(pid_t pid){
-    PCBType * process = find(pid);
-    if(process == NULL) return;
-    process->status = BLOCKED;
-    if (pid == getActivePid()){
+        unblockProcess(pid);
+    }
+
+    if (process->pid == getActivePid()) {
         yield();
     }
+
+    return 0;
 }
 
-void unblock(pid_t pid){
+int64_t blockProcess(pid_t pid) {
     PCBType * process = find(pid);
-    if(process == NULL) return;
-    process->status = READY;
+
+    // Validate if the process exists
+    if(process == NULL || process->status == KILLED) {
+        return -1;
+    }
+
+    process->status = BLOCKED;
+    if (pid == getActivePid()) {
+        yield();
+    }
+
+    return 0;
 }
 
-void changePriority(pid_t pid, int priority){
+int64_t unblockProcess(pid_t pid) {
+    PCBType * process = find(pid);
+
+    // Validate if the process exists
+    if (process == NULL || process->status == KILLED) {
+        return -1;
+    }
+
+    process->status = READY;
+
+    return 0;
+}
+
+int64_t waitProcess(pid_t pid) {
+    PCBType * process = find(pid);
+    uint64_t activePid = getActivePid();
+
+    // Validate if the process exists
+    if (process == NULL) {
+        return -1;
+    }
+
+    // Add the current process to the waiting queue of the process
+    queue(process->waiting_processes, &activePid);
+
+    if(process->status != KILLED) {
+        blockProcess(activePid);
+    }
+
+    return 0;
+}
+
+void changePriority(pid_t pid, int priority) {
     if(priority>MAX_PRIORITY || priority<MIN_PRIORITY)
         priority = (MAX_PRIORITY + MIN_PRIORITY)/2;
 
@@ -114,21 +171,4 @@ void changePriority(pid_t pid, int priority){
 
 void printAllProcess(){
     printPs();
-}
-
-
-
-// -- aux string functions --
-
-uint64_t strlen(char *string){
-    int i = 0;
-    while(string[i++]);
-    return i - 1;
-}
-
-void strcpy(char *string, char *target){
-    while(*target != 0){
-        *(string++) = *(target++);
-    }
-    *string = 0;
 }

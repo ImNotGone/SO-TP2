@@ -6,4 +6,6 @@
 // Tests memory manager
 void memtest();
 
+// Tests semaphores
+void synctest(int argc, char *argv[]);
 #endif

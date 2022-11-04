@@ -77,7 +77,7 @@ int64_t sem_wait(sem_t sem) {
     release(&semLock);
 
     // Block the process
-    block(getActivePid());
+    blockProcess(getActivePid());
 
     return 0;
 }
@@ -94,7 +94,6 @@ int64_t sem_post(sem_t sem) {
 
     // Get the semaphore data
     lock_t semLock = getSemLock(semCollection, sem);
-    uint64_t semValue = getSemValue(semCollection, sem);
 
     // Lock the semaphore
     acquire(&semLock);
@@ -104,7 +103,7 @@ int64_t sem_post(sem_t sem) {
 
         // Unblock a process
         pid_t pid = getNextWaitingProcess(semCollection, sem);
-        unblock(pid);
+        unblockProcess(pid);
 
         // Unlock the semaphore
         release(&semLock);

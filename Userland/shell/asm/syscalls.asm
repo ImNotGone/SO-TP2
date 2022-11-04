@@ -17,15 +17,20 @@ section .data
     syscallexit     equ 11
     syscallexec     equ 12
     syscallps       equ 13
-    syscallnice     equ 14
-    syscallyield    equ 15
+    syscallkill     equ 14
+    syscallwaitpid  equ 15
+    syscallnice     equ 16
+    syscallblock    equ 17
+    syscallunblock  equ 18
+    syscallyield    equ 19
+    syscallgetpid   equ 20
     
-    syscallsemopen  equ 16
-    syscallsemwait  equ 17
-    syscallsempost  equ 18
-    syscallsemclose equ 19
-    syscallsemunlink equ 20
-    syscallseminfo  equ 21
+    syscallsemopen  equ 21
+    syscallsemwait  equ 22
+    syscallsempost  equ 23
+    syscallsemclose equ 24
+    syscallsemunlink equ 25
+    syscallseminfo  equ 26
 
 
 section .text
@@ -47,8 +52,13 @@ global syscreateprocess
 global sysexits
 global sysexec
 global sysps
+global syskill
+global syswaitpid
 global sysnice
+global sysblock
+global sysunblock
 global sysyield
+global sysgetpid
 
 global syssemopen
 global syssemwait
@@ -117,10 +127,9 @@ sysmeminfo:
     syscallHandler syscallmeminfo
 
 ; rdi -> void *
-; rsi -> ground
-; rdx -> priority
-; rcx -> argc
-; r8 -> argv[]
+; rsi -> priority
+; rdx -> argc
+; rcx -> argv[]
 syscreateprocess:
     syscallHandler syscallcreateprocess
 
@@ -134,14 +143,32 @@ sysexec:
 sysps:
     syscallHandler syscallps
 
+;rdi -> pid
+syskill:
+    syscallHandler syscallkill
+
+;rdi -> pid
+syswaitpid:
+    syscallHandler syscallwaitpid
 
 ;rdi->pid
 ;rsi->priority
 sysnice:
     syscallHandler syscallnice
 
+;rdi->pid
+sysblock:
+    syscallHandler syscallblock
+
+;rdi->pid
+sysunblock:
+    syscallHandler syscallunblock
+
 sysyield:
     syscallHandler syscallyield
+
+sysgetpid:
+    syscallHandler syscallgetpid
 
 ;rdi->name
 ;rsi->value

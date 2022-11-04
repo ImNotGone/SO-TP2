@@ -1,6 +1,5 @@
 #include <ADTS/listADT.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 typedef struct node {
     elemType elem;

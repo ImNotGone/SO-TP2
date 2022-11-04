@@ -36,10 +36,22 @@ void *  syscalloc(uint64_t nmemb, uint64_t size);
 
 pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
+
+// TODO: Remove this?
 void sysexec(pid_t pid);
 void sysps();
+
+int64_t syskill(pid_t pid);
+
+int64_t syswaitpid(pid_t pid);
+
 void sysnice(pid_t pid, int priority);
+
+int64_t sysblock(pid_t pid);
+int64_t sysunblock(pid_t pid);
+
 void sysyield();
+int64_t sysgetpid();
 
 sem_t    syssemopen(const char * name, uint32_t value);
 int64_t  syssemwait(sem_t sem);
@@ -84,21 +96,31 @@ TSyscallHandler syscallHandlers[] = {
     //0x0D
     (TSyscallHandler) sysps,
     //0x0E
-    (TSyscallHandler) sysnice,
+    (TSyscallHandler) syskill,
     //0x0F
-    (TSyscallHandler) sysyield,
-
+    (TSyscallHandler) syswaitpid,
     //0x10
-    (TSyscallHandler) syssemopen,
+    (TSyscallHandler) sysnice,
     //0x11
-    (TSyscallHandler) syssemwait,
+    (TSyscallHandler) sysblock,
     //0x12
-    (TSyscallHandler) syssempost,
+    (TSyscallHandler) sysunblock,
     //0x13
-    (TSyscallHandler) syssemclose,
+    (TSyscallHandler) sysyield,
     //0x14
-    (TSyscallHandler) syssemunlink,
+    (TSyscallHandler) sysgetpid,
+
     //0x15
+    (TSyscallHandler) syssemopen,
+    //0x16
+    (TSyscallHandler) syssemwait,
+    //0x17
+    (TSyscallHandler) syssempost,
+    //0x18
+    (TSyscallHandler) syssemclose,
+    //0x19
+    (TSyscallHandler) syssemunlink,
+    //0x1A
     (TSyscallHandler) sysseminfo
 
 
@@ -232,12 +254,32 @@ void sysps(){
     printAllProcess();
 }
 
+int64_t syskill(pid_t pid){
+    return killProcess(pid);
+}
+
+int64_t syswaitpid(pid_t pid){
+    return waitProcess(pid);
+}
+
 void sysnice(pid_t pid, int priority){
     changePriority(pid, priority);
 }
 
+int64_t sysblock(pid_t pid){
+    return blockProcess(pid);
+};
+
+int64_t sysunblock(pid_t pid){
+    return unblockProcess(pid);
+};
+
 void sysyield(){
     yield();
+}
+
+int64_t sysgetpid(){
+    return getActivePid();
 }
 
 // -------------- Semaphores -------------------

@@ -2,6 +2,8 @@
 #define PROCESSMANAGER_H
 
 #include <types.h>
+#include <ADTS/queueADT.h>
+#include <stdint.h>
 #include <libs/process.h>
 #include <interrupts/interrupts.h>
 #include <drivers/graphics.h>
@@ -20,7 +22,11 @@ typedef struct processData{
     int status;
     char ** argv;
     char * name;
+
     int fd[3];
+
+    // Waiting Processes
+    queueADT waiting_processes;
 }PCBType;
 
 //TODO work here and in scheduler to remove this struct
@@ -33,13 +39,15 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
 
 void exec(pid_t pid);
 
-void killProcess(pid_t pid);
+int64_t killProcess(pid_t pid);
 
 void changePriority(pid_t pid, int priority);
 
-void unblock(pid_t pid);
+int64_t unblockProcess(pid_t pid);
 
-void block(pid_t pid);
+int64_t blockProcess(pid_t pid);
+
+int64_t waitProcess(pid_t pid);
 
 void printAllProcess();
 

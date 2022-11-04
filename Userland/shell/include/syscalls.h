@@ -54,7 +54,7 @@ typedef struct seminfo {
 // sem_t
 typedef int64_t sem_t;
 
-typedef uint16_t pid_t;
+typedef int16_t pid_t;
 
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
@@ -99,11 +99,26 @@ extern void sysexec();
 //prints out all process' data
 extern void sysps();
 
+// Kills the process with the pid
+extern int64_t syskill(pid_t pid);
+
+// Waits for the process with the pid to finish
+extern int64_t syswaitpid(pid_t pid);
+
 // Changes the priority of the process
 extern void sysnice(pid_t pid, int priority);
 
+// Blocks the process
+extern int64_t sysblock(pid_t pid);
+
+// Unblocks the process
+extern int64_t sysunblock(pid_t pid);
+
 // Gives up the CPU
 extern void sysyield();
+
+// Gets the current process id
+extern uint64_t sysgetpid();
 
 // Opens a semaphore
 extern sem_t syssemopen(const char * name, uint32_t value);
