@@ -114,6 +114,9 @@ extern int64_t sysblock(pid_t pid);
 // Unblocks the process
 extern int64_t sysunblock(pid_t pid);
 
+
+extern int64_t syssleep(pid_t pid, int64_t seconds);
+
 // Gives up the CPU
 extern void sysyield();
 

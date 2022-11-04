@@ -49,6 +49,7 @@ void sysnice(pid_t pid, int priority);
 
 int64_t sysblock(pid_t pid);
 int64_t sysunblock(pid_t pid);
+int64_t syssleep(pid_t pid, uint64_t seconds);
 
 void sysyield();
 int64_t sysgetpid();
@@ -109,25 +110,27 @@ TSyscallHandler syscallHandlers[] = {
     //0x12
     (TSyscallHandler) sysunblock,
     //0x13
-    (TSyscallHandler) sysyield,
+    (TSyscallHandler) syssleep,
     //0x14
+    (TSyscallHandler) sysyield,
+    //0x15
     (TSyscallHandler) sysgetpid,
 
-    //0x15
-    (TSyscallHandler) syssemopen,
     //0x16
-    (TSyscallHandler) syssemwait,
+    (TSyscallHandler) syssemopen,
     //0x17
-    (TSyscallHandler) syssempost,
+    (TSyscallHandler) syssemwait,
     //0x18
-    (TSyscallHandler) syssemclose,
+    (TSyscallHandler) syssempost,
     //0x19
-    (TSyscallHandler) syssemunlink,
+    (TSyscallHandler) syssemclose,
     //0x1A
-    (TSyscallHandler) sysseminfo,
+    (TSyscallHandler) syssemunlink,
     //0x1B
-    (TSyscallHandler) sysseminit,
+    (TSyscallHandler) sysseminfo,
     //0x1C
+    (TSyscallHandler) sysseminit,
+    //0x1D
     (TSyscallHandler) syssemdestroy,
 
 
@@ -301,6 +304,10 @@ int64_t sysblock(pid_t pid){
 
 int64_t sysunblock(pid_t pid){
     return unblockProcess(pid);
+};
+
+int64_t syssleep(pid_t pid, uint64_t seconds){
+    return sleepProcess(pid, seconds);
 };
 
 void sysyield(){

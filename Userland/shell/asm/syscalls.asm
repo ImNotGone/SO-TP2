@@ -22,17 +22,18 @@ section .data
     syscallnice     equ 16
     syscallblock    equ 17
     syscallunblock  equ 18
-    syscallyield    equ 19
-    syscallgetpid   equ 20
+    syscallsleep    equ 19
+    syscallyield    equ 20
+    syscallgetpid   equ 21
     
-    syscallsemopen    equ 21
-    syscallsemwait    equ 22
-    syscallsempost    equ 23
-    syscallsemclose   equ 24
-    syscallsemunlink  equ 25
-    syscallseminfo    equ 26
-    syscallseminit    equ 27
-    syscallsemdestroy equ 28
+    syscallsemopen    equ 22
+    syscallsemwait    equ 23
+    syscallsempost    equ 24
+    syscallsemclose   equ 25
+    syscallsemunlink  equ 26
+    syscallseminfo    equ 27
+    syscallseminit    equ 28
+    syscallsemdestroy equ 29
 
 
 section .text
@@ -59,6 +60,7 @@ global syswaitpid
 global sysnice
 global sysblock
 global sysunblock
+global syssleep
 global sysyield
 global sysgetpid
 
@@ -168,6 +170,11 @@ sysblock:
 ;rdi->pid
 sysunblock:
     syscallHandler syscallunblock
+
+;rdi->pid
+;rsi->seconds
+syssleep:
+    syscallHandler syscallsleep
 
 sysyield:
     syscallHandler syscallyield
