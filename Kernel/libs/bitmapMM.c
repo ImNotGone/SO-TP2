@@ -4,8 +4,6 @@
 #include <libs/memoryManager.h>
 #include <string.h>
 
-// Factor of size of bitmap to size of memory
-#define FACTOR 64
 
 #define MULT_WILL_OF(a, b) (((a) > 0) && ((b) > (blocks * FACTOR / (a))))
 
@@ -32,7 +30,7 @@ static uint64_t usedBlocks;
 // Initialize memory manager
 void minit(void *start, uint64_t size) {
 
-    if(size < HEAP_SIZE) {
+    if(size < HEAP_SIZE + HEAP_STRUCTURE_SIZE) {
         // TODO: ERROR
         return;
     }

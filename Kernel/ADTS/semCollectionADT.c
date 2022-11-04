@@ -255,6 +255,11 @@ pid_t getNextWaitingProcess(semCollectionADT semCollection, sem_t sem) {
         return -1;
     }
 
+    // Validate waiting queue not empty
+    if (semCollection->semaphores[sem]->waitingQueueSize == 0) {
+        return -1;
+    }
+
     pid_t pid;
     dequeue(semCollection->semaphores[sem]->waitingQueue, &pid);
     semCollection->semaphores[sem]->waitingQueueSize--;

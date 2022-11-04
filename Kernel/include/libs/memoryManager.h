@@ -5,7 +5,10 @@
 #include <stdint.h>
 #include <types.h>
 #define HEAP_SIZE 0x10000000 // 256 MiB
-#define HEAP_STRUCTURE_SIZE 0
+
+// Factor of size of bitmap to size of memory
+#define FACTOR 64
+#define HEAP_STRUCTURE_SIZE (HEAP_SIZE / FACTOR)
 
 #ifdef MM_BUDDY
 #undef  HEAP_STRUCTURE_SIZE
