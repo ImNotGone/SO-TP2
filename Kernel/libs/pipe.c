@@ -32,9 +32,8 @@ int64_t pipe(fd_t pipefd[2]) {
     new->size = PIPE_SIZE;
     new->readerOff = 0;
     new->writerOff = 0;
-    // TODO: REMOVE COMMENT
-    //sem_init(new->readerSem, 0);
-    //sem_init(new->writerSem, 1?);
+    new->readerSem = sem_init(0);
+    new->writerSem = sem_init(1);
 
     putHm(pipeMap, &pipeId, &new);
     pipefd[READ] = pipeId * 2;
@@ -137,9 +136,8 @@ int64_t pipeClose(fd_t fd) {
     //      return 1;
     // }
 
-    // TODO: free semaphores
-    // pipe->readerSem
-    // pipe->writerSem
+    sem_destroy(pipe->readerSem);
+    sem_destroy(pipe->writerSem);
     free(pipe->buffer);
     free(pipe);
     return 1;
