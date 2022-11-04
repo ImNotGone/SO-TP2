@@ -6,6 +6,7 @@
 #include <dumps.h>
 #include <time.h>
 #include <testCommands.h>
+#include <loop.h>
 #include <_stdio.h>
 #include <_string.h>
 #include <_stdbool.h>

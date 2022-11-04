@@ -1,7 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shell.h>
-#include <stdio.h>
 #define STDERR 2
 #define FORE 0
 #define BACK 1
@@ -35,6 +34,7 @@ static command commands[] = {
     {"meminfo", "Prints memory manager status", memManagerDump},
     {"ps", "Prints all process' information", ps},
     {"nice", "Changes priority to pid", (voidfp)nice},
+    {"loop", "Prints a greeting and goes to sleep for 3 seconds", (voidfp) loop}
 };
 
 static int commandsDim = sizeof(commands) / sizeof(commands[0]);
