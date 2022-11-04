@@ -10,6 +10,8 @@
 #define SEM_ID "sem"
 #define TOTAL_PAIR_PROCESSES 2
 
+sem_t unnamed_sem;
+
 int global; // shared memory
 
 static void slowInc(int *p, int64_t inc) {
@@ -38,12 +40,14 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     if ((use_sem = satoi(argv[2])) < 0)
         return -1;
 
-    if (use_sem) {
+    if (use_sem == 1) {
         sem = syssemopen(SEM_ID, 1);
         if (sem == -1) {
             printf("test_sync: ERROR opening semaphore\n");
             return -1;
         }
+    } else if (use_sem == 2) {
+        sem = unnamed_sem;
     }
 
     int i;
@@ -71,12 +75,26 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
 uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
     pid_t pids[2 * TOTAL_PAIR_PROCESSES];
 
-    if (argc != 2) {
+    if (argc < 2) {
         return -1;
     }
 
-    char *argvDec[] = {argv[0], "-1", argv[1], 0};
-    char *argvInc[] = {argv[0], "1", argv[1], 0};
+    if (strcmp(argv[1], "2") == 0) {
+        unnamed_sem = sysseminit(1);
+        if (unnamed_sem == -1) {
+            printf("test_sync: ERROR opening unnamed semaphore (2)\n");
+            return -1;
+        }
+    }
+
+    char *semType = strcmp(argv[1], "unnamed") == 0 ? "2"
+                    : strcmp(argv[1], "named") == 0 ? "1"
+                                                    : "0";
+
+    char *argvDec[] = {argv[0], "-1", semType, 0};
+    char *argvInc[] = {argv[0], "1", semType, 0};
+
+    printf("Starting test_sync with %s semaphore and %s iterations per process\n",argv[1], argv[0]);
 
     global = 0;
 
