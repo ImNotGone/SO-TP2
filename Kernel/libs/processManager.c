@@ -161,7 +161,7 @@ int64_t unblockProcess(pid_t pid) {
 
 int64_t waitProcess(pid_t pid) {
     PCBType * process = find(pid);
-    uint64_t activePid = getActivePid();
+    pid_t activePid = getActivePid();
 
     // Validate if the process exists
     if (process == NULL || process->status == KILLED) {

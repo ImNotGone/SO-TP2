@@ -3,6 +3,8 @@
 
 // ====================== Definitions =================================
 
+#define BLOCK_SIZE 10
+
 typedef struct semData {
     // Semaphore
     sem_t sem;
@@ -31,10 +33,10 @@ typedef struct semData {
 typedef struct semCollectionCDT {
     // Semaphore collection
     // TODO: maybe use a hash map?
-    semdata_t *semaphores[MAX_SEM];
-    uint64_t semaphoresSize;
-} semCollectionCDT;
+    semdata_t **semaphores;
 
+    uint64_t semaphoresCapacity;
+} semCollectionCDT;
 
 // ==================== Functions ====================
 
@@ -55,6 +57,9 @@ semCollectionADT newSemCollection() {
 
     semCollectionADT semCollection = calloc(1, sizeof(semCollectionCDT));
 
+    semCollection->semaphores = calloc(1, sizeof(semdata_t *) * BLOCK_SIZE);
+    semCollection->semaphoresCapacity = BLOCK_SIZE;
+
     return semCollection;
 };
 
@@ -68,7 +73,7 @@ int semExists(semCollectionADT semCollection, sem_t sem) {
     }
 
     // Check if the semaphore exists
-    if (sem < 0 || sem >= MAX_SEM || semCollection->semaphores[sem] == NULL) {
+    if (sem < 0 || sem >= semCollection->semaphoresCapacity || semCollection->semaphores[sem] == NULL) {
         return false;
     }
 
@@ -84,7 +89,7 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     // Search for the semaphore
     int firstFree = -1;
-    for (int i = 0; i < MAX_SEM; i++) {
+    for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
 
         // Semaphore found
         if (semCollection->semaphores[i] != NULL && semCollection->semaphores[i]->isLinked && strcmp(semCollection->semaphores[i]->name, name) == 0) {
@@ -104,7 +109,9 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     // No free position
     if (firstFree == -1) {
-        return -1;
+        semCollection->semaphores = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+        firstFree = semCollection->semaphoresCapacity;
+        semCollection->semaphoresCapacity += BLOCK_SIZE;
     }
 
     // Create the semaphore
@@ -125,7 +132,6 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     // Add the semaphore to the collection
     semCollection->semaphores[firstFree] = semData;
-    semCollection->semaphoresSize++;
 
     return semData->sem;
 };
@@ -139,7 +145,7 @@ sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
 
     // Find first free position
     int firstFree = -1;
-    for (int i = 0; i < MAX_SEM; i++) {
+    for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
 
         if (semCollection->semaphores[i] == NULL) {
 
@@ -151,7 +157,9 @@ sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
 
     // No free position
     if (firstFree == -1) {
-        return -1;
+        semCollection->semaphores = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+        firstFree = semCollection->semaphoresCapacity;
+        semCollection->semaphoresCapacity += BLOCK_SIZE;
     }
 
     // Create the semaphore
@@ -292,7 +300,6 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
 
         // Remove the semaphore from the collection
         semCollection->semaphores[sem] = NULL;
-        semCollection->semaphoresSize--;
     }
 
     return 0;
@@ -307,7 +314,7 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
 
     // Search for the semaphore
     int sem = -1;
-    for (int i = 0; i < MAX_SEM; i++) {
+    for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
         // Semaphore found
         if (semCollection->semaphores[i] != NULL && semCollection->semaphores[i]->isLinked && strcmp(semCollection->semaphores[i]->name, name) == 0) {
             sem = i;
@@ -332,7 +339,6 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
 
         // Remove the semaphore from the collection
         semCollection->semaphores[sem] = NULL;
-        semCollection->semaphoresSize--;
     }
 
     return 0;
@@ -352,7 +358,6 @@ int64_t destroyUnnamedSem(semCollectionADT semCollection, sem_t sem) {
 
     // Remove the semaphore from the collection
     semCollection->semaphores[sem] = NULL;
-    semCollection->semaphoresSize--;
 
     return 0;
 };
@@ -362,7 +367,7 @@ int64_t destroyUnnamedSem(semCollectionADT semCollection, sem_t sem) {
 void freeSemCollection(semCollectionADT semCollection) {
 
     // Free the semaphores
-    for (int i = 0; i < MAX_SEM; i++) {
+    for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
         if (semCollection->semaphores[i] != NULL) {
 
             // Free the waiting queue
@@ -384,11 +389,11 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
     }
 
     // Create the array
-    TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresSize);
+    TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresCapacity);
 
     // Fill the array
     int i = 0;
-    for (int j = 0; j < MAX_SEM; j++) {
+    for (int j = 0; j < semCollection->semaphoresCapacity; j++) {
         if (semCollection->semaphores[j] != NULL) {
 
             // Get semaphore data
@@ -412,6 +417,9 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
             i++;
         }
     }
+
+    // Realloc the array
+    res = realloc(res, sizeof(TSemInfo) * i);
 
     *size = i;
     return res;
