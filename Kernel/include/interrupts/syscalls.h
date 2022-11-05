@@ -10,6 +10,7 @@
 #include <libs/scheduler.h>
 #include <interrupts/interrupts.h>
 #include <libs/semaphore.h>
+#include <libs/pipe.h>
 
 #define MAX_MEM_ADDRESS 0xFFFFfffff
 #define MEM_DUMP_SIZE 32

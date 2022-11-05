@@ -37,7 +37,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     else{
         pcb->status = BLOCKED;
     }
-    
+
     pcb->priority = priority;
     pcb->pid = nextPid;
 
@@ -200,7 +200,7 @@ void printAllProcess(){
     printPs();
 }
 
-int dup(uint64_t pid, int prev, int new){
+int dup(pid_t pid, fd_t prev, fd_t new){
     if(prev != STDIN && new != STDIN){
         return -1;
     }

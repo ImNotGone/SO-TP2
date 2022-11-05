@@ -64,7 +64,8 @@ TSemInfo *sysseminfo(uint64_t *size);
 sem_t    sysseminit(uint64_t value);
 int64_t  syssemdestroy(sem_t sem);
 
-int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new);
+int64_t sysdup(pid_t pid, fd_t prev, fd_t new);
+int64_t syspipe(fd_t fd[2]);
 
 
 
@@ -137,6 +138,8 @@ TSyscallHandler syscallHandlers[] = {
 
     //0x1E
     (TSyscallHandler) sysdup,
+    //0x1F
+    (TSyscallHandler) syspipe,
 
 
 };
@@ -367,6 +370,12 @@ int64_t syssemdestroy(sem_t sem){
     return sem_destroy(sem);
 }
 
-int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new){
+// ---------------- Pipes --------------------
+
+int64_t sysdup(pid_t pid, fd_t prev, fd_t new){
     return dup(pid, prev, new);
+}
+
+int64_t syspipe(fd_t fd[2]){
+    return pipe(fd);
 }

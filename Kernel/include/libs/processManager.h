@@ -49,7 +49,7 @@ int64_t blockProcess(pid_t pid);
 
 int64_t waitProcess(pid_t pid);
 
-int dup(uint64_t pid, int prev, int new);
+int dup(pid_t pid, fd_t prev, fd_t new);
 
 int64_t sleepProcess(pid_t pid, uint64_t seconds);
 

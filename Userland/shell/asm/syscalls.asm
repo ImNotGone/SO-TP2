@@ -34,7 +34,9 @@ section .data
     syscallseminfo    equ 27
     syscallseminit    equ 28
     syscallsemdestroy equ 29
+
     syscalldup        equ 30
+    syscallpipe       equ 31
 
 
 section .text
@@ -73,7 +75,9 @@ global syssemunlink
 global sysseminfo
 global sysseminit
 global syssemdestroy
+
 global sysdup
+global syspipe
 
 %macro syscallHandler 1
     push rbp
@@ -222,3 +226,7 @@ syssemdestroy:
 ;rdx->new fd
 sysdup:
     syscallHandler syscalldup
+
+; rdi-> fd[2]
+syspipe:
+    syscallHandler syscallpipe
