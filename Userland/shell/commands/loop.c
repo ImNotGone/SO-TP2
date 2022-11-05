@@ -11,7 +11,7 @@ void loop(int argc, char **argv) {
 
     int seconds = strtol(argv[1], &aux, 10);
 
-    if (*aux != '\0' || seconds <= 0) {
+    if (*aux != '\0' || seconds < 0) {
         fprintf(STDERR, "Invalid number of iterations\n");
         return;
     }
@@ -23,8 +23,9 @@ void loop(int argc, char **argv) {
 
         printf("Hello, world!, I'm a process with PID %d\n", sysgetpid());
 
-        // Sleep for 3 seconds
-        syssleep(sysgetpid(), seconds);
-
+        // Sleep for n seconds
+        if (seconds > 0) {
+            syssleep(sysgetpid(), seconds);
+        }
     }
 }

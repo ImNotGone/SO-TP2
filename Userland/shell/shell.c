@@ -34,6 +34,8 @@ static command commands[] = {
     {"meminfo", "Prints memory manager status", memManagerDump},
     {"ps", "Prints all process' information", ps},
     {"nice", "Changes priority to pid", (voidfp)nice},
+    {"kill", "Kills a process given the pid", (voidfp)kill},
+    {"block", "Toggles a process between blocked and unblocked goben the pid", (voidfp)block},
     {"loop", "Prints a greeting and goes to sleep for 3 seconds", (voidfp) loop}
 };
 

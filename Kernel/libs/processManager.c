@@ -134,7 +134,7 @@ int64_t blockProcess(pid_t pid) {
     PCBType * process = find(pid);
 
     // Validate if the process exists
-    if(process == NULL || process->status == KILLED) {
+    if(process == NULL || process->status != READY) {
         return -1;
     }
 
