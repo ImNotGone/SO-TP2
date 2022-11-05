@@ -164,7 +164,7 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
     }
 
     if (fd>=3){
-        //return pipewrite
+        return pipeWrite(fd, buffer, bytes);
     }
 
     int64_t bytesWritten;
@@ -185,7 +185,8 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
     fd = process->fd[STDIN];
 
     if(fd >= 3){
-        //return piperead
+        return pipeRead(fd, buffer, bytes);
+
     }
 
     //read normally
