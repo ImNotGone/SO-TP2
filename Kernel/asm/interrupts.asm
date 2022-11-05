@@ -27,6 +27,7 @@ EXTERN syscallDispatcher
 EXTERN getStackBase
 EXTERN main
 EXTERN wakeUpProcesses
+EXTERN wakeUpBlockedOnInput
 EXTERN switchContext
 SECTION .text
 
@@ -182,10 +183,11 @@ _int20:
 _irq01Handler:
     pushState
 
+
 	mov rdi, 1
 	call irqDispatcher
 
-
+    call wakeUpBlockedOnInput
 	call mustUpdateInforeg
 	cmp rax, 1
 	jne .endKbdInt

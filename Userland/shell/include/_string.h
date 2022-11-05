@@ -32,4 +32,8 @@ void trim(char *str);
 // Memset 
 void * memset(void * ptr, int32_t c, uint64_t length);
 
+//https://opensource.apple.com/source/BerkeleyDB/BerkeleyDB-21/db/clib/strchr.c.auto.html
+char *strchr(const char *p, int ch);
+
+
 #endif//_STRING_H

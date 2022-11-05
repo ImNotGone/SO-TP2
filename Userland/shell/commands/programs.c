@@ -78,6 +78,15 @@ void priotest(int argc, char *argv[]) {
     test_prio();
 }
 
+// ====================== Pipes ======================
+
+void cat(int argc, char *argv[]) {
+    char buffer[BUFF_SIZE];
+    int readed;
+    while (!scanf("%s", buffer)) {
+        printf("%s", buffer);
+    }
+}
 
 // ====================== Other ======================
 

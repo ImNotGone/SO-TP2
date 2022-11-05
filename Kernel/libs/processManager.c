@@ -155,6 +155,14 @@ int64_t blockProcess(pid_t pid) {
     return 0;
 }
 
+int64_t blockProcessOnInput(pid_t pid) {
+    PCBType * process = find(pid);
+
+    setBlockedOnInput(process);
+
+    return blockProcess(pid);
+}
+
 int64_t unblockProcess(pid_t pid) {
     PCBType * process = find(pid);
 
@@ -201,9 +209,9 @@ void printAllProcess(){
 }
 
 int dup(pid_t pid, fd_t prev, fd_t new){
-    if(prev != STDIN && new != STDIN){
-        return -1;
-    }
+    // if(prev != STDOUT && new != STDIN){
+    //     return -1;
+    // }
     PCBType * process = find(pid);
     process->fd[prev] = new;
     return 1;

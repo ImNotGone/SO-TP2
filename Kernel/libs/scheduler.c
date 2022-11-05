@@ -14,6 +14,8 @@ static pid_t activePid = KERNEL_PID;
 static PCBType * activeProcess = NULL;
 static int gusts=0;
 
+static PCBType * blockedOnInput = NULL;
+
 // Priority queue for sleeping processes, ordered by wakeup time
 static pQueueADT sleepingQueue = NULL;
 
@@ -151,6 +153,42 @@ uint64_t switchContext(uint64_t rsp){
         }
 
     }
+    
+    // // If the active process has not consumed its quantum, continue with it
+    // if (activeProcess != NULL && gusts > 0) {
+    //     gusts--;
+    //     return rsp;
+    // }
+    //
+    // // If the active process has consumed its quantum, save its context and get the next process
+    // if (activeProcess != NULL && gusts == 0) {
+    //     activeProcess->rsp = rsp;
+    //     queue(readyQueue, &activeProcess);
+    // }
+    //
+    // // Get the next process
+    // // If there are no process left in the queue
+    // // run the active process again
+    // // If active process is NULL, run idle
+    //
+    // // Get the next process
+    // if (!isEmpty(readyQueue)) {
+    //     dequeue(readyQueue, &activeProcess);
+    //
+    //     activePid = activeProcess->pid;
+    //     gusts = activeProcess->priority;
+    //     return activeProcess->rsp;
+    //
+    // } 
+    //
+    // // Run active process again
+    // if (activeProcess != NULL) {
+    //     gusts = activeProcess->priority - 1;
+    //     return rsp;
+    // }
+    //
+    // // Run idle
+    // idle();
 
     gusts--;
     return activeProcess->rsp;
@@ -255,6 +293,17 @@ void freeProcess(PCBType * process){
 
 PCBType * getActiveProcess(){
     return activeProcess;
+}
+
+void setBlockedOnInput(PCBType * process){
+    blockedOnInput = process;
+}
+
+void wakeUpBlockedOnInput() {
+    if(blockedOnInput != NULL){
+        blockedOnInput->status = READY;
+        blockedOnInput = NULL;
+    }
 }
 
 static void idle() {

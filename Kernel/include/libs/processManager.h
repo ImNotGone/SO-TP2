@@ -47,6 +47,8 @@ int64_t unblockProcess(pid_t pid);
 
 int64_t blockProcess(pid_t pid);
 
+int64_t blockProcessOnInput(pid_t pid);
+
 int64_t waitProcess(pid_t pid);
 
 int dup(pid_t pid, fd_t prev, fd_t new);

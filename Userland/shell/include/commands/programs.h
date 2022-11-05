@@ -21,6 +21,11 @@ void processtest(int argc, char *argv[]);
 // Tests priority
 void priotest();
 
+// ==================== PIPES ====================
+
+// Prints stdin to stdout
+void cat(int argc, char *argv[]);
+
 // ==================== OTHER ====================
 
 void loop(int argc, char **argv);

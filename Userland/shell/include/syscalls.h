@@ -56,6 +56,8 @@ typedef int64_t sem_t;
 
 typedef int16_t pid_t;
 
+typedef int fd_t;
+
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
 
@@ -147,8 +149,10 @@ extern sem_t sysseminit(uint64_t value);
 // Destroys unnamed semaphore
 extern int64_t syssemdestroy(sem_t sem);
 
-// Destroys unnamed semaphore
+// Changes file descriptor
 extern int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new );
 
+// Creates a pipe
+extern int64_t syspipe(fd_t fds[2]);
 
 #endif//SYSCALLS_H_

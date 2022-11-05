@@ -13,7 +13,7 @@ typedef struct pipe {
     uint64_t size; // TODO: remove if resize will not be implemented
     uint64_t readerOff;
     uint64_t writerOff;
-    sem_t readerSem, writerSem;
+    sem_t readerSem, writerSem, mutex;
 } pipe_t;
 
 static hashMapADT pipeMap = NULL;
@@ -32,8 +32,9 @@ int64_t pipe(fd_t pipefd[2]) {
     new->size = PIPE_SIZE;
     new->readerOff = 0;
     new->writerOff = 0;
-    new->readerSem = sem_init(0);
-    new->writerSem = sem_init(1);
+    new->readerSem = sem_init(1);
+    new->writerSem = sem_init(0);
+    new->mutex     = sem_init(1);
 
     putHm(pipeMap, &pipeId, &new);
     pipefd[READ] = pipeId * 2;
@@ -99,24 +100,30 @@ int64_t pipeWrite(fd_t fd, char * buffer, uint64_t bytes) {
     }
 
     int64_t i = 0;
-    if(sem_wait(pipe->writerSem) == -1) {
+    if(sem_wait(pipe->mutex) == -1) {
         return -1;
     }
     while(i < bytes) {
-        if(pipe->readerOff == pipe->writerOff) {
-            if(sem_wait(pipe->readerSem) == -1) {
-                return -1;
-            }
-        }
+        // if(pipe->readerOff == pipe->writerOff) {
+        //     if(sem_wait(pipe->readerSem) == -1) {
+        //         return -1;
+        //     }
+        // }
 
         pipe->buffer[pipe->writerOff++] = buffer[i];
         pipe->writerOff = pipe->writerOff % pipe->size;
-
         i++;
+
+        if(sem_post(pipe->writerSem) == -1) {
+            return -1;
+        }
     }
-    if(sem_post(pipe->writerSem) == -1) {
+    if(sem_post(pipe->mutex) == -1) {
         return -1;
     }
+
+    
+
     return i;
 }
 

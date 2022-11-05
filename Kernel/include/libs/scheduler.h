@@ -25,6 +25,9 @@ pid_t getActivePid();
 
 void yield();
 
+void wakeUpBlockedOnInput();
+
+void setBlockedOnInput(PCBType * process);
 
 void wakeUpProcesses(); 
 
