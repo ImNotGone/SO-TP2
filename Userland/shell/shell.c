@@ -14,7 +14,6 @@ static void command_listener();
 //----- auxiliary functions ------------
 
 static void help();
-static void ps();
 static void displayError(int64_t add, const char *command);
 static int64_t parsePrintmem(char *commandBuffer);
 static char **parseArgs(char *commandBuffer, int *argc, int *isBackground);
@@ -25,22 +24,26 @@ static int64_t printmemAddresses[] = {INVALID_ADDRESS, INVALID_ADDRESS};
 
 // -------------- Terminal commands ---------------------------------
 
-static command commands[] = {
+static command builtins[] = {
     {"help", "Prints this help", help},
-    {"printmem", "Prints the memory info", (voidfp)memDump},
-    {"memtest", "Tests the memory", (voidfp)memtest},
-    {"synctest", "Tests the semaphores", (voidfp)synctest},
-    {"priotest", "Test priority", (voidfp)priotest},
-    {"seminfo", "Prints semaphores info", semDump},
-    {"meminfo", "Prints memory manager status", memManagerDump},
+    {"mem", "Prints memory manager status", memManagerDump},
     {"ps", "Prints all process' information", ps},
-    {"nice", "Changes priority to pid", (voidfp)nice},
-    {"kill", "Kills a process given the pid", (voidfp)kill},
-    {"block", "Toggles a process between blocked and unblocked goben the pid", (voidfp)block},
-    {"loop", "Prints a greeting and goes to sleep for 3 seconds", (voidfp) loop}
+    {"sem", "Prints semaphores info", semDump},
+    {"kill", "Kills a process given the pid", (commandfp)kill},
+    {"nice", "Changes priority to pid", (commandfp)nice},
+    {"block", "Toggles a process between blocked and unblocked goben the pid", (commandfp)block},
 };
 
-static int commandsDim = sizeof(commands) / sizeof(commands[0]);
+static command programs[] = {
+    {"memtest", "Tests the memory", (commandfp)memtest},
+    {"synctest", "Tests the semaphores", (commandfp)synctest},
+    {"proctest", "Tests processes", (commandfp)processtest},
+    {"priotest", "Test priority", (commandfp)priotest},
+    {"loop", "Prints a greeting and goes to sleep for 3 seconds", (commandfp) loop}
+};
+
+static int commandsDim = sizeof(programs) / sizeof(programs[0]);
+static int builtinsDim = sizeof(builtins) / sizeof(builtins[0]);
 
 //--------------------- Main functions ----------------
 
@@ -63,13 +66,22 @@ static void command_listener() {
     int isBackground;
     char **argv = parseArgs(commandBuffer, &argc, &isBackground);
 
+
+    // Check if it is a builtin command
+    for (i = 0; i < builtinsDim; i++) {
+        if (strcmp(argv[0], builtins[i].name) == 0) {
+            builtins[i].exec(argc, argv);
+            return;
+        }
+    }
+
     // Vemos si el comando matchea con alguno
     // Que no requiere un parseo especial del input
     for (i = 0; i < commandsDim; i++) {
 
-        if (strcmp(argv[0], commands[i].name) == 0) {
+        if (strcmp(argv[0], programs[i].name) == 0) {
 
-            uint64_t rip = (uint64_t)commands[i].exec;
+            uint64_t rip = (uint64_t)programs[i].exec;
 
             pid_t pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
 
@@ -77,14 +89,6 @@ static void command_listener() {
             if (!isBackground) {
                 syswaitpid(pid);
             }
-
-            // Free the memory allocated for the arguments
-            for (i = 0; i < argc; i++) {
-                sysfree(argv[i]);
-            }
-            sysfree(argv);
-
-            return;
         }
     }
 
@@ -94,22 +98,6 @@ static void command_listener() {
     }
     sysfree(argv);
 
-    // El comando no es el pipe, queda validar que es printmem para una sola
-    // pantalla
-
-    int64_t address = parsePrintmem(commandBuffer);
-
-    if (address >=
-        0) { // El comando es printmem con una direccion valida como argumento
-        printmemAddresses[FULL_SCREEN] = address;
-        memDump(printmemAddresses[FULL_SCREEN]);
-        printmemAddresses[FULL_SCREEN] = address;
-        return;
-    }
-
-    // El comando no es printmem o el argumento recibido es invalido
-    displayError(address, commandBuffer);
-    return;
 }
 
 //------------------- commands implemented in this file ---------------
@@ -122,13 +110,11 @@ static void help() {
     puts("\n====================\n");
     puts("The available commands are:\n");
     for (int i = 0; i < commandsDim; i++) {
-        printf("%d) %s:\n%s\n\n", i + 1, commands[i].name, commands[i].desc);
+        printf("%d) %s:\n%s\n\n", i + 1, programs[i].name, programs[i].desc);
     }
 
-    // sysexits();
 }
 
-static void ps() { sysps(); }
 
 //----------------- Auxiliary functions
 //-------------------------------------------
@@ -185,57 +171,4 @@ static char **parseArgs(char *commandBuffer, int *argc, int *isBackground) {
 
     *argc = argsDim;
     return args;
-}
-
-// Si commandBuffer es "printmem" sin argumentos -> retorna ARGUMENT_MISSING
-// Si commandBuffer no contiene "printmem" -> retorna NOT_PRINTMEM
-// Si commandBuffer es "printmem" pero el argumento que recibe es invalido ->
-// retorna INVALID_ARGUMENT Si commandBuffer contiene "printmem" y el argumento
-// es valido -> retorna el argumento como valor numerico El argumento de
-// printmem debe estar separado por un espacio como minimo, el resto de los
-// espacios son ignorados
-static int64_t parsePrintmem(char *commandBuffer) {
-    if (strcmp(commandBuffer, "printmem") == 0)
-        return ARGUMENT_MISSING;
-
-    if (strncmp(commandBuffer, "printmem ", 9) != 0)
-        return NOT_PRINTMEM;
-
-    // Validacion del argumento
-
-    int i = 9;
-    while (commandBuffer[i] == ' ')
-        i++; // Ignoro espacios
-
-    char argument[COMMAND_BUFFER_SIZE];
-
-    int j;
-    for (j = 0; commandBuffer[i] != '\0' && j < COMMAND_BUFFER_SIZE; i++, j++)
-        argument[j] = commandBuffer[i];
-    argument[j] = '\0';
-
-    const char *out;
-    int64_t address = strtol(argument, &out, 16);
-
-    if (address < 0 || (*out != '\0' && (*out != 'h')) || out[1] != '\0')
-        return INVALID_ADDRESS;
-
-    return address;
-}
-
-// Displays Error in STDERR
-static void displayError(int64_t add, const char *command) {
-    switch (add) {
-    case ARGUMENT_MISSING:
-        fputs(STDERR, ARGUMENT_MISSING_MESSAGE);
-        break;
-    case INVALID_ADDRESS:
-        fprintf(STDERR, INVALID_ARGUMENT_MESSAGE, command + 9);
-        break;
-    case NOT_PRINTMEM:
-        fprintf(STDERR, INVALID_COMMAND_MESSAGE_FORMAT, command);
-        break;
-    default:
-        return;
-    }
 }
