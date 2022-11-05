@@ -3,7 +3,7 @@ section .data
     syscallwrite    equ 1
 
     syscalltime     equ 2
-    
+
     syscallmemdump  equ 3
     syscallregdump  equ 4
 
@@ -25,7 +25,7 @@ section .data
     syscallsleep    equ 19
     syscallyield    equ 20
     syscallgetpid   equ 21
-    
+
     syscallsemopen    equ 22
     syscallsemwait    equ 23
     syscallsempost    equ 24
@@ -34,6 +34,7 @@ section .data
     syscallseminfo    equ 27
     syscallseminit    equ 28
     syscallsemdestroy equ 29
+    syscalldup        equ 30
 
 
 section .text
@@ -72,6 +73,7 @@ global syssemunlink
 global sysseminfo
 global sysseminit
 global syssemdestroy
+global sysdup
 
 %macro syscallHandler 1
     push rbp
@@ -214,3 +216,9 @@ sysseminit:
 ;rdi->sem
 syssemdestroy:
     syscallHandler syscallsemdestroy
+
+;rdi->pid
+;rsi->prev fd
+;rdx->new fd
+sysdup:
+    syscallHandler syscalldup

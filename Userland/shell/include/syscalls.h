@@ -147,5 +147,8 @@ extern sem_t sysseminit(uint64_t value);
 // Destroys unnamed semaphore
 extern int64_t syssemdestroy(sem_t sem);
 
+// Destroys unnamed semaphore
+extern int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new );
+
 
 #endif//SYSCALLS_H_
