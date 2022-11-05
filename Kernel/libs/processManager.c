@@ -31,7 +31,13 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->argv[argc] = (void *)0;
     pcb->name = pcb->argv[0];
 
-    pcb->status = READY;
+
+    if(getActivePid()== KERNEL_PID)
+        pcb->status = READY;
+    else{
+        pcb->status = BLOCKED;
+    }
+    
     pcb->priority = priority;
     pcb->pid = nextPid;
 
@@ -43,6 +49,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->fd[STDIN] = STDIN;
     pcb->fd[STDOUT] = STDOUT;
     pcb->fd[STDERR] = STDERR;
+
 
     addToReadyQueue(&pcb);
 
@@ -84,6 +91,8 @@ void exec(pid_t pid){
     // if(process->ground == 0){
     //     block(process->ppid);
     // }
+    //addToReadyQueue(&pcb);
+
 }
 
 int64_t killProcess(pid_t pid) {
@@ -189,4 +198,13 @@ void changePriority(pid_t pid, int priority) {
 
 void printAllProcess(){
     printPs();
+}
+
+int dup(uint64_t pid, int prev, int new){
+    if(prev != STDIN && new != STDIN){
+        return -1;
+    }
+    PCBType * process = find(pid);
+    process->fd[prev] = new;
+    return 1;
 }

@@ -156,5 +156,20 @@ void * memset(void * destination, int32_t c, uint64_t length) {
 	return destination;
 }
 
+//https://opensource.apple.com/source/BerkeleyDB/BerkeleyDB-21/db/clib/strchr.c.auto.html
+char *strchr(const char *p, int ch)
+{
+	char c;
+
+	c = ch;
+	for (;; ++p) {
+		if (*p == c)
+			return ((char *)p);
+		if (*p == '\0')
+			return (void*)0;
+	}
+	/* NOTREACHED */
+}
+
 
 

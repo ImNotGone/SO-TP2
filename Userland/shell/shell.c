@@ -84,7 +84,7 @@ static void command_listener() {
             uint64_t rip = (uint64_t)programs[i].exec;
 
             pid_t pid = syscreateprocess(rip, isBackground ? BACK : FORE, 1, argc, argv);
-
+            sysunblock(pid);
             
             if (!isBackground) {
                 syswaitpid(pid);
