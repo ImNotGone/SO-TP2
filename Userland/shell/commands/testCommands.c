@@ -39,3 +39,7 @@ void synctest(int argc, char *argv[]) {
 
     printf("Sync test %s\n", testResult == 0 ? "passed" : "failed");
 }
+
+void priotest() {
+    test_prio();
+}

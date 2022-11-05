@@ -8,4 +8,7 @@ void memtest();
 
 // Tests semaphores
 void synctest(int argc, char *argv[]);
+
+// Tests priority
+void priotest();
 #endif

@@ -30,6 +30,7 @@ static command commands[] = {
     {"printmem", "Prints the memory info", (voidfp)memDump},
     {"memtest", "Tests the memory", (voidfp)memtest},
     {"synctest", "Tests the semaphores", (voidfp)synctest},
+    {"priotest", "Test priority", (voidfp)priotest},
     {"seminfo", "Prints semaphores info", semDump},
     {"meminfo", "Prints memory manager status", memManagerDump},
     {"ps", "Prints all process' information", ps},
