@@ -198,6 +198,11 @@ void printPs(){
 }
 
 void printProcess(PCBType * pcb){
+
+    if (pcb == NULL || pcb->pid == 0) {
+        return;
+    }
+
     gPrint("NAME: ");
     gPrint(pcb->name);
     gNewline();
@@ -224,12 +229,12 @@ void printProcess(PCBType * pcb){
 
     // Iterate over waiting processes
     toBegin(pcb->waiting_processes);
-    int * pid;
+    pid_t pid;
     while (hasNext(pcb->waiting_processes)) {
         next(pcb->waiting_processes, &pid);
 
         gPrint("PID: ");
-        gPrintDec(*pid);
+        gPrintDec(pid);
         gNewline();
     }
 
