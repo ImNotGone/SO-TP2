@@ -4,7 +4,9 @@
 #include <syscalls.h>
 #include <_stdio.h>
 
-void loop();
+#include <_string.h>
+
+void loop(int argc, char **argv);
 
 
 
