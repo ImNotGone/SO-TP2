@@ -182,13 +182,14 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
        return -1;
     }
 
+    
+    PCBType * process = getActiveProcess();
+    fd = process->fd[STDIN];
+
     if (fd == STDIN && getActiveProcess()->ground == 1) {
         // I dont let you because you are in background
         return -1;
     }
-
-    PCBType * process = getActiveProcess();
-    fd = process->fd[STDIN];
 
     if(fd >= 3){
         return pipeRead(fd, buffer, bytes);

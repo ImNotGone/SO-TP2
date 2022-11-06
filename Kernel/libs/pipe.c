@@ -65,10 +65,8 @@ int64_t pipeRead(fd_t fd, char * buffer, uint64_t bytes) {
         return -1;
     }
     while(i < bytes) {
-        if(pipe->readerOff == pipe->writerOff) {
-            if(sem_wait(pipe->writerSem) == -1) {
-                return -1;
-            }
+        if(sem_wait(pipe->writerSem) == -1) {
+            return -1;
         }
 
         buffer[i] = pipe->buffer[pipe->readerOff++];
@@ -104,11 +102,6 @@ int64_t pipeWrite(fd_t fd, const char * buffer, uint64_t bytes) {
         return -1;
     }
     while(i < bytes) {
-        // if(pipe->readerOff == pipe->writerOff) {
-        //     if(sem_wait(pipe->readerSem) == -1) {
-        //         return -1;
-        //     }
-        // }
 
         pipe->buffer[pipe->writerOff++] = buffer[i];
         pipe->writerOff = pipe->writerOff % pipe->size;

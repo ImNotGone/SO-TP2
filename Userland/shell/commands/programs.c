@@ -81,10 +81,11 @@ void priotest(int argc, char *argv[]) {
 // ====================== Pipes ======================
 
 void cat(int argc, char *argv[]) {
-    char buffer[BUFF_SIZE];
-    int readed;
-    while (!scanf("%s", buffer)) {
-        printf("%s\n", buffer);
+    char c;
+
+    // Use getchar
+    while ((c = getchar(STDIN)) != -1) {
+        putchar(c);
     }
 }
 
