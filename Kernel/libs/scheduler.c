@@ -3,12 +3,12 @@
 #include <ADTS/queueADT.h>
 #include <ADTS/priorityQueueADT.h>
 #include <drivers/RTC.h>
+#include <drivers/graphics.h>
 
 
 #define KERNEL_PID -1
 
-static queueADT readyQueue = NULL;
-static queueADT blockedQueue = NULL;
+static queueADT processQueue = NULL;
 static int started = 0;
 static pid_t activePid = KERNEL_PID;
 static PCBType * activeProcess = NULL;
@@ -26,7 +26,7 @@ static int64_t compareTime(void * a, void * b) {
 }
 
 queueADT getQueue(){
-    return readyQueue;
+    return processQueue;
 }
 
 void printProcess(PCBType * pcb);
@@ -35,8 +35,7 @@ void freeProcess(PCBType * process);
 
 void startScheduler(){
     started=1;
-    readyQueue = newQueue(sizeof(PCBType *), comparePCB);
-    blockedQueue = newQueue(sizeof(PCBType *), comparePCB);
+    processQueue = newQueue(sizeof(PCBType *), comparePCB);
     sleepingQueue = newPQueue(compareTime, sizeof(PCBType *), sizeof(uint64_t));
 
     // Create idle process
@@ -63,7 +62,7 @@ void wakeUpProcesses() {
     }
 
     uint64_t currentTime = getTotalSeconds();
-    
+
     uint64_t toWakeUpSize = 0;
     PCBType ** toWakeUp = getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
 
@@ -74,17 +73,17 @@ void wakeUpProcesses() {
 
 // Iterates over the ready queue to see if there are any processes that are ready to run
 int hasReadyProcess() {
-    if (readyQueue == NULL || isEmpty(readyQueue)) {
+    if (processQueue == NULL || isEmpty(processQueue)) {
         return 0;
     }
 
     PCBType * process = NULL;
     int hasReady = 0;
 
-    toBegin(readyQueue);
+    toBegin(processQueue);
 
-    while (hasNext(readyQueue)) {
-        next(readyQueue, &process);
+    while (hasNext(processQueue)) {
+        next(processQueue, &process);
 
         if (process->status == READY && process->rip != (uint64_t)idle) {
             return 1;
@@ -100,17 +99,17 @@ uint64_t switchContext(uint64_t rsp){
         return rsp;
     }
 
-    
+
     if(activePid == KERNEL_PID){
         activePid = 0;
         //shell
         // a lo mejor conviene hacer peek aca
-        dequeue(readyQueue, &activeProcess);
+        dequeue(processQueue, &activeProcess);
 
         // If its idle, ignore it
         if (activeProcess->rip == (uint64_t)idle) {
-            queue(readyQueue, &activeProcess);
-            dequeue(readyQueue, &activeProcess);
+            queue(processQueue, &activeProcess);
+            dequeue(processQueue, &activeProcess);
         }
 
 
@@ -124,14 +123,14 @@ uint64_t switchContext(uint64_t rsp){
     activeProcess->rsp = rsp;
     if(!gusts){
         if (activeProcess->status != KILLED){
-            queue(readyQueue, &activeProcess);
+            queue(processQueue, &activeProcess);
         }else{
             freeProcess(activeProcess);
         }
     }
 
     while(!gusts){
-        if(!dequeue(readyQueue, &activeProcess)){
+        if(!dequeue(processQueue, &activeProcess)){
             //maybe do something?
         }
 
@@ -139,7 +138,7 @@ uint64_t switchContext(uint64_t rsp){
 
             // If its idle and there are other processes, ignore it
             if (activeProcess->rip == (uint64_t)idle && hasReadyProcess()) {
-                queue(readyQueue, &activeProcess);
+                queue(processQueue, &activeProcess);
                 continue;
             }
 
@@ -147,13 +146,13 @@ uint64_t switchContext(uint64_t rsp){
             gusts = activeProcess->priority;
             //return activeProcess->rsp;
         }else if (activeProcess->status == BLOCKED){
-            queue(readyQueue, &activeProcess);
+            queue(processQueue, &activeProcess);
         }else if(activeProcess->status == KILLED){
             freeProcess(activeProcess);
         }
 
     }
-    
+
     // // If the active process has not consumed its quantum, continue with it
     // if (activeProcess != NULL && gusts > 0) {
     //     gusts--;
@@ -179,7 +178,7 @@ uint64_t switchContext(uint64_t rsp){
     //     gusts = activeProcess->priority;
     //     return activeProcess->rsp;
     //
-    // } 
+    // }
     //
     // // Run active process again
     // if (activeProcess != NULL) {
@@ -195,7 +194,7 @@ uint64_t switchContext(uint64_t rsp){
 }
 
 void addToReadyQueue(PCBType ** process){
-    queue(readyQueue, process);
+    queue(processQueue, process);
 }
 
 pid_t getActivePid(){
@@ -212,10 +211,10 @@ PCBType * find(pid_t pid){
         return activeProcess;
     }
 
-    toBegin(readyQueue);
+    toBegin(processQueue);
     PCBType * aux;
-    while(hasNext(readyQueue)){
-        next(readyQueue, &aux);
+    while(hasNext(processQueue)){
+        next(processQueue, &aux);
         if(aux->pid == pid)
             return aux;
     }
@@ -223,16 +222,23 @@ PCBType * find(pid_t pid){
 }
 
 void printPs(){
+    gPrint(" == STATUS ==");
     gNewline();
-    gPrint("---------");
+    gPrint("  0 = READY");
     gNewline();
-    toBegin(readyQueue);
+    gPrint("  1 = BLOCKED");
+    gNewline();
+    gPrint("  2 = KILLED");
+    gNewline();
+    gPrint(" ============");
     PCBType * pcb;
-    while(hasNext(readyQueue)){
-        next(readyQueue, &pcb);
+    toBegin(processQueue);
+    while(hasNext(processQueue)){
+        next(processQueue, &pcb);
         printProcess(pcb);
     }
     printProcess(activeProcess);
+    gNewline();
 }
 
 void printProcess(PCBType * pcb){
@@ -241,6 +247,7 @@ void printProcess(PCBType * pcb){
         return;
     }
 
+    gNewline();
     gPrint("NAME: ");
     gPrint(pcb->name);
     gNewline();
@@ -249,34 +256,31 @@ void printProcess(PCBType * pcb){
     gNewline();
     gPrint("Priority: ");
     gPrintDec(pcb->priority);
-    gNewline();
-    gPrint("Stack base: ");
-    gPrintDec(pcb->stack_base);
-    gNewline();
-    gPrint("Stack pointer: ");
-    gPrintDec(pcb->rsp);
-    gNewline();
+    gPrint(" | ");
+    gPrint("Stack base: 0x");
+    gPrintHex(pcb->stack_base);
+    gPrint(" | ");
+    gPrint("Stack pointer: 0x");
+    gPrintHex(pcb->rsp);
+    gPrint(" | ");
     gPrint("Ground: ");
     gPrint(!pcb->ground ? "foreground" : "background");
-    gNewline();
+    gPrint(" | ");
     gPrint("Status: ");
     gPrintDec(pcb->status);
-    gNewline();
-    gPrint("Waiting on this process: ");
-    gNewline();
 
-    // Iterate over waiting processes
-    toBegin(pcb->waiting_processes);
-    pid_t pid;
-    while (hasNext(pcb->waiting_processes)) {
-        next(pcb->waiting_processes, &pid);
-
-        gPrint("PID: ");
-        gPrintDec(pid);
+    if(!isEmpty(pcb->waiting_processes)) {
         gNewline();
+        gPrint("WAITING ON THIS PROCESS ARE (pids): ");
+        // Iterate over waiting processes
+        toBegin(pcb->waiting_processes);
+        pid_t pid;
+        while (hasNext(pcb->waiting_processes)) {
+            next(pcb->waiting_processes, &pid);
+            gPrintDec(pid);
+            gPrint(" | ");
+        }
     }
-
-    gPrint("------");
     gNewline();
 }
 
