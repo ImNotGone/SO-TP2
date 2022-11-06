@@ -6,7 +6,6 @@
 #include <test_util.h>
 
 #define MAX_BLOCKS 128
-#define ITERATIONS 1000
 
 typedef struct MM_rq {
     void *address;
@@ -26,7 +25,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     if ((max_memory = satoi(argv[0])) <= 0)
         return -1;
 
-    for (uint64_t j = 0; j < ITERATIONS; j++) {
+    while (1) {
         rq = 0;
         total = 0;
 
