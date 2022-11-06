@@ -166,6 +166,9 @@ int64_t putchar(int64_t c){
 
 int64_t getchar(){
     char c;
-    while(sysread(STDIN, &c, 1) == 0);
+    if (sysread(STDIN, &c, 1) == -1) {
+        return -1;
+    }
+
     return c;
 }

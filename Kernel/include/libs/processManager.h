@@ -5,6 +5,7 @@
 #include <ADTS/queueADT.h>
 #include <stdint.h>
 #include <libs/process.h>
+#include <libs/pipe.h>
 #include <interrupts/interrupts.h>
 #include <drivers/graphics.h>
 

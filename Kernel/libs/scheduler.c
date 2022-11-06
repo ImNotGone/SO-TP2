@@ -67,8 +67,12 @@ void wakeUpProcesses() {
     PCBType ** toWakeUp = getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
 
     for (int i = 0; i < toWakeUpSize; i++) {
-        toWakeUp[i]->status = READY;
+        if (toWakeUp[i]->status != KILLED) {
+            toWakeUp[i]->status = READY;
+        }
     }
+
+    free(toWakeUp);
 }
 
 // Iterates over the ready queue to see if there are any processes that are ready to run

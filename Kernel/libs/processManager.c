@@ -114,6 +114,14 @@ int64_t killProcess(pid_t pid) {
         unblockProcess(pid);
     }
 
+
+    // Close all the file descriptors that correspond to a pipe
+    for(int i = 0; i < 3; i++) {
+        if(process->fd[i] != i) {
+            pipeClose(process->fd[i]);
+        }
+    }
+
     if (process->pid == getActivePid()) {
         yield();
     }

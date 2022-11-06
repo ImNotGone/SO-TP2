@@ -7,6 +7,7 @@
 #define PIPE_SIZE 512
 #define READ 0
 #define WRITE 1
+#define EOF -1
 
 typedef struct pipe {
     int8_t * buffer;
@@ -14,6 +15,9 @@ typedef struct pipe {
     uint64_t readerOff;
     uint64_t writerOff;
     sem_t readerSem, writerSem, mutex;
+
+    int8_t readerClosed;
+    int8_t writerClosed;
 } pipe_t;
 
 static hashMapADT pipeMap = NULL;
@@ -32,6 +36,8 @@ int64_t pipe(fd_t pipefd[2]) {
     new->size = PIPE_SIZE;
     new->readerOff = 0;
     new->writerOff = 0;
+    new->readerClosed = 0;
+    new->writerClosed = 0;
     new->readerSem = sem_init(1);
     new->writerSem = sem_init(0);
     new->mutex     = sem_init(1);
@@ -71,6 +77,10 @@ int64_t pipeRead(fd_t fd, char * buffer, uint64_t bytes) {
 
         buffer[i] = pipe->buffer[pipe->readerOff++];
         pipe->readerOff = pipe->readerOff % pipe->size;
+
+        if (buffer[i] == EOF) {
+            break;
+        }
 
         i++;
     }
@@ -120,6 +130,39 @@ int64_t pipeWrite(fd_t fd, const char * buffer, uint64_t bytes) {
     return i;
 }
 
+static int64_t signalEOF(fd_t fd) {
+    if(pipeMap == NULL || fd < 4) {
+        return -1;
+    }
+
+    // All writer fds are uneven
+    if(fd % 2 == 0) {
+        return -1;
+    }
+    // "get pipeId"
+    uint64_t pipeId = fd/2;
+
+    pipe_t * pipe;
+    if(!findHm(pipeMap, &pipeId, &pipe)) {
+        return -1;
+    }
+
+    if(sem_wait(pipe->mutex) == -1) {
+        return -1;
+    }
+
+    pipe->buffer[pipe->writerOff++] = EOF;
+    pipe->writerOff = pipe->writerOff % pipe->size;
+
+    if(sem_post(pipe->writerSem) == -1) {
+        return -1;
+    }
+    if(sem_post(pipe->mutex) == -1) {
+        return -1;
+    }
+    return 1;
+}
+
 int64_t pipeClose(fd_t fd) {
     if(fd < 4) {
         return -1;
@@ -131,15 +174,30 @@ int64_t pipeClose(fd_t fd) {
         return -1;
     }
 
-    // TODO: check if other process are using the pipe
-    // if(being used) {
-    //      return 1;
-    // }
 
-    sem_destroy(pipe->readerSem);
-    sem_destroy(pipe->writerSem);
-    free(pipe->buffer);
-    free(pipe);
+    // If is writer signal EOF
+    if(fd % 2 != 0) {
+        if(signalEOF(fd) == -1) {
+            return -1;
+        }
+    }
+
+    // If the other fd is closed, free the pipe, else just close this fd
+    if((fd % 2 == 0 && pipe->writerClosed) || (fd % 2 != 0 && pipe->readerClosed)) {
+        sem_destroy(pipe->readerSem);
+        sem_destroy(pipe->writerSem);
+        sem_destroy(pipe->mutex);
+        free(pipe->buffer);
+        free(pipe);
+        removeHm(pipeMap, &pipeId);
+    } else {
+        if(fd % 2 == 0) {
+            pipe->readerClosed = 1;
+        } else {
+            pipe->writerClosed = 1;
+        }
+    }
+
     return 1;
 }
 
