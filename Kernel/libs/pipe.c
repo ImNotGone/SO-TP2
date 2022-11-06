@@ -82,7 +82,7 @@ int64_t pipeRead(fd_t fd, char * buffer, uint64_t bytes) {
     return i;
 }
 
-int64_t pipeWrite(fd_t fd, char * buffer, uint64_t bytes) {
+int64_t pipeWrite(fd_t fd, const char * buffer, uint64_t bytes) {
     if(pipeMap == NULL || buffer == NULL || bytes == 0 || fd < 4) {
         return -1;
     }
@@ -122,7 +122,7 @@ int64_t pipeWrite(fd_t fd, char * buffer, uint64_t bytes) {
         return -1;
     }
 
-    
+
 
     return i;
 }
