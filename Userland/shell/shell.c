@@ -45,7 +45,7 @@ static command programs[] = {
     {"wc", "Counts lines in stdin", (commandfp)wc},
 };
 
-static int commandsDim = sizeof(programs) / sizeof(programs[0]);
+static int programsDim = sizeof(programs) / sizeof(programs[0]);
 static int builtinsDim = sizeof(builtins) / sizeof(builtins[0]);
 
 //--------------------- Main functions ----------------
@@ -118,7 +118,7 @@ static void command_listener() {
     }
 
     // Check if it there is a program
-    for (i = 0; i < commandsDim; i++) {
+    for (i = 0; i < programsDim; i++) {
 
         // If we dont have a pipe execute the program
         if (strcmp(leftArgs[0], programs[i].name) == 0 && rightCommand == NULL) {
@@ -188,8 +188,12 @@ static void help() {
     puts("\'d\' pauses right side programs");
     puts("\n====================\n");
     puts("The available commands are:\n");
-    for (int i = 0; i < commandsDim; i++) {
-        printf("%d) %s:\n%s\n\n", i + 1, programs[i].name, programs[i].desc);
+    int i;
+    for (i = 0; i < programsDim; i++) {
+        printf("%d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
+    }
+    for(int j = 0; j < builtinsDim; j++, i++) {
+        printf("%d) %s: %s\n\n", i + 1, builtins[j].name, builtins[j].desc);
     }
 
 }
