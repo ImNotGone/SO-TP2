@@ -29,11 +29,11 @@ static int64_t printmemAddresses[] = {INVALID_ADDRESS, INVALID_ADDRESS};
 static command builtins[] = {
     {"help", "Prints this help", help},
     {"mem", "Prints memory manager status", memManagerDump},
-    {"ps", "Prints all process' information", ps},
+    {"ps", "Prints all processes information", ps},
     {"sem", "Prints semaphores info", semDump},
     {"kill", "Kills a process given the pid", (commandfp)kill},
     {"nice", "Changes priority to pid", (commandfp)nice},
-    {"block", "Toggles a process between blocked and unblocked goben the pid", (commandfp)block},
+    {"block", "Toggles a process between blocked and unblocked given the pid", (commandfp)block},
 };
 
 static command programs[] = {
@@ -41,7 +41,7 @@ static command programs[] = {
     {"synctest", "Tests the semaphores", (commandfp)synctest},
     {"proctest", "Tests processes", (commandfp)processtest},
     {"priotest", "Test priority", (commandfp)priotest},
-    {"loop", "Prints a greeting and goes to sleep for 3 seconds", (commandfp) loop},
+    {"loop", "Prints a greeting and goes to sleep", (commandfp) loop},
     {"cat", "Prints stdin to stdout", (commandfp)cat},
     {"wc", "Counts lines in stdin", (commandfp)wc},
 };
@@ -183,18 +183,24 @@ static void command_listener() {
 //------------------- commands implemented in this file ---------------
 
 static void help() {
-    puts("\n=== GENERAL INFO ===\n");
-    puts("\'s\' stops iterable or pipe programs");
-    puts("\'a\' pauses left side or individual programs");
-    puts("\'d\' pauses right side programs");
-    puts("\n====================\n");
+    puts("\n===========================\n");
+
+    puts("=== General info ====\n");
+
+    puts("You can kill the foreground process with Ctrl+c\n");
+
+    puts("=====================\n");
+
     puts("The available commands are:\n");
-    int i;
-    for (i = 0; i < programsDim; i++) {
+
+    puts("====== Programs =====\n");
+    for (int i = 0; i < programsDim; i++) {
         printf("%d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
     }
-    for(int j = 0; j < builtinsDim; j++, i++) {
-        printf("%d) %s: %s\n\n", i + 1, builtins[j].name, builtins[j].desc);
+
+    puts("====== Builtins =====\n");
+    for(int j = 0; j < builtinsDim; j++) {
+        printf("%d) %s: %s\n\n", j + 1, builtins[j].name, builtins[j].desc);
     }
 
 }
