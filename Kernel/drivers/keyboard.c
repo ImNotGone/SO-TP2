@@ -32,7 +32,7 @@
 #define F9  0x43
 #define F10 0x44
 
-#define SAVE_REGS_KEY 's'
+#define KILL_FOREGROUND_PROCESS_KEY 'c'
 
 /*
 #define F11 0x45
@@ -73,7 +73,7 @@ static uint8_t cntrlPressed = 0;
 static uint8_t inforegFlag = 0;
 
 static uint8_t handlekey(uint8_t key) {
-    if(cntrlPressed && (IS_PRESSED(key)) && SAVE_REGS_KEY == keyMapping[map][KEY_VALUE(key)]) {
+    if(cntrlPressed && (IS_PRESSED(key)) && KILL_FOREGROUND_PROCESS_KEY == keyMapping[map][KEY_VALUE(key)]) {
         inforegFlag = 1;
         return 0;
     }
@@ -149,6 +149,6 @@ uint8_t getchar() {
     return getNextInBuffer();
 }
 
-uint8_t mustUpdateInforeg() {
+uint8_t mustKillForegroundProcess() {
     return inforegFlag;
 }

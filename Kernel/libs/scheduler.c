@@ -39,7 +39,7 @@ void startScheduler(){
     sleepingQueue = newPQueue(compareTime, sizeof(PCBType *), sizeof(uint64_t));
 
     // Create idle process
-    newProcess((uint64_t) idle, 0, 1, 0, NULL);
+    newProcess((uint64_t) idle, 1, 1, 0, NULL);
 }
 
 // Adds a process to the sleeping queue
@@ -313,6 +313,22 @@ void wakeUpBlockedOnInput() {
         blockedOnInput = NULL;
     }
 }
+
+void killForegroundProcess() {
+    if (activeProcess->ground == 0 && activeProcess->pid != 1) {
+        killProcess(activeProcess->pid);
+    }
+
+    toBegin(processQueue);
+    PCBType * aux;
+    while(hasNext(processQueue)){
+        next(processQueue, &aux);
+        if(aux->ground == 0 && aux->pid != 1){
+            killProcess(aux->pid);
+        }
+    }
+}
+
 
 static void idle() {
     while (1){

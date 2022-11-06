@@ -20,8 +20,8 @@ GLOBAL _exception6Handler
 GLOBAL restartKernel
 
 EXTERN irqDispatcher
-EXTERN mustUpdateInforeg
-EXTERN saveRegs
+EXTERN mustKillForegroundProcess
+EXTERN killForegroundProcess
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN getStackBase
@@ -188,36 +188,14 @@ _irq01Handler:
 	call irqDispatcher
 
     call wakeUpBlockedOnInput
-	call mustUpdateInforeg
+	call mustKillForegroundProcess
 	cmp rax, 1
 	jne .endKbdInt
 	popState
 	pushState
-.saveRegs:
+.killForegroundProcess:
 
-    mov [registerSnapshot + 8 * 0 ], rax
-    mov [registerSnapshot + 8 * 1 ], rbx
-    mov [registerSnapshot + 8 * 2 ], rcx
-    mov [registerSnapshot + 8 * 3 ], rdx
-    mov [registerSnapshot + 8 * 4 ], rsi
-    mov [registerSnapshot + 8 * 5 ], rdi
-    mov [registerSnapshot + 8 * 6 ], rbp
-    mov rax, [rsp+18*8]
-    ;add rax, 16 * 8 ; es lo que se decremento rsp con la macro pushState y el pusheo de la dir. de retorno
-    mov [registerSnapshot + 8 * 7 ], rax ;rsp
-    mov [registerSnapshot + 8 * 8 ], r8
-    mov [registerSnapshot + 8 * 9 ], r9
-    mov [registerSnapshot + 8 * 10], r10
-   	mov [registerSnapshot + 8 * 11], r11
-   	mov [registerSnapshot + 8 * 12], r12
-   	mov [registerSnapshot + 8 * 13], r13
-   	mov [registerSnapshot + 8 * 14], r14
-   	mov [registerSnapshot + 8 * 15], r15
-   	mov rax, [rsp+15*8]; posicion en el stack de la dir. de retorno (valor del rip previo al llamado de la interrupcion)
-   	mov [registerSnapshot + 8 * 16], rax
-
-    mov rdi, registerSnapshot
-    call saveRegs
+    call killForegroundProcess
 
 .endKbdInt:
 	; signal pic EOI (End of Interrupt)

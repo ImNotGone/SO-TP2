@@ -3,15 +3,6 @@
 
 #include <interrupts/syscalls.h>
 
-int8_t regSaved;
-int64_t registerSnapshot[17];
-
-void saveRegs(const int64_t *registers) {
-    for (int i = 0; i < 17; i++)
-        registerSnapshot[i] = registers[i];
-    regSaved = 1;
-}
-
 // rax -> rdi,
 // rdi -> rsi,
 // rsi -> rdx,
@@ -240,26 +231,7 @@ int64_t sysmemdump(uint64_t address, int8_t *memData) {
 // Si se guardaron registros los escribe en regs y retorna 1
 // Si no se habian guardado ningun registro retorna 0 y no escribe nada
 int64_t sysregdump(TRegs *regs) {
-    if (!regSaved || regs == NULL)
-        return 0;
-    regs->rax = registerSnapshot[0];
-    regs->rbx = registerSnapshot[1];
-    regs->rcx = registerSnapshot[2];
-    regs->rdx = registerSnapshot[3];
-    regs->rsi = registerSnapshot[4];
-    regs->rdi = registerSnapshot[5];
-    regs->rbp = registerSnapshot[6];
-    regs->rsp = registerSnapshot[7];
-    regs->r8  = registerSnapshot[8];
-    regs->r9  = registerSnapshot[9];
-    regs->r10 = registerSnapshot[10];
-    regs->r11 = registerSnapshot[11];
-    regs->r12 = registerSnapshot[12];
-    regs->r13 = registerSnapshot[13];
-    regs->r14 = registerSnapshot[14];
-    regs->r15 = registerSnapshot[15];
-    regs->rip = registerSnapshot[16];
-    return 1;
+    return 0;
 }
 
 // --------- Memory manager ---------------------------------------------------------------
