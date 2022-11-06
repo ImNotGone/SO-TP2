@@ -102,7 +102,7 @@ int64_t pipeWrite(fd_t fd, const char * buffer, uint64_t bytes) {
         return -1;
     }
     while(i < bytes) {
-        
+
         pipe->buffer[pipe->writerOff++] = buffer[i];
         pipe->writerOff = pipe->writerOff % pipe->size;
         i++;
