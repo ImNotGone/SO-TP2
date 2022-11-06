@@ -84,14 +84,28 @@ void cat(int argc, char *argv[]) {
     char buffer[BUFF_SIZE];
     int readed;
     while (!scanf("%s", buffer)) {
-        printf("%s", buffer);
+        printf("%s\n", buffer);
     }
+}
+
+// reads from STDIN
+// prints the amount of lines
+void wc(int argc, char * argv[]) {
+    uint64_t lines = 0;
+    char c = 0;
+    for(c = getchar(); c != EOF; c = getchar()) {
+        if(c == '\n') {
+            lines += 1;
+        }
+    }
+    printf("lines: %d\n", lines);
+    return;
 }
 
 // ====================== Other ======================
 
 void loop(int argc, char **argv) {
-    
+
     if (argc != 2) {
         fprintf(STDERR, "Usage: loop <number of seconds>\n");
         return;
@@ -108,7 +122,7 @@ void loop(int argc, char **argv) {
 
 
     while (1) {
-        
+
         // Print a greeting
 
         printf("Hello, world!, I'm a process with PID %d\n", sysgetpid());

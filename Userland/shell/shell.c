@@ -41,7 +41,8 @@ static command programs[] = {
     {"proctest", "Tests processes", (commandfp)processtest},
     {"priotest", "Test priority", (commandfp)priotest},
     {"loop", "Prints a greeting and goes to sleep for 3 seconds", (commandfp) loop},
-    {"cat", "Prints stdin to stdout", (commandfp)cat}
+    {"cat", "Prints stdin to stdout", (commandfp)cat},
+    {"wc", "Counts lines in stdin", (commandfp)wc},
 };
 
 static int commandsDim = sizeof(programs) / sizeof(programs[0]);
@@ -86,7 +87,7 @@ static void command_listener() {
     if (pipeLocation != NULL) {
         *pipeLocation = '\0';
         rightCommand = pipeLocation + 1;
-        
+
         // Parse right command
         rightArgs = parseArgs(rightCommand, &rightArgc, &rightIsBackground);
     }
@@ -94,7 +95,7 @@ static void command_listener() {
     // Parse left command for arguments
     leftArgs = parseArgs(leftCommand, &leftArgc, &leftIsBackground);
 
-    
+
     // Check if there is a builtin command
     for (i = 0; i < builtinsDim; i++) {
 
@@ -126,7 +127,7 @@ static void command_listener() {
 
             pid_t pid = syscreateprocess(rip, leftIsBackground ? BACK : FORE, 1, leftArgc, leftArgs);
             sysunblock(pid);
-            
+
             if (!leftIsBackground) {
                 syswaitpid(pid);
             }
@@ -140,7 +141,7 @@ static void command_listener() {
         if (rightCommand != NULL && strcmp(leftArgs[0], programs[i].name) == 0) {
 
             leftProgramIndex = i;
-        } 
+        }
         if (rightCommand != NULL && strcmp(rightArgs[0], programs[i].name) == 0) {
 
             rightProgramIndex = i;
@@ -160,7 +161,7 @@ static void command_listener() {
     }
 
     // There was no command found
-    
+
     // Left command
     if (leftProgramIndex == -1) {
         fprintf(STDERR, "Command not found: %s \n", leftArgs[0]);
@@ -261,7 +262,7 @@ static char **parseArgs(char *commandBuffer, int *argc, int *isBackground) {
 
 // Makes a pipe between two programs
 static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftIsBackground, int rightIsBackground, int leftArgc, int rightArgc, char **leftArgs, char **rightArgs) {
-    
+
     // Create pipe
     fd_t pipefd[2];
     if (syspipe(pipefd) == -1) {
@@ -320,5 +321,5 @@ static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftI
     }
 
     return 0;
- 
+
 }

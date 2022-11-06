@@ -26,6 +26,8 @@ void priotest();
 // Prints stdin to stdout
 void cat(int argc, char *argv[]);
 
+void wc(int argc, char * argv[]);
+
 // ==================== OTHER ====================
 
 void loop(int argc, char **argv);

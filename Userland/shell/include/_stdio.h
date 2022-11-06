@@ -9,6 +9,7 @@
 #define STDIN   0
 #define STDOUT  1
 #define STDERR  2
+#define EOF -1
 
 // Prints the specified format into the fd
 int64_t fprintf(uint64_t fd, const char * fmt, ...);
