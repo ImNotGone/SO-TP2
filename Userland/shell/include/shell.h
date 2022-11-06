@@ -14,8 +14,6 @@
 #define MAX_ARGS 64
 #define MAX_ARG_SIZE 128
 
-typedef enum ERRORS {ARGUMENT_MISSING = -1, NOT_PRINTMEM = -2, INVALID_ADDRESS = -3} ERRORS;
-
 #define WELCOME_MESSAGE                 "Welcome to the console"
 #define INVALID_COMMAND_MESSAGE_FORMAT  "%s: command not found\n"
 

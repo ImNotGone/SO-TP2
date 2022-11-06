@@ -14,11 +14,6 @@ typedef int64_t (*TSyscallHandler) (uint64_t rdi, uint64_t rsi, uint64_t rdx, ui
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes);
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
 
-void    systime(TTime * ts);
-
-int64_t sysmemdump(uint64_t address, int8_t *memData);
-int64_t sysregdump(TRegs *regs);
-
 void *  sysmalloc(uint64_t size);
 void    sysfree(void * ptr);
 void *  sysrealloc(void * ptr, uint64_t size);
@@ -67,69 +62,61 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) syswrite,
 
     //0x02
-    (TSyscallHandler) systime,
-
-    //0x03
-    (TSyscallHandler) sysmemdump,
-    //0x04
-    (TSyscallHandler) sysregdump,
-
-    //0x05
     (TSyscallHandler) sysmalloc,
-    //0x06
+    //0x03
     (TSyscallHandler) sysfree,
-    //0x07
+    //0x04
     (TSyscallHandler) sysrealloc,
-    //0x08
+    //0x05
     (TSyscallHandler) syscalloc,
-    //0x09
+    //0x06
     (TSyscallHandler) sysmeminfo,
 
-    //0x0A
+    //0x07
     (TSyscallHandler) syscreateprocess,
-    //0x0B
+    //0x08
     (TSyscallHandler) sysexit,
-    //0x0C
+    //0x09
     (TSyscallHandler) sysexec,
-    //0x0D
+    //0x0A
     (TSyscallHandler) sysps,
-    //0x0E
+    //0x0B
     (TSyscallHandler) syskill,
-    //0x0F
+    //0x0C
     (TSyscallHandler) syswaitpid,
-    //0x10
+    //0x0D
     (TSyscallHandler) sysnice,
-    //0x11
+    //0x0E
     (TSyscallHandler) sysblock,
-    //0x12
+    //0x0F
     (TSyscallHandler) sysunblock,
-    //0x13
+    //0x10
     (TSyscallHandler) syssleep,
-    //0x14
+    //0x11
     (TSyscallHandler) sysyield,
-    //0x15
+    //0x12
     (TSyscallHandler) sysgetpid,
 
-    //0x16
+    //0x13
     (TSyscallHandler) syssemopen,
-    //0x17
+    //0x14
     (TSyscallHandler) syssemwait,
-    //0x18
+    //0x15
     (TSyscallHandler) syssempost,
-    //0x19
+    //0x16
     (TSyscallHandler) syssemclose,
-    //0x1A
+    //0x17
     (TSyscallHandler) syssemunlink,
-    //0x1B
+    //0x18
     (TSyscallHandler) sysseminfo,
-    //0x1C
+    //0x19
     (TSyscallHandler) sysseminit,
-    //0x1D
+    //0x1A
     (TSyscallHandler) syssemdestroy,
 
-    //0x1E
+    //0x1B
     (TSyscallHandler) sysdup,
-    //0x1F
+    //0x1C
     (TSyscallHandler) syspipe,
 
 
@@ -201,38 +188,6 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
     return i;
 }
 
-// Escribe la info recibida del rtc en la estructura t
-void systime(TTime * t) {
-    if(t == NULL) return; //TODO: clearer return
-    t->year = getRTCYear();
-    t->month = getRTCMonth();
-    t->day = getRTCDayOfMonth();
-    t->hour = getRTCHours();
-    t->min = getRTCMinutes();
-    t->sec = getRTCSeconds();
-    return;
-}
-
-// Escribe los MEM_DUMP_SIZE bytes desde la direccion de memoria indicada en memData
-int64_t sysmemdump(uint64_t address, int8_t *memData) {
-    // No pudimos resolver el acceso a una direccion de memoria mayor a MAX_MEM_ADDRESS
-    if (address > MAX_MEM_ADDRESS || memData == NULL)
-        return -1;
-    int8_t *memDir = (int8_t *) address;
-    int i;
-    for (i = 0; i < MEM_DUMP_SIZE; i++) {
-        if (address + i > MAX_MEM_ADDRESS)
-            return i;
-        memData[i] = *(memDir + i);
-    }
-    return i;
-}
-
-// Si se guardaron registros los escribe en regs y retorna 1
-// Si no se habian guardado ningun registro retorna 0 y no escribe nada
-int64_t sysregdump(TRegs *regs) {
-    return 0;
-}
 
 // --------- Memory manager ---------------------------------------------------------------
 void * sysmalloc(uint64_t size) {

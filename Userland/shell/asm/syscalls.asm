@@ -2,51 +2,41 @@ section .data
     syscallread     equ 0
     syscallwrite    equ 1
 
-    syscalltime     equ 2
+    syscallmalloc   equ 2
+    syscallfree     equ 3
+    syscallrealloc  equ 4
+    syscallcalloc   equ 5
+    syscallmeminfo  equ 6
 
-    syscallmemdump  equ 3
-    syscallregdump  equ 4
+    syscallcreateprocess equ 7
+    syscallexit     equ 8
+    syscallexec     equ 9
+    syscallps       equ 10
+    syscallkill     equ 11
+    syscallwaitpid  equ 12
+    syscallnice     equ 13
+    syscallblock    equ 14
+    syscallunblock  equ 15
+    syscallsleep    equ 16
+    syscallyield    equ 17
+    syscallgetpid   equ 18
 
-    syscallmalloc   equ 5
-    syscallfree     equ 6
-    syscallrealloc  equ 7
-    syscallcalloc   equ 8
-    syscallmeminfo  equ 9
+    syscallsemopen    equ 19
+    syscallsemwait    equ 20
+    syscallsempost    equ 21
+    syscallsemclose   equ 22
+    syscallsemunlink  equ 23
+    syscallseminfo    equ 24
+    syscallseminit    equ 25
+    syscallsemdestroy equ 26
 
-    syscallcreateprocess equ 10
-    syscallexit     equ 11
-    syscallexec     equ 12
-    syscallps       equ 13
-    syscallkill     equ 14
-    syscallwaitpid  equ 15
-    syscallnice     equ 16
-    syscallblock    equ 17
-    syscallunblock  equ 18
-    syscallsleep    equ 19
-    syscallyield    equ 20
-    syscallgetpid   equ 21
-
-    syscallsemopen    equ 22
-    syscallsemwait    equ 23
-    syscallsempost    equ 24
-    syscallsemclose   equ 25
-    syscallsemunlink  equ 26
-    syscallseminfo    equ 27
-    syscallseminit    equ 28
-    syscallsemdestroy equ 29
-
-    syscalldup        equ 30
-    syscallpipe       equ 31
+    syscalldup        equ 27
+    syscallpipe       equ 28
 
 
 section .text
 global sysread
 global syswrite
-
-global systime
-
-global sysmemdump
-global sysregdump
 
 global sysmalloc
 global sysfree
@@ -101,21 +91,6 @@ sysread:
 ;
 syswrite:
     syscallHandler syscallwrite
-
-
-
-; rdi -> Ttime *
-systime:
-    syscallHandler syscalltime
-
-; rdi -> direccion
-; rsi -> memData[]
-sysmemdump:
-    syscallHandler syscallmemdump
-
-; rdi -> TRegs *
-sysregdump:
-    syscallHandler syscallregdump
 
 ; rdi -> size
 sysmalloc:

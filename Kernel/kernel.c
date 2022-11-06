@@ -69,17 +69,6 @@ int init_shell() {
 
 int main() {
 
-	static int booted = 0;
-
-	// si es estoy recuperandome de una excepcion voy derecho a la shell
-	// de esta manera la shell pude ejecutar el pipe y aparenta ejecutar
-	// el programa de primos o fibonacci mientras en la otra pantalla
-	// hay una exepcion
-
-	//if (booted) {
-	//	init_shell();
-	//}
-
 	printLogo();
 	gPrint("Presione enter para acceder a la consola");
 	char c;
@@ -90,8 +79,6 @@ int main() {
 	} while ((c = getchar()) != '\n');
 	gClear();
 
-
-	booted = 1;
 
 	_cli();
 	startScheduler();

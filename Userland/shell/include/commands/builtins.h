@@ -12,8 +12,6 @@ void kill(int argc, char * argv[]);
 
 void block(int argc, char * argv[]);
 
-void regDump();
-
 void memManagerDump();
 
 void semDump();

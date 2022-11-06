@@ -3,7 +3,7 @@ global createProcess
 
 entryWrapper:
     call rdx
-    mov rax, 0x0B
+    mov rax, 0x08 ; sysexit syscall
     int 80h
 
 ; creates a process' context

@@ -83,7 +83,7 @@ void minit(void * start, uint64_t size) {
 
     heapStart = start;
     heapSize = HEAP_SIZE;
-    btree = heapStart + HEAP_SIZE;
+    btree = (TNode *) heapStart + HEAP_SIZE;
     return;
 }
 

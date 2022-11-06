@@ -15,14 +15,9 @@ static void command_listener();
 //----- auxiliary functions ------------
 
 static void help();
-static void displayError(int64_t add, const char *command);
 static char **parseArgs(char *commandBuffer, int *argc, int *isBackground);
 static void freeArgs(char **argv, int argc);
 static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftIsBackground, int rightIsBackground, int leftArgc, int rightArgc, char **leftArgv, char **rightArgv);
-
-
-//--- Flags ---
-static int64_t printmemAddresses[] = {INVALID_ADDRESS, INVALID_ADDRESS};
 
 // -------------- Terminal commands ---------------------------------
 
