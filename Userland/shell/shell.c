@@ -4,7 +4,8 @@
 #define STDERR 2
 #define FORE 0
 #define BACK 1
-
+#define READ 0
+#define WRITE 1
 // -------- main functions -------------------------------------
 // static void init();
 static void command_listener();
@@ -283,7 +284,7 @@ static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftI
     pid_t rightPid = syscreateprocess(rip, rightIsBackground ? BACK : FORE, 1, rightArgc, rightArgs);
 
     // Connect pipe
-    if (sysdup(leftPid, STDOUT, pipefd[1]) == -1) {
+    if (sysdup(leftPid, STDOUT, pipefd[WRITE]) == -1) {
         fprintf(STDERR, "Error connecting left program STDOUT to pipe write\n");
 
         syskill(leftPid);
@@ -292,7 +293,7 @@ static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftI
         return -1;
     }
 
-    if (sysdup(rightPid, STDIN, pipefd[0]) == -1) {
+    if (sysdup(rightPid, STDIN, pipefd[READ]) == -1) {
         fprintf(STDERR, "Error connecting right program STDIN to pipe read\n");
         syskill(leftPid);
         syskill(rightPid);
