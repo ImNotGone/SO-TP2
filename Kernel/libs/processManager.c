@@ -245,7 +245,10 @@ int dup(pid_t pid, fd_t prev, fd_t new){
     // if(prev != STDOUT && new != STDIN){
     //     return -1;
     // }
+
     PCBType * process = find(pid);
     process->fd[prev] = new;
+
+    addToPipe(new);
     return 1;
 }

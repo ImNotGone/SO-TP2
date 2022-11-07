@@ -8,6 +8,10 @@
 
 #define INITIAL_PHYLOS 5
 
+#define PIPE_NAME "pipe"
+#define PIPE_WRITERS 5
+#define PIPE_WRITERS_ITERATIONS 100
+
 // ====================== Tests ======================
 
 void memtest(int argc, char * argv[]) {
@@ -156,6 +160,104 @@ void filter(int argc, char * argv[]) {
     return;
 }
 
+// Writes to named pipe
+static void pipeWriter(int argc, char * argv[]) {
+
+    if (argc != 2) {
+        return;
+    }
+
+    fd_t pipe_fd[2];
+    if (sysmkfifo(PIPE_NAME, pipe_fd) != 0) {
+        fprintf(STDERR, "Error creating pipe\n");
+        return;
+    }
+
+    // Close read end
+    if (sysclose(pipe_fd[0]) != 0) {
+        fprintf(STDERR, "Error closing pipe\n");
+        return;
+    }
+
+    for (int i = 0; i < PIPE_WRITERS_ITERATIONS; i++) {
+        syswrite(pipe_fd[1], argv[1], strlen(argv[1]));
+        sysyield();
+    }
+
+
+    // Close write end
+    if (sysclose(pipe_fd[1]) != 0) {
+        fprintf(STDERR, "Error closing pipe\n");
+        return;
+    }
+}
+
+// Demostates the use of named pipes
+// Creates a named pipe, and then creates 5 child processes that will write to it
+// The parent process will read from the pipe and print the result
+
+void fifotest(int argc, char * argv[]) {
+
+    if (argc != 1) {
+        fprintf(STDERR, "Usage: pipe_test\n");
+        return;
+    }
+
+    fd_t pipe_fd[2];
+    
+    if (sysmkfifo(PIPE_NAME, pipe_fd) != 0) {
+        fprintf(STDERR, "Error creating pipe\n");
+        return;
+    }
+
+    
+    pid_t pids[INITIAL_PHYLOS];
+
+    int i;
+    for (i = 0; i < PIPE_WRITERS; i++) {
+        char * child_argv[] = { "pipe_test_child" , i == 0 ? "A" : i == 1 ? "B" : i == 2 ? "C" : i == 3 ? "D" : "E" };
+        
+
+        pids[i] = syscreateprocess((uint64_t) pipeWriter, 1, 1, 2, child_argv);
+
+        sysunblock(pids[i]);
+    }
+
+    
+
+    // Read from pipe
+    char c;
+    int read;
+    for (read = 0; read < PIPE_WRITERS * PIPE_WRITERS_ITERATIONS; read++) {
+        sysread(pipe_fd[0], &c, 1);
+        putchar(c);
+    }
+
+    // Wait for all children to finish
+    for (i = 0; i < INITIAL_PHYLOS; i++) {
+        syswaitpid(pids[i]);
+    }
+
+    // Close write end of pipe
+    if (sysclose(pipe_fd[1]) != 0) {
+        fprintf(STDERR, "Error closing pipe\n");
+        return;
+    }
+
+    // Close read end of pipe
+    if (sysclose(pipe_fd[0]) != 0) {
+        fprintf(STDERR, "Error closing pipe\n");
+        return;
+    }
+
+    // Delete pipe
+    if (sysunlink(PIPE_NAME) != 0) {
+        fprintf(STDERR, "Error deleting pipe\n");
+        return;
+    }
+
+    printf("\nFifo test %s read %d must read %d\n", read == PIPE_WRITERS * PIPE_WRITERS_ITERATIONS ? "passed" : "failed", read, PIPE_WRITERS * PIPE_WRITERS_ITERATIONS);
+}
 // ====================== Other ======================
 
 // Prints a greeting and then sleeps for n seconds, for eternity
