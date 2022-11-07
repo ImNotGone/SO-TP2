@@ -17,14 +17,12 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes);
 void *  sysmalloc(uint64_t size);
 void    sysfree(void * ptr);
 void *  sysrealloc(void * ptr, uint64_t size);
-void    sysmeminfo(TMemInfo* memInfo);
+int64_t sysmeminfo(TMemInfo* memInfo);
 void *  syscalloc(uint64_t nmemb, uint64_t size);
 
 pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 void sysexit();
 
-// TODO: Remove this?
-void sysexec(pid_t pid);
 TProcInfo *sysps(uint64_t *size);
 
 int64_t syskill(pid_t pid);
@@ -81,7 +79,8 @@ TSyscallHandler syscallHandlers[] = {
     //0x08
     (TSyscallHandler) sysexit,
     //0x09
-    (TSyscallHandler) sysexec,
+    // (TSyscallHandler) sysexec,
+    (TSyscallHandler) NULL,
     //0x0A
     (TSyscallHandler) sysps,
     //0x0B
@@ -219,9 +218,12 @@ void * syscalloc(uint64_t nmemb, uint64_t size) {
     return calloc(nmemb, size);
 }
 
-void sysmeminfo(TMemInfo* memInfo) {
-    if(memInfo == NULL) return; //TODO: Clearer return
+int64_t sysmeminfo(TMemInfo* memInfo) {
+    if(memInfo == NULL) {
+        return -1;
+    }
     meminfo(memInfo);
+    return 0;
 }
 
 // ------------ Process Manager ----------------

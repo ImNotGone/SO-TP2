@@ -46,9 +46,6 @@ uint64_t getTotalSeconds() {
     seconds += getRTCMinutes() * 60;
     seconds += getRTCHours() * 3600;
     seconds += getRTCDayOfMonth() * 86400;
-
-    // TODO: tener en cuenta los años bisiestos y los distintos meses, creo q no importa?
-
     seconds += getRTCMonth() * 2592000; // Month is not exact, but it's close enough
     seconds += getRTCYear() * 31104000; // Year is not exact, but it's close enough
     return seconds;

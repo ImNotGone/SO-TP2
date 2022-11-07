@@ -31,10 +31,8 @@ static uint64_t usedBlocks;
 void minit(void *start, uint64_t size) {
 
     if(size < HEAP_SIZE + HEAP_STRUCTURE_SIZE) {
-        // TODO: ERROR
         return;
     }
-    // size != 0
 
     // Calculate the number of blocks needed
     blocks = (size - HEAP_STRUCTURE_SIZE) / FACTOR;
@@ -52,8 +50,7 @@ void minit(void *start, uint64_t size) {
 // Allocate memory
 void *malloc(uint64_t size) {
 
-    if (size <= 0) {
-        // TODO: Error
+    if (size == 0) {
         return NULL;
     }
 
@@ -104,7 +101,6 @@ void *malloc(uint64_t size) {
     }
 
     // No blocks found
-    // TODO: Error
     return NULL;
 }
 
@@ -128,7 +124,6 @@ void *calloc(uint64_t nmemb, uint64_t size) {
 void free(void *ptr) {
 
     if (ptr == NULL) {
-        // TODO: Error
         return;
     }
 
@@ -139,17 +134,14 @@ void free(void *ptr) {
     uint64_t blockIndex = arenaOffset / FACTOR;
 
     if (blockIndex >= blocks) {
-        // TODO: Error
         return;
     }
 
     if (arenaOffset % FACTOR != 0) {
-        // TODO: Error
         return;
     }
 
     if (bitmap[blockIndex] != BOUNDARY) {
-        // TODO: Error
         return;
     }
 
@@ -174,8 +166,7 @@ void *realloc(void *ptr, uint64_t size) {
         return malloc(size);
     }
 
-    if (size <= 0) {
-        // TODO: Error
+    if (size == 0) {
         return NULL;
     }
 
@@ -183,7 +174,6 @@ void *realloc(void *ptr, uint64_t size) {
     void *newPtr = malloc(size);
 
     if (newPtr == NULL) {
-        // TODO: Error
         return NULL;
     }
 

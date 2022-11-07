@@ -79,7 +79,7 @@ extern void *sysrealloc(void *ptr, uint64_t size);
 extern void *syscalloc(uint64_t nmemb, uint64_t size);
 
 // Gets memory manager information
-extern void sysmeminfo(TMemInfo *memInfo);
+extern int64_t sysmeminfo(TMemInfo *memInfo);
 
 //returns pid
 extern pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[] );

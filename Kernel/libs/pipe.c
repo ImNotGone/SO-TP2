@@ -12,7 +12,7 @@
 
 typedef struct pipe {
     int8_t *buffer;
-    uint64_t size; // TODO: remove if resize will not be implemented
+    uint64_t size;
     uint64_t readerOff;
     uint64_t writerOff;
     sem_t readerSem, writerSem, mutex;
@@ -287,7 +287,7 @@ int64_t pipeClose(fd_t fd) {
 
         freePipe(pipe);
         removeHm(pipeMap, &pipeId);
-    } 
+    }
 
     return 0;
 }
@@ -316,7 +316,7 @@ TPipeInfo *pipeDump(uint64_t *size) {
         return NULL;
     }
 
-    
+
     // Fill info
     for (uint64_t i = 0; i < pipesize; i++) {
 

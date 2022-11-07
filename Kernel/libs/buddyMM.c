@@ -77,7 +77,6 @@ static void setUsedChildren(uint64_t index);
 
 void minit(void * start, uint64_t size) {
     if(size < HEAP_SIZE + HEAP_STRUCTURE_SIZE) {
-        // TODO: ERROR
         return;
     }
 

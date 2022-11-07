@@ -147,7 +147,6 @@ void keyboard_handler() {
     appendInBuffer(out);
 }
 
-// TODO revisar el return value
 uint8_t getchar() {
     return getNextInBuffer();
 }

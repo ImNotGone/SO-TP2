@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 // (c) 2009, 2010 Lutz Sammer, License: AGPLv3
-
-/// bitmap font structure
+// https://github.com/pixelmatix/bdf2c
+// bitmap font structure
 struct bitmap_font {
 	uint8_t			Width;		///< max. character width
 	uint8_t 		Height;		///< character height
