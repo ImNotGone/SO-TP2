@@ -257,7 +257,7 @@ TProcInfo *procDump(uint64_t *size) {
 
     TProcInfo *processes = malloc(sizeof(TProcInfo) * (queueSize));
 
-   
+
     if (processes == NULL) {
         *size = 0;
         return NULL;
@@ -268,7 +268,7 @@ TProcInfo *procDump(uint64_t *size) {
         *size = 0;
         return NULL;
     }
-        
+
 
     pcb = NULL;
     toBegin(processQueue);
@@ -324,6 +324,7 @@ void killForegroundProcess() {
         gPrint("]");
         gPrint(" Killed");
         gNewline();
+
         killProcess(activeProcess->pid);
     }
 
@@ -338,9 +339,7 @@ void killForegroundProcess() {
             gPrint("]");
             gPrint(" Killed");
             gNewline();
-        }
 
-        if (aux->ground == 0 && aux->pid != 1) {
             killProcess(aux->pid);
         }
     }
