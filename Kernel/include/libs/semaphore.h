@@ -28,4 +28,6 @@ sem_t sem_init(uint64_t value);
 int64_t sem_destroy(sem_t sem);
 
 TSemInfo *sem_info(uint64_t * size);
+
+pid_t *sem_waiting_queue(sem_t sem, uint64_t *size);
 #endif // _SEMAPHORE_H

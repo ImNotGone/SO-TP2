@@ -33,8 +33,9 @@ section .data
     syscalldup        equ 27
     syscallpipe       equ 28
     syscallclose      equ 29
-    syscallmkfifo  equ 30
+    syscallmkfifo     equ 30
     syscallunlink     equ 31
+    syscallpipeinfo   equ 32
 
 
 section .text
@@ -74,6 +75,7 @@ global syspipe
 global sysclose
 global sysmkfifo
 global sysunlink
+global syspipeinfo
 
 %macro syscallHandler 1
     push rbp
@@ -223,3 +225,7 @@ sysmkfifo:
 ;rdi->name
 sysunlink:
     syscallHandler syscallunlink
+
+;rdi->size
+syspipeinfo:
+    syscallHandler syscallpipeinfo

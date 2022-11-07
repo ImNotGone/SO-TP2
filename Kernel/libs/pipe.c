@@ -39,7 +39,7 @@ static tList addNamedPipe(tList first, const char *name, uint64_t *pipeId,
 static tList removeNamedPipe(tList first, const char *name);
 static bool findNamedPipe(tList first, const char *name, uint64_t *pipeId);
 static void freePipe(pipe_t *pipe);
-static const char * getSemName(tList first, uint64_t pipeId);
+static const char * getPipeName(tList first, uint64_t pipeId);
 
 static hashMapADT pipeMap = NULL;
 static uint64_t pipeId = 2; // starts at 2 so that the first pipe is 4/5 second 6/7 etc...
@@ -279,11 +279,11 @@ int64_t pipeClose(fd_t fd) {
         pipe->writers--;
     }
 
-    // Get sem name
-    const char *semName = getSemName(NPList, pipeId);
+    // Get pipe name
+    const char *pipeName = getPipeName(NPList, pipeId);
 
     // If there are no more processes and the pipe is not linked to a name , free the pipe
-    if (pipe->readers == 0 && pipe->writers == 0 && !findNamedPipe(NPList, semName, &pipeId)) {
+    if (pipe->readers == 0 && pipe->writers == 0 && !findNamedPipe(NPList, pipeName, &pipeId)) {
 
         freePipe(pipe);
         removeHm(pipeMap, &pipeId);
@@ -291,6 +291,50 @@ int64_t pipeClose(fd_t fd) {
 
     return 0;
 }
+
+// Pipes dump
+TPipeInfo *pipeDump(uint64_t *size) {
+    if (pipeMap == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    // Get pipes
+    uint64_t pipesize = 0;
+    pipe_t ***pipes = (pipe_t ***) valuesHm(pipeMap, &pipesize);
+    uint64_t **pipeIds = (uint64_t **) keysHm(pipeMap, &pipesize);
+
+
+    // Allocate memory
+    TPipeInfo *info = malloc(sizeof(TPipeInfo) * pipesize);
+    if (info == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    
+    // Fill info
+    for (uint64_t i = 0; i < pipesize; i++) {
+
+        info[i].size = (*pipes[i])->size;
+        info[i].readerOffset = (*pipes[i])->readerOff;
+        info[i].writerOffset = (*pipes[i])->writerOff;
+
+        // Get pipe name
+        pipe_t pipeId;
+        info[i].name = getPipeName(NPList, *pipeIds[i]);
+
+        // Get waiting processes
+        uint64_t waitingSize;
+        info[i].waitingProcesses = sem_waiting_queue((*pipes[i])->writerSem, &waitingSize);
+        info[i].waitingProcessesSize = waitingSize;
+    }
+
+    *size = pipesize;
+
+    return info;
+}
+
 
 // ====================== AUX =========================
 
@@ -349,14 +393,14 @@ static bool findNamedPipe(tList first, const char *name, uint64_t *pipeId) {
     return findNamedPipe(first->tail, name, pipeId);
 }
 
-static const char * getSemName(tList first, uint64_t pipeId) {
+static const char * getPipeName(tList first, uint64_t pipeId) {
     if (first == NULL) {
         return NULL;
     }
     if (first->pipeId == pipeId) {
         return first->name;
     }
-    return getSemName(first->tail, pipeId);
+    return getPipeName(first->tail, pipeId);
 }
 
 static void freePipe(pipe_t *pipe) {

@@ -95,6 +95,40 @@ void ps() {
     sysfree(procInfo);
 }
 
+void pipeDump() {
+    
+        uint64_t pipeAmount;
+        TPipeInfo *pipeInfo = syspipeinfo(&pipeAmount);
+    
+        if (pipeAmount == 0 || pipeInfo == 0) {
+            puts("No pipes found");
+            return;
+        }
+    
+        printf("There are %d pipes:\n", pipeAmount);
+    
+        for (int i = 0; i < pipeAmount; i++) {
+            printf("Pipe %d:\n", i);
+            printf("  Name: %s\n", pipeInfo[i].name == 0 ? "unnamed" : pipeInfo[i].name);
+            printf("  Size: %d\n", pipeInfo[i].size);
+            printf("  Reader Offset: %d\n", pipeInfo[i].readerOffset);
+            printf("  Writer Offset: %d\n", pipeInfo[i].writerOffset);
+
+            // Print waiting queue
+            printf("  There are %d waiting processes\n", pipeInfo[i].waitingProcessesSize);
+            for (int j = 0; j < pipeInfo[i].waitingProcessesSize; j++) {
+                printf("    PID: %d\n", pipeInfo[i].waitingProcesses[j]);
+            }
+        }
+    
+        // Free memory
+        for (int i = 0; i < pipeAmount; i++) {
+            sysfree(pipeInfo[i].waitingProcesses);
+        }
+    
+        sysfree(pipeInfo);
+}
+
 // ==================== Process Control ====================
 
 void nice(int argc, char * argv[]){

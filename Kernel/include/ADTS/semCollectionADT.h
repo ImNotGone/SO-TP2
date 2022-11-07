@@ -58,4 +58,7 @@ void freeSemCollection(semCollectionADT semCollection);
 // Dump the semaphore collection
 TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size);
 
+// Returns a copy of the waiting queue
+pid_t * getWaitingQueue(semCollectionADT semCollection, sem_t sem, uint64_t *size);
+
 #endif //SEMCOLLECTIONADT_H

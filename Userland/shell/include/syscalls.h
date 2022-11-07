@@ -46,6 +46,18 @@ typedef struct procinfo {
 
 } TProcInfo;
 
+// Pipe Info structure
+typedef struct pipeinfo {
+    const char *name;
+    uint64_t size;
+
+    uint64_t readerOffset;
+    uint64_t writerOffset;
+
+    pid_t *waitingProcesses;
+    uint64_t waitingProcessesSize;
+} TPipeInfo;
+
 
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
@@ -143,5 +155,8 @@ extern int64_t sysmkfifo(const char * name, fd_t fds[2]);
 
 // Unlinks a named pipe
 extern int64_t sysunlink(const char * name);
+
+// Gets pipe information
+extern TPipeInfo *syspipeinfo(uint64_t * size);
 
 #endif//SYSCALLS_H_

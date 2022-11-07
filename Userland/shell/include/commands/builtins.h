@@ -16,6 +16,8 @@ void memManagerDump();
 
 void semDump();
 
+void pipeDump();
+
 
 
 #endif

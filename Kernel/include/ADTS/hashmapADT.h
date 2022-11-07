@@ -18,6 +18,9 @@ uint64_t sizeHm(hashMapADT hm);
 
 void freeHashMap(hashMapADT hm);
 
+void ** valuesHm(hashMapADT hm, uint64_t * size);
+
+void ** keysHm(hashMapADT hm, uint64_t * size);
 
 // ========== AUX ===========
 uint64_t hashInt(void * key);

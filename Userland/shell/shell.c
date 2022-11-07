@@ -26,6 +26,7 @@ static command builtins[] = {
     {"mem", "", "Prints memory manager status", memManagerDump},
     {"ps", "", "Prints all processes information", ps},
     {"sem", "", "Prints semaphores info", semDump},
+    {"pipe", "", "Prints pipes info", pipeDump},
     {"kill","<pid>", "Kills a process given the pid", (commandfp)kill},
     {"nice","<pid> <priority>[1-10]" ,"Changes priority to pid", (commandfp)nice},
     {"block","<pid>", "Toggles a process between blocked and unblocked given the pid", (commandfp)block},
