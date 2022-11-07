@@ -95,6 +95,11 @@ static void command_listener() {
     // Parse left command for arguments
     leftArgs = parseArgs(leftCommand, &leftArgc, &leftIsBackground);
 
+    // Check there is a command on each side of the pipe
+    if (pipeLocation != NULL && (rightArgs == NULL || leftArgs == NULL)) {
+        fprintf(STDERR, "Usage: command1 | command2\n");
+        return;
+    }
 
     // Check if there is a builtin command
     for (i = 0; i < builtinsDim; i++) {
