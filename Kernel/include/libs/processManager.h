@@ -30,12 +30,6 @@ typedef struct processData{
     queueADT waiting_processes;
 }PCBType;
 
-//TODO work here and in scheduler to remove this struct
-//the scheduler should only take PCBType * pcb
-
-
-// C functions
-
 pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 
 void exec(pid_t pid);

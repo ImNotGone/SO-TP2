@@ -213,10 +213,7 @@ void sysmeminfo(TMemInfo* memInfo) {
 
 // ------------ Process Manager ----------------
 pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * argv[]){
-    //TODO: argv == NULL?
-    pid_t pid =  newProcess(rip, ground, priority, argc, argv);
-   // exec(pid);
-    return pid;
+    return newProcess(rip, ground, priority, argc, argv);
 }
 
 void sysexit(){
