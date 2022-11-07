@@ -22,25 +22,25 @@ static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftI
 // -------------- Terminal commands ---------------------------------
 
 static command builtins[] = {
-    {"help", "Prints this help", help},
-    {"mem", "Prints memory manager status", memManagerDump},
-    {"ps", "Prints all processes information", ps},
-    {"sem", "Prints semaphores info", semDump},
-    {"kill", "Kills a process given the pid", (commandfp)kill},
-    {"nice", "Changes priority to pid", (commandfp)nice},
-    {"block", "Toggles a process between blocked and unblocked given the pid", (commandfp)block},
+    {"help","", "Prints this help", help},
+    {"mem", "", "Prints memory manager status", memManagerDump},
+    {"ps", "", "Prints all processes information", ps},
+    {"sem", "", "Prints semaphores info", semDump},
+    {"kill","<pid>", "Kills a process given the pid", (commandfp)kill},
+    {"nice","<pid> <priority>[1-10]" ,"Changes priority to pid", (commandfp)nice},
+    {"block","<pid>", "Toggles a process between blocked and unblocked given the pid", (commandfp)block},
 };
 
 static command programs[] = {
-    {"memtest", "Tests the memory", (commandfp)memtest},
-    {"synctest", "Tests the semaphores", (commandfp)synctest},
-    {"proctest", "Tests processes", (commandfp)processtest},
-    {"priotest", "Test priority", (commandfp)priotest},
-    {"loop", "Prints a greeting and goes to sleep", (commandfp) loop},
-    {"cat", "Prints stdin to stdout", (commandfp)cat},
-    {"wc", "Counts lines, words & bytes from stdin", (commandfp)wc},
-    {"filter", "Filters out vowels from stdin", (commandfp)filter},
-    {"phylo", "Emulates the classic philosophers problem", (commandfp)phylo},
+    {"memtest", "<size>MB", "Tests the memory", (commandfp)memtest},
+    {"synctest", "<n> <use_sem>[named || unnamed || no-sem]","Tests the semaphores", (commandfp)synctest},
+    {"proctest", "<number_of_processes>","Tests processes", (commandfp)processtest},
+    {"priotest", "","Test priority", (commandfp)priotest},
+    {"loop", "<sleep_seconds>","Prints a greeting and goes to sleep", (commandfp) loop},
+    {"cat", "","Prints stdin to stdout", (commandfp)cat},
+    {"wc", "","Counts lines, words & bytes from stdin", (commandfp)wc},
+    {"filter", "" ,"Filters out vowels from stdin", (commandfp)filter},
+    {"phylo", "<n>","Emulates the classic problem for 5 to n philosophers. Add: a, Remove: r, Quit: q", (commandfp)phylo},
 };
 
 static int programsDim = sizeof(programs) / sizeof(programs[0]);
@@ -187,12 +187,12 @@ static void help() {
 
     puts("===== Programs =====\n");
     for (int i = 0; i < programsDim; i++) {
-        printf(" %d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
+        printf(" %d) %s %s: %s\n\n", i + 1, programs[i].name, programs[i].args, programs[i].desc);
     }
 
     puts("===== Builtins =====\n");
     for(int j = 0; j < builtinsDim; j++) {
-        printf(" %d) %s: %s\n\n", j + 1, builtins[j].name, builtins[j].desc);
+        printf(" %d) %s %s: %s\n\n", j + 1, builtins[j].name, builtins[j].args, builtins[j].desc);
     }
 
 }
