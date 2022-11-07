@@ -12,6 +12,14 @@ createProcess:
     push rbp
     mov rbp, rsp
 
+    cmp r8, 1
+    je .fork
+    jmp .continue
+
+.fork:
+    mov rax, 0
+
+.continue:
     mov rsp, rdi ; stack base
     and rsp, -16
     push 0x0
@@ -34,7 +42,7 @@ createProcess:
 	push rcx ; argv -> rsi
 	push rdx ; argc -> rdi
 
-	push rbp
+	push rdi ; rbp -> rsp
 	push rsi ; rip (rdx)
 	push rdi ; stackbase (not necessary) (rcx)
 	push rbx

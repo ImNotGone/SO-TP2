@@ -66,7 +66,7 @@ int64_t  syssemdestroy(sem_t sem);
 
 int64_t sysdup(pid_t pid, fd_t prev, fd_t new);
 int64_t syspipe(fd_t fd[2]);
-
+int64_t sysfork(uint64_t rip, uint64_t rsp);
 
 
 TSyscallHandler syscallHandlers[] = {
@@ -141,6 +141,7 @@ TSyscallHandler syscallHandlers[] = {
     //0x1F
     (TSyscallHandler) syspipe,
 
+    (TSyscallHandler) sysfork,
 
 };
 
@@ -182,7 +183,7 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
        return -1;
     }
 
-    
+
     PCBType * process = getActiveProcess();
     fd = process->fd[STDIN];
 
@@ -391,4 +392,8 @@ int64_t sysdup(pid_t pid, fd_t prev, fd_t new){
 
 int64_t syspipe(fd_t fd[2]){
     return pipe(fd);
+}
+
+int64_t sysfork(uint64_t rip, uint64_t rsp){
+    return fork(rip, rsp);
 }

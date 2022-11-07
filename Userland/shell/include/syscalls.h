@@ -155,4 +155,6 @@ extern int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new );
 // Creates a pipe
 extern int64_t syspipe(fd_t fds[2]);
 
+extern int64_t sysfork();
+
 #endif//SYSCALLS_H_

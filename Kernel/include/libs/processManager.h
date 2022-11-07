@@ -59,5 +59,7 @@ void printAllProcess();
 
 int64_t comparePCB(void * pcb1, void * pcb2);
 
+int64_t fork(uint64_t rip, uint64_t rsp);
+
 #endif //PROCESSMANAGER_H
 

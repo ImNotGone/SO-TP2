@@ -245,8 +245,17 @@ _irq05Handler:
 
 _syscallHandler:
 	pushState
-	pop rax
 
+    cmp rax, 0x20
+    je .prepareFork
+    jmp .continue
+
+.prepareFork:
+    mov rdi, [rsp+15*8] ;rip
+    mov rsi, [rsp+18*8] ;rsp
+
+.continue:
+    pop rax
 	; reorganizo los registros para C
 	mov r9, r8
 	mov r8, rcx

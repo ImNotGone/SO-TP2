@@ -52,6 +52,14 @@ static int builtinsDim = sizeof(builtins) / sizeof(builtins[0]);
 //--------------------- Main functions ----------------
 
 int main() {
+    pid_t pid = sysfork();
+    if(pid == 0) {
+        pid = sysgetpid();
+        printf("soy el hijo con pid %d\n", pid);
+        sysblock(pid);
+    }
+    printf("Soy la shell con pid: %d\nchilds pid: %d\n", sysgetpid(), pid);
+    sysunblock(pid);
     while (TRUE) {
         printf(CONSOLE_PROMPT);
         command_listener();

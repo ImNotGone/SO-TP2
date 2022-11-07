@@ -37,7 +37,7 @@ section .data
 
     syscalldup        equ 30
     syscallpipe       equ 31
-
+    syscallfork       equ 32
 
 section .text
 global sysread
@@ -78,6 +78,7 @@ global syssemdestroy
 
 global sysdup
 global syspipe
+global sysfork
 
 %macro syscallHandler 1
     push rbp
@@ -230,3 +231,6 @@ sysdup:
 ; rdi-> fd[2]
 syspipe:
     syscallHandler syscallpipe
+
+sysfork:
+    syscallHandler syscallfork

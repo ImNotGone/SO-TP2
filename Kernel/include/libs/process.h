@@ -1,8 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <stdint.h>
+#include <types.h>
 
-extern uint64_t createProcess(int stackBase, int rip, int argc, char* argv[]);
+extern uint64_t createProcess(int stackBase, int rip, int argc, char* argv[], bool isFork);
 
 #endif //PROCESS_H

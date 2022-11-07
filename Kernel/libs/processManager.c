@@ -1,7 +1,9 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include <types.h>
 #include <libs/processManager.h>
 #include <libs/scheduler.h>
+#include <lib.h>
 
 #define MAX_PROCESS 30
 #define KERNEL_PID -1
@@ -44,7 +46,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->waiting_processes = newQueue(sizeof(pid_t), comparePid);
 
     pcb->ppid = getActivePid();
-    pcb->rsp = createProcess(pcb->stack_base, pcb->rip, pcb->argc, pcb->argv);
+    pcb->rsp = createProcess(pcb->stack_base, pcb->rip, pcb->argc, pcb->argv, false);
 
     pcb->fd[STDIN] = STDIN;
     pcb->fd[STDOUT] = STDOUT;
@@ -215,4 +217,48 @@ int dup(pid_t pid, fd_t prev, fd_t new){
     PCBType * process = find(pid);
     process->fd[prev] = new;
     return 1;
+}
+
+int64_t fork(uint64_t rip, uint64_t rsp) {
+    PCBType * parent = getActiveProcess();
+    pcb = malloc(sizeof(PCBType));
+
+    pcb->stack_base = (uint64_t) malloc(STACK_SIZE) + STACK_SIZE;
+    // COPY parent stack
+    memcpy((void *)(pcb->stack_base - STACK_SIZE), (void *)(parent->stack_base - STACK_SIZE), STACK_SIZE);
+    pcb->rip = rip;
+    pcb->argc = parent->argc;
+    pcb->ground = parent->ground;
+
+    pcb->argv = malloc((pcb->argc + 1) * sizeof(char *));
+    for (int i = 0; i < pcb->argc; i++){
+        pcb->argv[i] = malloc(strlen(parent->argv[i])+1);
+        strcpy(pcb->argv[i], parent->argv[i]);
+    }
+    pcb->argv[pcb->argc] = (void *)0;
+    pcb->name = pcb->argv[0];
+
+
+    if(getActivePid()== KERNEL_PID)
+        pcb->status = READY;
+    else{
+        pcb->status = BLOCKED;
+    }
+
+    pcb->priority = parent->priority;
+    pcb->pid = nextPid;
+
+    pcb->waiting_processes = newQueue(sizeof(pid_t), comparePid);
+
+    pcb->ppid = parent->pid;
+    pcb->rsp = createProcess(pcb->stack_base - (parent->stack_base - rsp), rip, pcb->argc, pcb->argv, true);
+    // TODO: CHANGE IF VARIABLE FDS
+    pcb->fd[STDIN] = parent->fd[STDIN];
+    pcb->fd[STDOUT] = parent->fd[STDOUT];
+    pcb->fd[STDERR] = parent->fd[STDERR];
+
+    addToReadyQueue(&pcb);
+
+    return nextPid++;
+
 }
