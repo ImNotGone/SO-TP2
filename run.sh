@@ -27,8 +27,10 @@ docker rm $name
 if [ "$1" == "gdb" ]; then
     # modo debug (hay que hacer attach mediante gdb en otra imagen)
     qemu-system-x86_64 -S -s --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512 -d int -monitor stdio
+    # qemu-system-x86_64 -S -s --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512 -d int 2>&1 | grep "v="
 elif [ $# == 0 ]; then
     # abro la imagen en qemu
     qemu-system-x86_64 --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512
+    # qemu-system-x86_64 --rtc base=localtime -hda Image/x64BareBonesImage.qcow2 -m 512 -d int 2>&1 | grep "v="
 fi
 
