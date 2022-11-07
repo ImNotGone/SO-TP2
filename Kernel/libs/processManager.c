@@ -228,13 +228,17 @@ int64_t waitProcess(pid_t pid) {
     return 0;
 }
 
-void changePriority(pid_t pid, int priority) {
-    if(priority>MAX_PRIORITY || priority<MIN_PRIORITY)
-        priority = (MAX_PRIORITY + MIN_PRIORITY)/2;
+int64_t changePriority(pid_t pid, int priority) {
+    if(priority>MAX_PRIORITY || priority<MIN_PRIORITY) {
+        return -1;
+    }
 
     PCBType * process = find(pid);
-    if(process == NULL) return;
+    if(process == NULL) {
+        return -1;
+    }
     process->priority = priority;
+    return priority;
 }
 
 int dup(pid_t pid, fd_t prev, fd_t new){

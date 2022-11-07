@@ -42,7 +42,7 @@ void exec(pid_t pid);
 
 int64_t killProcess(pid_t pid);
 
-void changePriority(pid_t pid, int priority);
+int64_t changePriority(pid_t pid, int priority);
 
 int64_t unblockProcess(pid_t pid);
 

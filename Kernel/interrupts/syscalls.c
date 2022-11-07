@@ -31,7 +31,7 @@ int64_t syskill(pid_t pid);
 
 int64_t syswaitpid(pid_t pid);
 
-void sysnice(pid_t pid, int priority);
+int64_t sysnice(pid_t pid, int priority);
 
 int64_t sysblock(pid_t pid);
 int64_t sysunblock(pid_t pid);
@@ -160,7 +160,7 @@ int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
        return -1;
     }
 
-    
+
     PCBType * process = getActiveProcess();
     fd = process->fd[STDIN];
 
@@ -241,8 +241,8 @@ int64_t syswaitpid(pid_t pid){
     return waitProcess(pid);
 }
 
-void sysnice(pid_t pid, int priority){
-    changePriority(pid, priority);
+int64_t sysnice(pid_t pid, int priority){
+    return changePriority(pid, priority);
 }
 
 int64_t sysblock(pid_t pid){

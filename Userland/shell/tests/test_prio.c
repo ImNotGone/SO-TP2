@@ -6,16 +6,17 @@
 #include <test_util.h>
 
 #define MINOR_WAIT \
-    500000 // TODO: Change this value to prevent a process from flooding the
+    12500000 // TODO: Change this value to prevent a process from flooding the
            // screen
 #define WAIT \
     30000000 // TODO: Change this value to make the wait long enough to see theese
              // processes beeing run at least twice
 
 #define TOTAL_PROCESSES 3
-#define LOWEST 1  // TODO: Change as required
-#define MEDIUM 3  // TODO: Change as required
-#define HIGHEST 5 // TODO: Change as required
+// PRIORITIES range from 1 to 10
+#define LOWEST 1
+#define MEDIUM 5
+#define HIGHEST 10
 
 static void bussy_wait(uint64_t n);
 static void endless_loop_print();
@@ -28,15 +29,20 @@ void test_prio() {
     uint64_t i;
 
     for (i = 0; i < TOTAL_PROCESSES; i++) {
-        pids[i] = syscreateprocess((uint64_t)endless_loop_print, 1, 1, 1, argv);
+        pids[i] = syscreateprocess((uint64_t)endless_loop_print, 1, LOWEST, 1, argv);
         sysunblock(pids[i]);
     }
 
     bussy_wait(WAIT);
     printf("\nCHANGING PRIORITIES...\n");
 
-    for (i = 0; i < TOTAL_PROCESSES; i++)
-        sysnice(pids[i], prio[i]);
+    for (i = 0; i < TOTAL_PROCESSES; i++) {
+
+        if(sysnice(pids[i], prio[i]) == -1) {
+            printf("\nERROR CHANGING %d PRIORITY\n", pids[i]);
+        }
+
+    }
 
     bussy_wait(WAIT);
     printf("\nBLOCKING...\n");
@@ -46,8 +52,12 @@ void test_prio() {
 
     printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
-    for (i = 0; i < TOTAL_PROCESSES; i++)
-        sysnice(pids[i], MEDIUM);
+    for (i = 0; i < TOTAL_PROCESSES; i++) {
+        if(sysnice(pids[i], MEDIUM) == -1) {
+            printf("\nERROR CHANGING %d PRIORITY\n", pids[i]);
+        }
+
+    }
 
     printf("UNBLOCKING...\n");
 
@@ -64,8 +74,7 @@ void test_prio() {
 // Dummies
 static void bussy_wait(uint64_t n) {
     uint64_t i;
-    for (i = 0; i < n; i++)
-        ;
+    for (i = 0; i < n; i++);
 }
 
 static void endless_loop_print() {

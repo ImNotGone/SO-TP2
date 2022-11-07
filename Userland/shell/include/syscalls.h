@@ -88,7 +88,7 @@ extern int64_t syskill(pid_t pid);
 extern int64_t syswaitpid(pid_t pid);
 
 // Changes the priority of the process
-extern void sysnice(pid_t pid, int priority);
+extern int64_t sysnice(pid_t pid, int priority);
 
 // Blocks the process
 extern int64_t sysblock(pid_t pid);
