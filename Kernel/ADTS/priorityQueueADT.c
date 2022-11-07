@@ -1,5 +1,5 @@
-// C code to implement Priority Queue
-// using Linked List
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include <ADTS/priorityQueueADT.h>
 
@@ -28,6 +28,10 @@ typedef struct pQueueCDT {
 // Function to Create A New priorityQueue
 pQueueADT newPQueue(compareFp compare, uint64_t elementSize, uint64_t prioritySize) {
     pQueueADT pQueue = calloc(1, sizeof(pQueueCDT));
+
+    if (pQueue == NULL) {
+        return NULL;
+    }
 
     pQueue->front = NULL;
     pQueue->compare = compare;
@@ -76,12 +80,35 @@ bool popPq(pQueueADT pQueue, void* element) {
 
 // Function to push according to priority
 bool pushPq(pQueueADT pQueue, void * elem, void * priority) {
+
+    if (pQueue == NULL) {
+        return false;
+    }
+
     Node *start = (Node *)pQueue->front;
 
     // Create new Node
     Node *temp = (Node *)malloc(sizeof(Node));
+
+    if (temp == NULL) {
+        return false;
+    }
+
     temp->data = malloc(pQueue->elementSize);
+
+    if (temp->data == NULL) {
+        free(temp);
+        return false;
+    }
+
     temp->priority = malloc(pQueue->prioritySize);
+
+    if (temp->priority == NULL) {
+        free(temp->data);
+        free(temp);
+        return false;
+    }
+
     memcpy(temp->data, elem, pQueue->elementSize);
     memcpy(temp->priority, priority, pQueue->prioritySize);
 
@@ -136,6 +163,11 @@ void * getElementsLessThan(pQueueADT pQueue, void * priority, uint64_t * size) {
 
     // Allocate memory for the array
     void * elements = malloc(count * pQueue->elementSize);
+
+    if (elements == NULL) {
+        *size = 0;
+        return NULL;
+    }
 
     // Reset the start pointer
     start = pQueue->front;

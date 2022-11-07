@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands/programs.h>
 
 #define IS_VOWEL(c) ((c) == 'a' || (c) == 'e' || (c) == 'i' || (c) == 'o' || (c) == 'u' || \
@@ -110,7 +112,7 @@ void wc(int argc, char * argv[]) {
 
     uint64_t lines = 0;
     char c = 0;
-    for(c = getchar(); c != EOF; c = getchar()) {
+    for(c = getchar(); (int) c != EOF; c = getchar()) {
         if(c == '\n') {
             lines += 1;
         }
@@ -130,7 +132,7 @@ void filter(int argc, char * argv[]) {
     }
 
     char c = 0;
-    for(c = getchar(); c != EOF; c = getchar()) {
+    for(c = getchar(); (int) c != EOF; c = getchar()) {
         if(!IS_VOWEL(c)) {
             putchar(c);
         }

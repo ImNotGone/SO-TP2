@@ -28,11 +28,17 @@ int64_t pipe(fd_t pipefd[2]) {
         pipeMap = newHashMap(sizeof(uint64_t), sizeof(pipe_t *), hashInt);
     }
     pipe_t * new = malloc(sizeof(pipe_t));
+
+    if (new == NULL) {
+        return -1;
+    }
+
     new->buffer = malloc(PIPE_SIZE * sizeof(int8_t));
-    if(new == NULL || new->buffer == NULL) {
+    if (new->buffer == NULL) {
         free(new);
         return -1;
     }
+
     new->size = PIPE_SIZE;
     new->readerOff = 0;
     new->writerOff = 0;
@@ -78,7 +84,7 @@ int64_t pipeRead(fd_t fd, char * buffer, uint64_t bytes) {
         buffer[i] = pipe->buffer[pipe->readerOff++];
         pipe->readerOff = pipe->readerOff % pipe->size;
 
-        if (buffer[i] == EOF) {
+        if ((int) buffer[i] == EOF) {
             break;
         }
 

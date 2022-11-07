@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands/builtins.h>
 
 // ==================== Dumps ====================
@@ -21,10 +23,6 @@ void semDump(int argc, char *argv[]) {
     // Get semaphore info
     uint64_t semAmount;
     TSemInfo *semInfo = sysseminfo(&semAmount);
-
-    if (semAmount < 0) {
-        return;
-    }
 
     if (semAmount == 0) {
         puts("No semaphores found");

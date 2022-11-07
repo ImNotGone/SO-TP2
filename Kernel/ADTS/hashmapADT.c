@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <ADTS/hashmapADT.h>
 #include <libs/memoryManager.h>
 #include <lib.h>
@@ -73,9 +75,20 @@ void putHm(hashMapADT hm, void * key, void * value) {
     entry newEntry;
 
     newEntry.key = malloc(hm->keySize);
+
+    if (newEntry.key == NULL) {
+        return;
+    }
+
     memcpy(newEntry.key, key, hm->keySize);
 
     newEntry.value = malloc(hm->valueSize);
+
+    if (newEntry.value == NULL) {
+        free(newEntry.key);
+        return;
+    }
+
     memcpy(newEntry.value, value, hm->valueSize);
 
     newEntry.status = USED;

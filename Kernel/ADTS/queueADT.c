@@ -21,6 +21,11 @@ typedef struct queueCDT {
 
 queueADT newQueue(uint64_t elementSize, compareFp compareFun) {
     queueADT q = calloc(1, sizeof(queueCDT));
+
+    if (q == NULL) {
+        return NULL;
+    }
+
     q->elementSize = elementSize;
     q->compareFun = compareFun;
     return q;

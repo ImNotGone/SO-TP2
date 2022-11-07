@@ -223,7 +223,7 @@ static char **parseArgs(char *commandBuffer, int *argc, int *isBackground) {
     for (int i = 0; commandBuffer[i] != '\0';) {
 
         // Skip spaces
-        while (commandBuffer[i] == ' ' && commandBuffer[i] != '\0') {
+        while (commandBuffer[i] == ' ') {
             i++;
         }
 

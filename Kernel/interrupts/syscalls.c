@@ -247,15 +247,15 @@ void sysnice(pid_t pid, int priority){
 
 int64_t sysblock(pid_t pid){
     return blockProcess(pid);
-};
+}
 
 int64_t sysunblock(pid_t pid){
     return unblockProcess(pid);
-};
+}
 
 int64_t syssleep(pid_t pid, uint64_t seconds){
     return sleepProcess(pid, seconds);
-};
+}
 
 void sysyield(){
     yield();

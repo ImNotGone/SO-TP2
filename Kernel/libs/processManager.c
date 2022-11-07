@@ -18,17 +18,42 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
 
     pcb = malloc(sizeof(PCBType));
 
+    if(pcb == NULL){
+        return -1;
+    }
+
     pcb->stack_base = (uint64_t) malloc(STACK_SIZE) + STACK_SIZE;
+
+    if(pcb->stack_base - STACK_SIZE == 0) {
+        free(pcb);
+        return -1;
+    }
+
     pcb->rip = rip;
     pcb->argc = argc;
     pcb->ground = ground;
 
     pcb->argv = malloc((argc + 1) * sizeof(char *));
+
+    if(pcb->argv == NULL){
+        free((void *) (pcb->stack_base - STACK_SIZE));
+        free(pcb);
+        return -1;
+    }
+
     for (int i = 0; i < argc; i++){
         pcb->argv[i] = malloc(strlen(argv[i])+1);
+
+        if(pcb->argv[i] == NULL){
+            free((void *) (pcb->stack_base - STACK_SIZE));
+            free(pcb->argv);
+            free(pcb);
+            return -1;
+        }
+
         strcpy(pcb->argv[i], argv[i]);
     }
-    pcb->argv[argc] = (void *)0;
+    pcb->argv[argc] = NULL;
     pcb->name = pcb->argv[0];
 
 

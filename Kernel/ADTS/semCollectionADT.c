@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <ADTS/semCollectionADT.h>
 
 
@@ -57,6 +59,10 @@ semCollectionADT newSemCollection() {
 
     semCollectionADT semCollection = calloc(1, sizeof(semCollectionCDT));
 
+    if(semCollection == NULL) {
+        return NULL;
+    }
+
     semCollection->semaphores = calloc(1, sizeof(semdata_t *) * BLOCK_SIZE);
     semCollection->semaphoresCapacity = BLOCK_SIZE;
 
@@ -109,13 +115,25 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
 
     // No free position
     if (firstFree == -1) {
-        semCollection->semaphores = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+
+        semdata_t **new = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+
+        if (new == NULL) {
+            return -1;
+        }
+
+        semCollection->semaphores = new;
+
         firstFree = semCollection->semaphoresCapacity;
         semCollection->semaphoresCapacity += BLOCK_SIZE;
     }
 
     // Create the semaphore
     semdata_t *semData = calloc(1, sizeof(semdata_t));
+
+    if (semData == NULL) {
+        return -1;
+    }
 
     semData->name = name;
     semData->isLinked = true;
@@ -157,13 +175,24 @@ sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
 
     // No free position
     if (firstFree == -1) {
-        semCollection->semaphores = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+        semdata_t **new = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+
+        if (new == NULL) {
+            return -1;
+        }
+
+        semCollection->semaphores = new;
+
         firstFree = semCollection->semaphoresCapacity;
         semCollection->semaphoresCapacity += BLOCK_SIZE;
     }
 
     // Create the semaphore
     semdata_t *semData = calloc(1, sizeof(semdata_t));
+
+    if (semData == NULL) {
+        return -1;
+    }
 
     semData->value = value;
 
@@ -391,6 +420,11 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
     // Create the array
     TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresCapacity);
 
+    if (res == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
     // Fill the array
     int i = 0;
     for (int j = 0; j < semCollection->semaphoresCapacity; j++) {
@@ -403,6 +437,15 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
 
             // Get Blocked processes
             int *blockedProcesses = calloc(1, sizeof(int) * res[i].waitingQueueSize);
+
+            if (blockedProcesses == NULL) {
+                *size = 0;
+                for (int k = 0; k < i; k++) {
+                    free(res[k].waitingQueue);
+                }
+                free(res);
+                return NULL;
+            }
 
             // Iterate the queue
             toBegin(semCollection->semaphores[j]->waitingQueue);
@@ -419,7 +462,18 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
     }
 
     // Realloc the array
-    res = realloc(res, sizeof(TSemInfo) * i);
+    TSemInfo *new = realloc(res, sizeof(TSemInfo) * i);
+
+    if (new == NULL) {
+        *size = 0;
+        for (int k = 0; k < i; k++) {
+            free(res[k].waitingQueue);
+        }
+        free(res);
+        return NULL;
+    }
+
+    res = new;
 
     *size = i;
     return res;

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <syscalls.h>
 #include <_stdio.h>
 #include <_string.h>
@@ -92,7 +94,7 @@ void *philosopher(int argc, char *argv[]) {
         // Get a pseudo random number
         int seconds = sysgetpid() % 3 + 1;
 
-        syssleep(sysgetpid(), 1);
+        syssleep(sysgetpid(), seconds);
 
         put_fork(philoId);
     }
@@ -151,8 +153,22 @@ void phylo(int argc, char *argv[]) {
 
         createPhilosophers();
 
-        char c;
+        int c;
         while ((c = getchar()) != 'q' && c != 'a' && c != 'r') {
+
+            if (c == EOF) {
+
+                // If we are in background, don't kill the philosophers
+                for (int i = 0; i < philosopherCount; i++) {
+                    syswaitpid(philosophers[i]);
+                }
+
+                sysfree(semaphores);
+                sysfree(philosophers);
+
+                return;
+            }
+
             fprintf(STDERR, "Invalid command. Use 'q' to quit, 'a' to add a philosopher or 'd' to remove one philosopher\n");
         }
                     
