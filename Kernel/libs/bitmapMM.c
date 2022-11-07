@@ -37,7 +37,7 @@ void minit(void *start, uint64_t size) {
     // size != 0
 
     // Calculate the number of blocks needed
-    blocks = size / FACTOR;
+    blocks = (size - HEAP_STRUCTURE_SIZE) / FACTOR;
 
     // Assign bitmap and Arena
     bitmap = (uint8_t*) start;
