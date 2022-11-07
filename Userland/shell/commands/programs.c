@@ -1,10 +1,11 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "_stdio.h"
 #include <commands/programs.h>
 
 #define IS_VOWEL(c) ((c) == 'a' || (c) == 'e' || (c) == 'i' || (c) == 'o' || (c) == 'u' || \
                     (c) == 'A' || (c) == 'E' || (c) == 'I' || (c) == 'O' || (c) == 'U')
-                
+
 #define INITIAL_PHYLOS 5
 
 // ====================== Tests ======================
@@ -111,13 +112,28 @@ void wc(int argc, char * argv[]) {
     }
 
     uint64_t lines = 0;
+    uint64_t words = 0;
+    uint64_t bytes = 0;
     char c = 0;
+    char ant = 0;
     for(c = getchar(); (int) c != EOF; c = getchar()) {
         if(c == '\n') {
-            lines += 1;
+            lines++;
+            words++;
         }
+        if(c == ' ') {
+            words++;
+        }
+        bytes++;
+        putchar(c);
+        ant = c;
     }
-    printf("lines: %d\n", lines);
+
+    if(ant != '\n') {
+        words++;
+    }
+
+    printf("      %d      %d      %d\n", lines, words, bytes);
     return;
 }
 

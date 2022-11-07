@@ -183,6 +183,7 @@ static void help() {
     puts("=== General info ====\n");
 
     puts(" You can kill the foreground process with Ctrl+c\n");
+    puts(" You can send an EOF character to STDIN with Ctrl+d\n");
 
     puts("===== Programs =====\n");
     for (int i = 0; i < programsDim; i++) {
