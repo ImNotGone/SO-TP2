@@ -25,7 +25,7 @@ void sysexit();
 
 // TODO: Remove this?
 void sysexec(pid_t pid);
-void sysps();
+TProcInfo *sysps(uint64_t *size);
 
 int64_t syskill(pid_t pid);
 
@@ -229,8 +229,8 @@ void sysexec(pid_t pid){
     yield();
 }
 
-void sysps(){
-    printAllProcess();
+TProcInfo * sysps(uint64_t * size){
+    return procDump(size);
 }
 
 int64_t syskill(pid_t pid){

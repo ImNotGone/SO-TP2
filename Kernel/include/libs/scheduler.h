@@ -11,7 +11,7 @@ void startScheduler();
 
 queueADT getQueue();
 
-void printPs();
+TProcInfo *procDump(uint64_t *size);
 
 PCBType * getActiveProcess();
 

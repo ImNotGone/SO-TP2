@@ -1,51 +1,48 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <libs/processManager.h>
-#include <libs/scheduler.h>
-#include <ADTS/queueADT.h>
 #include <ADTS/priorityQueueADT.h>
+#include <ADTS/queueADT.h>
 #include <drivers/RTC.h>
 #include <drivers/graphics.h>
-
+#include <libs/processManager.h>
+#include <libs/scheduler.h>
 
 #define KERNEL_PID -1
 
 static queueADT processQueue = NULL;
 static int started = 0;
 static pid_t activePid = KERNEL_PID;
-static PCBType * activeProcess = NULL;
-static int gusts=0;
+static PCBType *activeProcess = NULL;
+static int gusts = 0;
 
-static PCBType * blockedOnInput = NULL;
+static PCBType *blockedOnInput = NULL;
 
 // Priority queue for sleeping processes, ordered by wakeup time
 static pQueueADT sleepingQueue = NULL;
 
 static void idle();
 
-static int64_t compareTime(void * a, void * b) {
-    return *((int64_t *) a) - *((int64_t *) b);
+static int64_t compareTime(void *a, void *b) {
+    return *((int64_t *)a) - *((int64_t *)b);
 }
 
-queueADT getQueue(){
-    return processQueue;
-}
+queueADT getQueue() { return processQueue; }
 
-void printProcess(PCBType * pcb);
+void printProcess(PCBType *pcb);
 
-void freeProcess(PCBType * process);
+void freeProcess(PCBType *process);
 
-void startScheduler(){
-    started=1;
+void startScheduler() {
+    started = 1;
     processQueue = newQueue(sizeof(PCBType *), comparePCB);
     sleepingQueue = newPQueue(compareTime, sizeof(PCBType *), sizeof(uint64_t));
 
     // Create idle process
-    newProcess((uint64_t) idle, 1, 1, 0, NULL);
+    newProcess((uint64_t)idle, 1, 1, 0, NULL);
 }
 
 // Adds a process to the sleeping queue
-void addToSleepingQueue(PCBType * process, uint64_t seconds) {
+void addToSleepingQueue(PCBType *process, uint64_t seconds) {
 
     if (process == NULL || process->status != READY) {
         return;
@@ -66,7 +63,8 @@ void wakeUpProcesses() {
     uint64_t currentTime = getTotalSeconds();
 
     uint64_t toWakeUpSize = 0;
-    PCBType ** toWakeUp = getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
+    PCBType **toWakeUp =
+        getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
 
     for (int i = 0; i < toWakeUpSize; i++) {
         if (toWakeUp[i]->status != KILLED) {
@@ -77,13 +75,14 @@ void wakeUpProcesses() {
     free(toWakeUp);
 }
 
-// Iterates over the ready queue to see if there are any processes that are ready to run
+// Iterates over the ready queue to see if there are any processes that are
+// ready to run
 int hasReadyProcess() {
     if (processQueue == NULL || isEmpty(processQueue)) {
         return 0;
     }
 
-    PCBType * process = NULL;
+    PCBType *process = NULL;
     int hasReady = 0;
 
     toBegin(processQueue);
@@ -99,17 +98,16 @@ int hasReadyProcess() {
     return hasReady;
 }
 
-uint64_t switchContext(uint64_t rsp){
-    //in this case there should be no saving of the Kernels context
+uint64_t switchContext(uint64_t rsp) {
+    // in this case there should be no saving of the Kernels context
     if (!started) {
         return rsp;
     }
 
-
-    if(activePid == KERNEL_PID){
+    if (activePid == KERNEL_PID) {
         activePid = 0;
-        //shell
-        // a lo mejor conviene hacer peek aca
+        // shell
+        //  a lo mejor conviene hacer peek aca
         dequeue(processQueue, &activeProcess);
 
         // If its idle, ignore it
@@ -118,29 +116,28 @@ uint64_t switchContext(uint64_t rsp){
             dequeue(processQueue, &activeProcess);
         }
 
-
         gusts = activeProcess->priority;
         activePid = activeProcess->pid;
         return activeProcess->rsp;
     }
 
-    //saves previous context
-    //remove killed processes from queue
+    // saves previous context
+    // remove killed processes from queue
     activeProcess->rsp = rsp;
-    if(!gusts){
-        if (activeProcess->status != KILLED){
+    if (!gusts) {
+        if (activeProcess->status != KILLED) {
             queue(processQueue, &activeProcess);
-        }else{
+        } else {
             freeProcess(activeProcess);
         }
     }
 
-    while(!gusts){
-        if(!dequeue(processQueue, &activeProcess)){
-            //maybe do something?
+    while (!gusts) {
+        if (!dequeue(processQueue, &activeProcess)) {
+            // maybe do something?
         }
 
-        if(activeProcess->status == READY){
+        if (activeProcess->status == READY) {
 
             // If its idle and there are other processes, ignore it
             if (activeProcess->rip == (uint64_t)idle && hasReadyProcess()) {
@@ -150,170 +147,171 @@ uint64_t switchContext(uint64_t rsp){
 
             activePid = activeProcess->pid;
             gusts = activeProcess->priority;
-            //return activeProcess->rsp;
-        }else if (activeProcess->status == BLOCKED){
+            // return activeProcess->rsp;
+        } else if (activeProcess->status == BLOCKED) {
             queue(processQueue, &activeProcess);
-        }else if(activeProcess->status == KILLED){
+        } else if (activeProcess->status == KILLED) {
             freeProcess(activeProcess);
         }
-
     }
-
-    // // If the active process has not consumed its quantum, continue with it
-    // if (activeProcess != NULL && gusts > 0) {
-    //     gusts--;
-    //     return rsp;
-    // }
-    //
-    // // If the active process has consumed its quantum, save its context and get the next process
-    // if (activeProcess != NULL && gusts == 0) {
-    //     activeProcess->rsp = rsp;
-    //     queue(readyQueue, &activeProcess);
-    // }
-    //
-    // // Get the next process
-    // // If there are no process left in the queue
-    // // run the active process again
-    // // If active process is NULL, run idle
-    //
-    // // Get the next process
-    // if (!isEmpty(readyQueue)) {
-    //     dequeue(readyQueue, &activeProcess);
-    //
-    //     activePid = activeProcess->pid;
-    //     gusts = activeProcess->priority;
-    //     return activeProcess->rsp;
-    //
-    // }
-    //
-    // // Run active process again
-    // if (activeProcess != NULL) {
-    //     gusts = activeProcess->priority - 1;
-    //     return rsp;
-    // }
-    //
-    // // Run idle
-    // idle();
 
     gusts--;
     return activeProcess->rsp;
 }
 
-void addToReadyQueue(PCBType ** process){
-    queue(processQueue, process);
-}
+void addToReadyQueue(PCBType **process) { queue(processQueue, process); }
 
-pid_t getActivePid(){
-    return activePid;
-}
+pid_t getActivePid() { return activePid; }
 
-void yield(){
+void yield() {
     gusts = 0;
     _int20();
 }
 
-PCBType * find(pid_t pid){
-    if (activePid == pid){
+PCBType *find(pid_t pid) {
+    if (activePid == pid) {
         return activeProcess;
     }
 
     toBegin(processQueue);
-    PCBType * aux;
-    while(hasNext(processQueue)){
+    PCBType *aux;
+    while (hasNext(processQueue)) {
         next(processQueue, &aux);
-        if(aux->pid == pid)
+        if (aux->pid == pid)
             return aux;
     }
     return NULL;
 }
 
-void printPs(){
-    gPrint("== STATUS ==");
-    gNewline();
-    gPrint(" 0 = READY");
-    gNewline();
-    gPrint(" 1 = BLOCKED");
-    gNewline();
-    gPrint(" 2 = KILLED");
-    gNewline();
-    gPrint("============");
-    PCBType * pcb;
-    toBegin(processQueue);
-    while(hasNext(processQueue)){
-        next(processQueue, &pcb);
-        printProcess(pcb);
-    }
-    printProcess(activeProcess);
-    gNewline();
-}
+int64_t copyPCB(TProcInfo *to, PCBType *pcb) {
+    to->pid = pcb->pid;
+    to->status = pcb->status;
+    to->priority = pcb->priority;
+    to->rsp = pcb->rsp;
+    to->stackBase = pcb->stack_base;
+    to->ground = pcb->ground;
 
-void printProcess(PCBType * pcb){
+    if (pcb->name != NULL) {
+        to->name = malloc(strlen(pcb->name) + 1);
 
-    if (pcb == NULL || pcb->pid == 0) {
-        return;
-    }
-
-    gNewline();
-    gPrint("NAME: ");
-    gPrint(pcb->name);
-    gNewline();
-    gPrint("PID: ");
-    gPrintDec(pcb->pid);
-    gNewline();
-    gPrint("Priority: ");
-    gPrintDec(pcb->priority);
-    gPrint(" | ");
-    gPrint("Stack base: 0x");
-    gPrintHex(pcb->stack_base);
-    gPrint(" | ");
-    gPrint("Stack pointer: 0x");
-    gPrintHex(pcb->rsp);
-    gPrint(" | ");
-    gPrint("Ground: ");
-    gPrint(!pcb->ground ? "foreground" : "background");
-    gPrint(" | ");
-    gPrint("Status: ");
-    gPrintDec(pcb->status);
-
-    if(!isEmpty(pcb->waiting_processes)) {
-        gNewline();
-        gPrint("WAITING ON THIS PROCESS ARE (pids): ");
-        // Iterate over waiting processes
-        toBegin(pcb->waiting_processes);
-        pid_t pid;
-        gPrint("{");
-        while (hasNext(pcb->waiting_processes)) {
-            next(pcb->waiting_processes, &pid);
-            gPrint(" ");
-            gPrintDec(pid);
-            gPrint(" ");
+        if (to->name == NULL) {
+            return -1;
         }
-        gPrint("}");
+
+        strcpy(to->name, pcb->name);
+    } else {
+        to->name = NULL;
     }
-    gNewline();
+
+    // Get the size of the queue
+    uint64_t waitingQueueSize = 0;
+    pid_t waitingProcess;
+    toBegin(pcb->waiting_processes);
+    while (hasNext(pcb->waiting_processes)) {
+        next(pcb->waiting_processes, &waitingProcess);
+        waitingQueueSize++;
+    }
+
+    // Waiting queue
+    if (waitingQueueSize > 0) {
+
+        to->waitingProcessesSize = waitingQueueSize;
+
+        to->waitingProcesses = malloc(sizeof(pid_t) * waitingQueueSize);
+
+        if (to->waitingProcesses == NULL) {
+            return -1;
+        }
+
+        pid_t waitingProcess;
+        toBegin(pcb->waiting_processes);
+        int j = 0;
+        while (hasNext(pcb->waiting_processes)) {
+            next(pcb->waiting_processes, &waitingProcess);
+            to->waitingProcesses[j] = waitingProcess;
+            j++;
+        }
+
+    } else {
+        to->waitingProcessesSize = 0;
+        to->waitingProcesses = NULL;
+    }
+
+    return 0;
 }
 
-void freeProcess(PCBType * process){
-    for(int i = 0 ; i < process->argc ; i++){
+TProcInfo *procDump(uint64_t *size) {
+
+    if (processQueue == NULL) {
+        return NULL;
+    }
+
+    // Get the size of the queue
+    uint64_t queueSize = 0;
+    PCBType *pcb;
+    toBegin(processQueue);
+    while (hasNext(processQueue)) {
+        next(processQueue, &pcb);
+        queueSize++;
+    }
+
+    TProcInfo *processes = malloc(sizeof(TProcInfo) * (queueSize));
+
+   
+    if (processes == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    // Add the active process
+    if (copyPCB(&processes[0], activeProcess) == -1) {
+        *size = 0;
+        return NULL;
+    }
+        
+
+    pcb = NULL;
+    toBegin(processQueue);
+    int i = 0;
+    while (hasNext(processQueue)) {
+        next(processQueue, &pcb);
+
+        if(pcb->pid != 0) {
+            if (copyPCB(&processes[i + 1], pcb) == -1) {
+
+                for (int j = 0; j < i; j++) {
+                    free(processes[j].name);
+                    free(processes[j].waitingProcesses);
+                }
+
+                *size = 0;
+                return NULL;
+            }
+            i++;
+        }
+    }
+
+    *size = queueSize;
+    return processes;
+}
+
+void freeProcess(PCBType *process) {
+    for (int i = 0; i < process->argc; i++) {
         free(process->argv[i]);
     }
 
     free(process->argv);
-    free((void *) process->stack_base - STACK_SIZE);
+    free((void *)process->stack_base - STACK_SIZE);
     freeQueue(process->waiting_processes);
     free(process);
 }
 
-PCBType * getActiveProcess(){
-    return activeProcess;
-}
+PCBType *getActiveProcess() { return activeProcess; }
 
-void setBlockedOnInput(PCBType * process){
-    blockedOnInput = process;
-}
+void setBlockedOnInput(PCBType *process) { blockedOnInput = process; }
 
 void wakeUpBlockedOnInput() {
-    if(blockedOnInput != NULL){
+    if (blockedOnInput != NULL) {
         blockedOnInput->status = READY;
         blockedOnInput = NULL;
     }
@@ -330,24 +328,26 @@ void killForegroundProcess() {
     }
 
     toBegin(processQueue);
-    PCBType * aux;
-    while(hasNext(processQueue)){
+    PCBType *aux;
+    while (hasNext(processQueue)) {
         next(processQueue, &aux);
+
         if(aux->ground == 0 && aux->pid != 1){
             gPrint("^C [");
             gPrintDec(aux->pid);
             gPrint("]");
             gPrint(" Killed");
             gNewline();
+        }
 
+        if (aux->ground == 0 && aux->pid != 1) {
             killProcess(aux->pid);
         }
     }
 }
 
-
 static void idle() {
-    while (1){
+    while (1) {
         _hlt();
     }
 }

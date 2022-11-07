@@ -13,8 +13,16 @@
 typedef int8_t bool;
 
 // ------------ Data structures for kernel interaction -----------
-// RTC time
+// sem_t
+typedef int64_t sem_t;
 
+// lock_t
+typedef int lock_t;
+
+typedef int16_t pid_t;
+
+typedef int fd_t;
+//
 // MemInfo structure defined in memoryManager.h
 typedef struct meminfo {
     uint64_t total;
@@ -31,14 +39,22 @@ typedef struct seminfo {
     int *waitingQueue;
 } TSemInfo;
 
-// sem_t
-typedef int64_t sem_t;
+// Process Info structure
+typedef struct procinfo {
+    pid_t pid;
 
-// lock_t
-typedef int lock_t;
+    char *name;
 
-typedef int16_t pid_t;
+    int priority;
 
-typedef int fd_t;
+    uint64_t stackBase, rsp;
+
+    int ground;
+    int status;
+
+    pid_t *waitingProcesses;
+    uint64_t waitingProcessesSize;
+
+} TProcInfo;
 
 #endif//_TYPES_H

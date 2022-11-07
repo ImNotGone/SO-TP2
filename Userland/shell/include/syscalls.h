@@ -4,7 +4,13 @@
 #include <stdint.h>
 
 // ------------ Data structures for kernel interaction -----------
-// RTC time
+
+// sem_t
+typedef int64_t sem_t;
+
+typedef int16_t pid_t;
+
+typedef int fd_t;
 
 // MemInfo structure defined in memoryManager.h
 typedef struct meminfo {
@@ -22,12 +28,24 @@ typedef struct seminfo {
     int *waitingQueue;
 } TSemInfo;
 
-// sem_t
-typedef int64_t sem_t;
+// Process Info structure
+typedef struct procinfo {
+    pid_t pid;
 
-typedef int16_t pid_t;
+    char *name;
 
-typedef int fd_t;
+    int priority;
+
+    uint64_t stackBase, rsp;
+
+    int ground;
+    int status;
+
+    pid_t *waitingProcesses;
+    uint64_t waitingProcessesSize;
+
+} TProcInfo;
+
 
 // Writes the amount of bytes from the fd into buff
 extern int64_t sysread(uint64_t fd, char * buff, int64_t bytes);
@@ -61,7 +79,7 @@ extern void sysexits();
 extern void sysexec();
 
 //prints out all process' data
-extern void sysps();
+extern TProcInfo *sysps(uint64_t *size);
 
 // Kills the process with the pid
 extern int64_t syskill(pid_t pid);

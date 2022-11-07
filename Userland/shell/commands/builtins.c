@@ -34,7 +34,7 @@ void semDump(int argc, char *argv[]) {
     for (int i = 0; i < semAmount; i++) {
 
         printf("Semaphore %d:\n", i);
-        printf("  Name: %s\n", semInfo[i].name);
+        printf("  Name: %s\n", semInfo[i].name == 0 ? "unnamed" : semInfo[i].name);
         printf("  Value: %d\n", semInfo[i].value);
 
         // Print waiting queue
@@ -51,8 +51,48 @@ void semDump(int argc, char *argv[]) {
     sysfree(semInfo);
 }
 
+static void printProcInfo(TProcInfo proc) {
 
-void ps() { sysps(); }
+    printf("NAME: %s\n", proc.name == 0 ? "unnamed" : proc.name);
+
+    printf("PID: %d\n", proc.pid);
+
+    printf("Priority: %d | Stack base: %x | Stack pointer: %x | Ground: %s | Status: %s\n", proc.priority, proc.stackBase, proc.rsp, proc.ground == 0 ? "foreground" : "background", proc.status == 0 ? "Ready" : proc.status == 1 ? "Blocked" : "Killed");
+
+    printf("Waiting on this process are (pids): ");
+
+    for (uint64_t i = 0; i < proc.waitingProcessesSize; i++) {
+
+        printf("%d | ", proc.waitingProcesses[i]);
+    }
+    puts("");
+}
+
+void ps() {
+    uint64_t procAmount;
+    TProcInfo *procInfo = sysps(&procAmount);
+
+    if (procAmount == 0 || procInfo == 0) {
+        puts("No processes found");
+        return;
+    }
+
+    puts(" ============");
+
+    printf("There are %d processes:\n", procAmount);
+
+    for (int i = 0; i < procAmount; i++) {
+        printProcInfo(procInfo[i]);
+    }
+
+    // Free memory
+    for (int i = 0; i < procAmount; i++) {
+        sysfree(procInfo[i].waitingProcesses);
+        sysfree(procInfo[i].name);
+    }
+
+    sysfree(procInfo);
+}
 
 // ==================== Process Control ====================
 

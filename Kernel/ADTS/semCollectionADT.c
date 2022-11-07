@@ -2,7 +2,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <ADTS/semCollectionADT.h>
 
-
 // ====================== Definitions =================================
 
 #define BLOCK_SIZE 10
@@ -24,17 +23,14 @@ typedef struct semData {
     // Attached processes
     uint64_t attachedProcesses;
 
-
     // Waiting queue
     queueADT waitingQueue;
     uint64_t waitingQueueSize;
 
 } semdata_t;
 
-
 typedef struct semCollectionCDT {
     // Semaphore collection
-    // TODO: maybe use a hash map?
     semdata_t **semaphores;
 
     uint64_t semaphoresCapacity;
@@ -43,8 +39,8 @@ typedef struct semCollectionCDT {
 // ==================== Functions ====================
 
 // ------------------- CMP -------------------
-static int64_t comparePid(void * pid1, void * pid2) {
-    if(pid1 == NULL || pid2 == NULL) {
+static int64_t comparePid(void *pid1, void *pid2) {
+    if (pid1 == NULL || pid2 == NULL) {
         return pid1 != NULL || pid2 != NULL;
     }
     pid_t a = *(pid_t *)pid1;
@@ -59,7 +55,7 @@ semCollectionADT newSemCollection() {
 
     semCollectionADT semCollection = calloc(1, sizeof(semCollectionCDT));
 
-    if(semCollection == NULL) {
+    if (semCollection == NULL) {
         return NULL;
     }
 
@@ -79,7 +75,8 @@ int semExists(semCollectionADT semCollection, sem_t sem) {
     }
 
     // Check if the semaphore exists
-    if (sem < 0 || sem >= semCollection->semaphoresCapacity || semCollection->semaphores[sem] == NULL) {
+    if (sem < 0 || sem >= semCollection->semaphoresCapacity ||
+        semCollection->semaphores[sem] == NULL) {
         return false;
     }
 
@@ -87,7 +84,8 @@ int semExists(semCollectionADT semCollection, sem_t sem) {
 }
 
 // Get a semaphore from the collection, if it exists or create a new one
-sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialValue) {
+sem_t getSem(semCollectionADT semCollection, const char *name,
+             uint64_t initialValue) {
 
     if (semCollection == NULL || name == NULL) {
         return -1;
@@ -98,7 +96,9 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
     for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
 
         // Semaphore found
-        if (semCollection->semaphores[i] != NULL && semCollection->semaphores[i]->isLinked && strcmp(semCollection->semaphores[i]->name, name) == 0) {
+        if (semCollection->semaphores[i] != NULL &&
+            semCollection->semaphores[i]->isLinked &&
+            strcmp(semCollection->semaphores[i]->name, name) == 0) {
 
             semCollection->semaphores[i]->attachedProcesses++;
 
@@ -116,7 +116,9 @@ sem_t getSem(semCollectionADT semCollection, const char *name, uint64_t initialV
     // No free position
     if (firstFree == -1) {
 
-        semdata_t **new = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+        semdata_t **new = realloc(
+            semCollection->semaphores,
+            sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
 
         if (new == NULL) {
             return -1;
@@ -175,7 +177,9 @@ sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
 
     // No free position
     if (firstFree == -1) {
-        semdata_t **new = realloc(semCollection->semaphores, sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
+        semdata_t **new = realloc(
+            semCollection->semaphores,
+            sizeof(semdata_t *) * (semCollection->semaphoresCapacity + BLOCK_SIZE));
 
         if (new == NULL) {
             return -1;
@@ -207,7 +211,6 @@ sem_t initUnnamedSem(semCollectionADT semCollection, uint64_t value) {
 
     return semData->sem;
 }
-
 
 // Get the semaphore value
 uint64_t getSemValue(semCollectionADT semCollection, sem_t sem) {
@@ -303,7 +306,6 @@ pid_t getNextWaitingProcess(semCollectionADT semCollection, sem_t sem) {
     return pid;
 };
 
-
 // Close a semaphore
 int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
 
@@ -320,8 +322,10 @@ int64_t closeSem(semCollectionADT semCollection, sem_t sem) {
     // Decrement the attached processes
     semCollection->semaphores[sem]->attachedProcesses--;
 
-    // If there are no more attached processes and the semaphore is not linked, delete it
-    if (semCollection->semaphores[sem]->attachedProcesses == 0 && !semCollection->semaphores[sem]->isLinked) {
+    // If there are no more attached processes and the semaphore is not linked,
+    // delete it
+    if (semCollection->semaphores[sem]->attachedProcesses == 0 &&
+        !semCollection->semaphores[sem]->isLinked) {
 
         // Free the semaphore
         freeQueue(semCollection->semaphores[sem]->waitingQueue);
@@ -345,7 +349,9 @@ int64_t unlinkSem(semCollectionADT semCollection, const char *name) {
     int sem = -1;
     for (int i = 0; i < semCollection->semaphoresCapacity; i++) {
         // Semaphore found
-        if (semCollection->semaphores[i] != NULL && semCollection->semaphores[i]->isLinked && strcmp(semCollection->semaphores[i]->name, name) == 0) {
+        if (semCollection->semaphores[i] != NULL &&
+            semCollection->semaphores[i]->isLinked &&
+            strcmp(semCollection->semaphores[i]->name, name) == 0) {
             sem = i;
             break;
         }
@@ -418,7 +424,8 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
     }
 
     // Create the array
-    TSemInfo *res = calloc(1, sizeof(TSemInfo) * semCollection->semaphoresCapacity);
+    TSemInfo *res =
+        calloc(1, sizeof(TSemInfo) * semCollection->semaphoresCapacity);
 
     if (res == NULL) {
         *size = 0;
@@ -434,28 +441,33 @@ TSemInfo *semCollectionInfo(semCollectionADT semCollection, uint64_t *size) {
             res[i].value = semCollection->semaphores[j]->value;
             res[i].name = semCollection->semaphores[j]->name;
             res[i].waitingQueueSize = semCollection->semaphores[j]->waitingQueueSize;
+            res[i].waitingQueue = NULL;
 
-            // Get Blocked processes
-            int *blockedProcesses = calloc(1, sizeof(int) * res[i].waitingQueueSize);
+            if (semCollection->semaphores[j]->waitingQueueSize > 0) {
 
-            if (blockedProcesses == NULL) {
-                *size = 0;
-                for (int k = 0; k < i; k++) {
-                    free(res[k].waitingQueue);
+                // Get Blocked processes
+                int *blockedProcesses = calloc(1, sizeof(int) * res[i].waitingQueueSize);
+
+                if (blockedProcesses == NULL) {
+                    *size = 0;
+                    for (int k = 0; k < i; k++) {
+                        free(res[k].waitingQueue);
+                    }
+                    free(res);
+                    return NULL;
                 }
-                free(res);
-                return NULL;
-            }
 
-            // Iterate the queue
-            toBegin(semCollection->semaphores[j]->waitingQueue);
-            int k = 0;
-            while (hasNext(semCollection->semaphores[j]->waitingQueue)) {
-                next(semCollection->semaphores[j]->waitingQueue, &blockedProcesses[k]);
-                k++;
-            }
+                // Iterate the queue
+                toBegin(semCollection->semaphores[j]->waitingQueue);
+                int k = 0;
+                while (hasNext(semCollection->semaphores[j]->waitingQueue)) {
+                    next(semCollection->semaphores[j]->waitingQueue,
+                         &blockedProcesses[k]);
+                    k++;
+                }
 
-            res[i].waitingQueue = blockedProcesses;
+                res[i].waitingQueue = blockedProcesses;
+            }
 
             i++;
         }

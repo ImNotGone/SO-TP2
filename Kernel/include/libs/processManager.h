@@ -56,8 +56,6 @@ int dup(pid_t pid, fd_t prev, fd_t new);
 
 int64_t sleepProcess(pid_t pid, uint64_t seconds);
 
-void printAllProcess();
-
 int64_t comparePCB(void * pcb1, void * pcb2);
 
 #endif //PROCESSMANAGER_H

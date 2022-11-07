@@ -237,10 +237,6 @@ void changePriority(pid_t pid, int priority) {
     process->priority = priority;
 }
 
-void printAllProcess(){
-    printPs();
-}
-
 int dup(pid_t pid, fd_t prev, fd_t new){
     // if(prev != STDOUT && new != STDIN){
     //     return -1;
