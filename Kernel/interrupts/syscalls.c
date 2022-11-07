@@ -52,6 +52,9 @@ int64_t  syssemdestroy(sem_t sem);
 
 int64_t sysdup(pid_t pid, fd_t prev, fd_t new);
 int64_t syspipe(fd_t fd[2]);
+int64_t sysclose(fd_t fd);
+int64_t sysmkfifo(const char * name, fd_t fd[2]);
+int64_t sysunlink(const char * name);
 
 
 
@@ -118,6 +121,12 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysdup,
     //0x1C
     (TSyscallHandler) syspipe,
+    //0x1D
+    (TSyscallHandler) sysclose,
+    //0x1E
+    (TSyscallHandler) sysmkfifo,
+    //0x1F
+    (TSyscallHandler) sysunlink,
 
 
 };
@@ -133,8 +142,9 @@ int64_t syscallDispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx
 }
 
 int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
-    if(fd != STDOUT && fd != STDERR)
-        return -1;
+    if(fd != STDOUT && fd != STDERR) {
+        return pipeWrite(fd, buffer, bytes);
+    }
 
     if(fd == STDOUT){
         PCBType * process = getActiveProcess();
@@ -157,7 +167,7 @@ int64_t syswrite(uint64_t fd, const char * buffer, int64_t bytes) {
 
 int64_t sysread(uint64_t fd, char * buffer, int64_t bytes) {
     if(fd != STDIN) {
-       return -1;
+        return pipeRead(fd, buffer, bytes);
     }
 
 
@@ -315,4 +325,24 @@ int64_t sysdup(pid_t pid, fd_t prev, fd_t new){
 
 int64_t syspipe(fd_t fd[2]){
     return pipe(fd);
+}
+
+int64_t sysclose(fd_t fd){
+    return pipeClose(fd);
+}
+
+int64_t sysmkfifo(const char * name, fd_t fd[2]){
+    if (name == NULL) {
+        return -1;
+    }
+
+    return namedPipe(name, fd);
+}
+
+int64_t sysunlink(const char * name){
+    if (name == NULL) {
+        return -1;
+    }
+
+    return unlinkpipe(name);
 }

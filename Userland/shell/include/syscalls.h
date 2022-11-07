@@ -135,4 +135,13 @@ extern int64_t sysdup(pid_t pid, uint64_t prev, uint64_t new );
 // Creates a pipe
 extern int64_t syspipe(fd_t fds[2]);
 
+// Closes a file descriptor
+extern int64_t sysclose(fd_t fd);
+
+// Creates a named pipe
+extern int64_t sysmkfifo(const char * name, fd_t fds[2]);
+
+// Unlinks a named pipe
+extern int64_t sysunlink(const char * name);
+
 #endif//SYSCALLS_H_

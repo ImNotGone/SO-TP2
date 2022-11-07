@@ -11,4 +11,10 @@ int64_t pipeRead(fd_t fd, char * buffer, uint64_t bytes);
 
 int64_t pipeClose(fd_t fd);
 
+int64_t addToPipe(fd_t fd);
+
+int64_t namedPipe(const char *name, fd_t pipefd[2]);
+
+int64_t unlinkpipe(const char *name);
+
 #endif//PIPE_H
