@@ -228,15 +228,15 @@ PCBType * find(pid_t pid){
 }
 
 void printPs(){
-    gPrint(" == STATUS ==");
+    gPrint("== STATUS ==");
     gNewline();
-    gPrint("  0 = READY");
+    gPrint(" 0 = READY");
     gNewline();
-    gPrint("  1 = BLOCKED");
+    gPrint(" 1 = BLOCKED");
     gNewline();
-    gPrint("  2 = KILLED");
+    gPrint(" 2 = KILLED");
     gNewline();
-    gPrint(" ============");
+    gPrint("============");
     PCBType * pcb;
     toBegin(processQueue);
     while(hasNext(processQueue)){

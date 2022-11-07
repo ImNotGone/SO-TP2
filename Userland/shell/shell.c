@@ -180,24 +180,18 @@ static void command_listener() {
 //------------------- commands implemented in this file ---------------
 
 static void help() {
-    puts("\n===========================\n");
-
     puts("=== General info ====\n");
 
-    puts("You can kill the foreground process with Ctrl+c\n");
+    puts(" You can kill the foreground process with Ctrl+c\n");
 
-    puts("=====================\n");
-
-    puts("The available commands are:\n");
-
-    puts("====== Programs =====\n");
+    puts("===== Programs =====\n");
     for (int i = 0; i < programsDim; i++) {
-        printf("%d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
+        printf(" %d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
     }
 
-    puts("====== Builtins =====\n");
+    puts("===== Builtins =====\n");
     for(int j = 0; j < builtinsDim; j++) {
-        printf("%d) %s: %s\n\n", j + 1, builtins[j].name, builtins[j].desc);
+        printf(" %d) %s: %s\n\n", j + 1, builtins[j].name, builtins[j].desc);
     }
 
 }
