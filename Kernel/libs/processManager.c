@@ -1,5 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "ADTS/queueADT.h"
 #include <libs/processManager.h>
 #include <libs/scheduler.h>
 
@@ -85,8 +86,8 @@ int64_t comparePCB(void * pcb1, void * pcb2) {
     if(pcb1 == NULL || pcb2 == NULL) {
         return (pcb1 != NULL) - (pcb2 != NULL);
     }
-    PCBType a = *(PCBType *)pcb1;
-    PCBType b = *(PCBType *)pcb2;
+    PCBType a = **(PCBType **)pcb1;
+    PCBType b = **(PCBType **)pcb2;
     return (a.pid > b.pid) - (a.pid < b.pid);
 }
 
@@ -121,7 +122,7 @@ void exec(pid_t pid){
 }
 
 int64_t killProcess(pid_t pid) {
-    PCBType * process = find(pid);
+    PCBType * process = removeProcess(pid);
 
     // Validate if the process exists
     if(process == NULL) {
@@ -151,11 +152,24 @@ int64_t killProcess(pid_t pid) {
         yield();
     }
 
+    freeProcess(process);
+
     return 0;
 }
 
+void freeProcess(PCBType *process) {
+    for (int i = 0; i < process->argc; i++) {
+        free(process->argv[i]);
+    }
+
+    free(process->argv);
+    free((void *)(process->stack_base - STACK_SIZE));
+    freeQueue(process->waiting_processes);
+    free(process);
+}
+
 int64_t sleepProcess(pid_t pid, uint64_t seconds) {
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
 
     // Validate if the process exists
     if(process == NULL || process->status != READY) {
@@ -173,7 +187,7 @@ int64_t sleepProcess(pid_t pid, uint64_t seconds) {
 }
 
 int64_t blockProcess(pid_t pid) {
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
 
     // Validate if the process exists
     if(process == NULL || process->status != READY) {
@@ -189,7 +203,7 @@ int64_t blockProcess(pid_t pid) {
 }
 
 int64_t blockProcessOnInput(pid_t pid) {
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
 
     setBlockedOnInput(process);
 
@@ -197,7 +211,7 @@ int64_t blockProcessOnInput(pid_t pid) {
 }
 
 int64_t unblockProcess(pid_t pid) {
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
 
     // Validate if the process exists
     if (process == NULL || process->status == KILLED) {
@@ -210,7 +224,7 @@ int64_t unblockProcess(pid_t pid) {
 }
 
 int64_t waitProcess(pid_t pid) {
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
     pid_t activePid = getActivePid();
 
     // Validate if the process exists
@@ -233,7 +247,7 @@ int64_t changePriority(pid_t pid, int priority) {
         return -1;
     }
 
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
     if(process == NULL) {
         return -1;
     }
@@ -246,7 +260,7 @@ int dup(pid_t pid, fd_t prev, fd_t new){
     //     return -1;
     // }
 
-    PCBType * process = find(pid);
+    PCBType * process = findProcess(pid);
     process->fd[prev] = new;
 
     addToPipe(new);

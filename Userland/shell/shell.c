@@ -33,7 +33,7 @@ static command builtins[] = {
 };
 
 static command programs[] = {
-    
+
     {"memtest", "<size>MB", "Tests the memory", (commandfp)memtest},
     {"synctest", "<n> <use_sem>[named || unnamed || no-sem]","Tests the semaphores", (commandfp)synctest},
     {"proctest", "<number_of_processes>","Tests processes", (commandfp)processtest},

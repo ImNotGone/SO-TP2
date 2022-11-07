@@ -52,5 +52,7 @@ int64_t sleepProcess(pid_t pid, uint64_t seconds);
 
 int64_t comparePCB(void * pcb1, void * pcb2);
 
+void freeProcess(PCBType *process);
+
 #endif //PROCESSMANAGER_H
 

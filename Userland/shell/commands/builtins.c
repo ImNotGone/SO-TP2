@@ -96,17 +96,17 @@ void ps() {
 }
 
 void pipeDump() {
-    
+
         uint64_t pipeAmount;
         TPipeInfo *pipeInfo = syspipeinfo(&pipeAmount);
-    
+
         if (pipeAmount == 0 || pipeInfo == 0) {
             puts("No pipes found");
             return;
         }
-    
+
         printf("There are %d pipes:\n", pipeAmount);
-    
+
         for (int i = 0; i < pipeAmount; i++) {
             printf("Pipe %d:\n", i);
             printf("  Name: %s\n", pipeInfo[i].name == 0 ? "unnamed" : pipeInfo[i].name);
@@ -120,12 +120,12 @@ void pipeDump() {
                 printf("    PID: %d\n", pipeInfo[i].waitingProcesses[j]);
             }
         }
-    
+
         // Free memory
         for (int i = 0; i < pipeAmount; i++) {
             sysfree(pipeInfo[i].waitingProcesses);
         }
-    
+
         sysfree(pipeInfo);
 }
 

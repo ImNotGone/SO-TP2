@@ -15,7 +15,9 @@ TProcInfo *procDump(uint64_t *size);
 
 PCBType * getActiveProcess();
 
-PCBType * find(pid_t pid);
+PCBType * findProcess(pid_t pid);
+
+PCBType * removeProcess(pid_t pid);
 
 uint64_t switchContext(uint64_t rsp);
 
@@ -29,7 +31,7 @@ void wakeUpBlockedOnInput();
 
 void setBlockedOnInput(PCBType * process);
 
-void wakeUpProcesses(); 
+void wakeUpProcesses();
 
 // Adds a process to the sleeping queue
 void addToSleepingQueue(PCBType * process, uint64_t time);

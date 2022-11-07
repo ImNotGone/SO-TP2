@@ -168,7 +168,7 @@ void yield() {
     _int20();
 }
 
-PCBType *find(pid_t pid) {
+PCBType *findProcess(pid_t pid) {
     if (activePid == pid) {
         return activeProcess;
     }
@@ -181,6 +181,23 @@ PCBType *find(pid_t pid) {
             return aux;
     }
     return NULL;
+}
+
+PCBType * removeProcess(pid_t pid) {
+    if (activePid == pid) {
+        return activeProcess;
+    }
+
+    PCBType * aux = malloc(sizeof(PCBType));
+    if(aux == NULL) {
+        return NULL;
+    }
+    aux->pid = pid;
+    if(!remove(processQueue, &aux)) {
+        return NULL;
+    }
+
+    return aux;
 }
 
 int64_t copyPCB(TProcInfo *to, PCBType *pcb) {
@@ -293,17 +310,6 @@ TProcInfo *procDump(uint64_t *size) {
 
     *size = queueSize;
     return processes;
-}
-
-void freeProcess(PCBType *process) {
-    for (int i = 0; i < process->argc; i++) {
-        free(process->argv[i]);
-    }
-
-    free(process->argv);
-    free((void *)process->stack_base - STACK_SIZE);
-    freeQueue(process->waiting_processes);
-    free(process);
 }
 
 PCBType *getActiveProcess() { return activeProcess; }

@@ -73,11 +73,12 @@ bool remove(queueADT q, void *elem) {
     tList prev = NULL;
     tList aux = q->first;
     while(aux != NULL) {
-
         if(q->compareFun(aux->elem, elem) == 0) {
             memcpy(elem, aux->elem, q->elementSize);
             if(prev == NULL) {
                 q->first = aux->tail;
+            } else if(q->last == aux) {
+                q->last = prev;
             } else {
                 prev->tail = aux->tail;
             }
