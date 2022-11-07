@@ -82,7 +82,7 @@ void put_fork(int id) {
 void *philosopher(int argc, char *argv[]) {
 
     const char *endptr;
-    int philoId = strtol(argv[0], &endptr, 10);
+    int philoId = strtol(argv[1], &endptr, 10);
 
 
     while (1) {
@@ -109,10 +109,10 @@ void createPhilosophers() {
 
     for (int i = 0; i < philosopherCount; i++) {
 
-        char *arg[] = {itoa(i)};
+        char *arg[] = {"philosopher", itoa(i)};
 
         // create philosopher processes
-        philosophers[i] = syscreateprocess((uint64_t) philosopher, 1, 1, 1, arg);
+        philosophers[i] = syscreateprocess((uint64_t) philosopher, 1, 1, 2, arg);
 
         semaphores[i] = sysseminit(0);
 

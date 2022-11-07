@@ -1,6 +1,5 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include "_stdio.h"
 #include <commands/builtins.h>
 
 // ==================== Dumps ====================
@@ -123,7 +122,12 @@ void kill(int argc, char * argv[]){
         return;
     }
 
-    syskill(pid);
+     if (syskill(pid) == -1) {
+        fprintf(STDERR, "Process not found\n");
+        return;
+    }
+
+    printf("[%d] Killed\n", pid);
 }
 
 void block(int argc, char * argv[]){

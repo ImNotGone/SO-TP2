@@ -27,16 +27,16 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
 
     sem_t sem;
 
-    if (argc != 3)
+    if (argc != 4)
         return -1;
 
-    if ((n = satoi(argv[0])) <= 0)
+    if ((n = satoi(argv[1])) <= 0)
         return -1;
 
-    if ((inc = satoi(argv[1])) == 0)
+    if ((inc = satoi(argv[2])) == 0)
         return -1;
 
-    if ((use_sem = satoi(argv[2])) < 0)
+    if ((use_sem = satoi(argv[3])) < 0)
         return -1;
 
     if (use_sem == 1) {
@@ -99,8 +99,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
                     : strcmp(argv[1], "named") == 0 ? "1"
                                                     : "0";
 
-    char *argvDec[] = {argv[0], "-1", semType, 0};
-    char *argvInc[] = {argv[0], "1", semType,  0};
+    char *argvDec[] = {"semaphore_decrementor", argv[0], "-1", semType, 0};
+    char *argvInc[] = {"semaphore_incrementor", argv[0], "1", semType,  0};
 
     printf("Starting test_sync with %s semaphore and %s iterations per process\n",argv[1], argv[0]);
 
@@ -108,12 +108,12 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
     uint64_t i;
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        pids[i] = syscreateprocess((uint64_t)my_process_inc, 1, 2, 3, argvDec);
+        pids[i] = syscreateprocess((uint64_t)my_process_inc, 1, 2, 4, argvDec);
         sysunblock(pids[i]);
 
         printf("Created process %d\n", (int)pids[i]);
 
-        pids[i + TOTAL_PAIR_PROCESSES] = syscreateprocess((uint64_t)my_process_inc, 1, 2, 3, argvInc);
+        pids[i + TOTAL_PAIR_PROCESSES] = syscreateprocess((uint64_t)my_process_inc, 1, 2, 4, argvInc);
         sysunblock(pids[i + TOTAL_PAIR_PROCESSES]);
 
         printf("Created process %d\n", (int)pids[i + TOTAL_PAIR_PROCESSES]);
