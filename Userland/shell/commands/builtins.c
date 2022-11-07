@@ -1,5 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "_stdio.h"
 #include <commands/builtins.h>
 
 // ==================== Dumps ====================
@@ -53,19 +54,22 @@ void semDump(int argc, char *argv[]) {
 
 static void printProcInfo(TProcInfo proc) {
 
+    putchar('\n');
     printf("NAME: %s\n", proc.name == 0 ? "unnamed" : proc.name);
 
     printf("PID: %d\n", proc.pid);
 
     printf("Priority: %d | Stack base: %x | Stack pointer: %x | Ground: %s | Status: %s\n", proc.priority, proc.stackBase, proc.rsp, proc.ground == 0 ? "foreground" : "background", proc.status == 0 ? "Ready" : proc.status == 1 ? "Blocked" : "Killed");
 
-    printf("Waiting on this process are (pids): ");
 
-    for (uint64_t i = 0; i < proc.waitingProcessesSize; i++) {
-
-        printf("%d | ", proc.waitingProcesses[i]);
+    if(proc.waitingProcessesSize > 0) {
+        printf("Waiting on this process are (pids): ");
+        printf("{");
+        for (uint64_t i = 0; i < proc.waitingProcessesSize; i++) {
+            printf(" %d ", proc.waitingProcesses[i]);
+        }
+        printf("}\n");
     }
-    puts("");
 }
 
 void ps() {
@@ -76,8 +80,6 @@ void ps() {
         puts("No processes found");
         return;
     }
-
-    puts(" ============");
 
     printf("There are %d processes:\n", procAmount);
 
@@ -106,7 +108,7 @@ void nice(int argc, char * argv[]){
 }
 
 void kill(int argc, char * argv[]){
-    
+
     if (argc != 2) {
         fprintf(STDERR, "Usage: kill <pid>\n");
         return;
