@@ -36,6 +36,7 @@ static command programs[] = {
     {"synctest", "Tests the semaphores", (commandfp)synctest},
     {"proctest", "Tests processes", (commandfp)processtest},
     {"priotest", "Test priority", (commandfp)priotest},
+    {"fifotest", "Tests named pipes, it creates", (commandfp) fifotest},
     {"loop", "Prints a greeting and goes to sleep", (commandfp) loop},
     {"cat", "Prints stdin to stdout", (commandfp)cat},
     {"wc", "Counts lines, words & bytes from stdin", (commandfp)wc},
@@ -293,6 +294,21 @@ static int64_t makePipe(commandfp leftProgram, commandfp rightProgram, int leftI
 
     if (sysdup(rightPid, STDIN, pipefd[READ]) == -1) {
         fprintf(STDERR, "Error connecting right program STDIN to pipe read\n");
+        syskill(leftPid);
+        syskill(rightPid);
+        return -1;
+    }
+
+    // Close pipe
+    if (sysclose(pipefd[READ]) == -1) {
+        fprintf(STDERR, "Error closing pipe read\n");
+        syskill(leftPid);
+        syskill(rightPid);
+        return -1;
+    }
+
+    if (sysclose(pipefd[WRITE]) == -1) {
+        fprintf(STDERR, "Error closing pipe write\n");
         syskill(leftPid);
         syskill(rightPid);
         return -1;

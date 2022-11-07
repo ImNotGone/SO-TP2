@@ -21,6 +21,9 @@ void processtest(int argc, char *argv[]);
 // Tests priority
 void priotest();
 
+// Tests named pipes
+void fifotest(int argc, char * argv[]);
+
 // ==================== PIPES ====================
 
 // Prints stdin to stdout
