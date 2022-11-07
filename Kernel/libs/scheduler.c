@@ -321,6 +321,11 @@ void wakeUpBlockedOnInput() {
 
 void killForegroundProcess() {
     if (activeProcess->ground == 0 && activeProcess->pid != 1) {
+        gPrint("^C [");
+        gPrintDec(activeProcess->pid);
+        gPrint("]");
+        gPrint(" Killed");
+        gNewline();
         killProcess(activeProcess->pid);
     }
 
@@ -329,6 +334,12 @@ void killForegroundProcess() {
     while(hasNext(processQueue)){
         next(processQueue, &aux);
         if(aux->ground == 0 && aux->pid != 1){
+            gPrint("^C [");
+            gPrintDec(aux->pid);
+            gPrint("]");
+            gPrint(" Killed");
+            gNewline();
+
             killProcess(aux->pid);
         }
     }
