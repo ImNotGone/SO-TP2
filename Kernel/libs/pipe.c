@@ -1,5 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "libs/string.h"
 #include <libs/memoryManager.h>
 #include <ADTS/hashmapADT.h>
 #include <libs/semaphore.h>
@@ -19,6 +20,21 @@ typedef struct pipe {
     int8_t readerClosed;
     int8_t writerClosed;
 } pipe_t;
+
+
+typedef struct node {
+    char * name;
+    uint64_t pipeId;
+    struct node * tail;
+} tNode;
+
+typedef enum {MEMERROR, ADDED, EXISTED} tFlag;
+
+typedef tNode * tList;
+static tList NPList = NULL;
+static tList addNamedPipe(tList first, char * name, uint64_t * pipeId, tFlag * flag);
+static tList removeNamedPipe(tList first, char * name);
+static bool findNamedPipe(tList first, char * name, uint64_t * pipeId);
 
 static hashMapADT pipeMap = NULL;
 static uint64_t pipeId = 2; // starts at 2 so that the first pipe is 4/5 second 6/7 etc...
@@ -52,6 +68,28 @@ int64_t pipe(fd_t pipefd[2]) {
     pipefd[READ] = pipeId * 2;
     pipefd[WRITE] = pipeId * 2 + 1;
     pipeId++;
+    return 1;
+}
+
+int64_t namedPipe(char * name, fd_t pipefd[2]) {
+
+    uint64_t pipeId;
+    pipe_t * aux;
+    if(pipeMap != NULL && findNamedPipe(NPList, name, &pipeId) && findHm(pipeMap, &pipeId, &aux)) {
+        pipefd[READ] = pipeId*2;
+        pipefd[WRITE] = pipeId*2+1;
+        return 1;
+    }
+
+    if(pipe(pipefd) == -1) {
+        return -1;
+    }
+    tFlag flag;
+    pipeId = pipefd[READ]/2;
+    NPList = addNamedPipe(NPList, name, &pipeId, &flag);
+    if(flag == MEMERROR || flag == EXISTED /* should not happen */) {
+        return -1;
+    }
     return 1;
 }
 
@@ -207,3 +245,55 @@ int64_t pipeClose(fd_t fd) {
     return 1;
 }
 
+// ====================== AUX =========================
+
+static tList addNamedPipe(tList first, char * name, uint64_t * pipeId, tFlag * flag) {
+    int c = 0;
+    if(first == NULL || (c = strcmp(first->name, name)) > 0) {
+        tList new = malloc(sizeof(tNode));
+        new->name = malloc(strlen(name) + 1);
+        if(new == NULL || new->name == NULL) {
+            free(new);
+            *flag = MEMERROR;
+            return first;
+        }
+        new->pipeId = *pipeId;
+        new->tail = first;
+        *flag = ADDED;
+        return new;
+    }
+    if(c == 0) {
+        *flag = EXISTED;
+        *pipeId = first->pipeId;
+        return first;
+    }
+    first->tail = addNamedPipe(first->tail, name, pipeId, flag);
+    return first;
+}
+
+static tList removeNamedPipe(tList first, char * name) {
+    int c = 0;
+    if(first == NULL || (c = strcmp(first->name, name)) > 0) {
+        return first;
+    }
+    if(c == 0) {
+        tList aux = first->tail;
+        free(first->name);
+        free(first);
+        return aux;
+    }
+    first->tail = removeNamedPipe(first->tail, name);
+    return first;
+}
+
+static bool findNamedPipe(tList first, char * name, uint64_t * pipeId) {
+    int c = 0;
+    if(first == NULL || (c = strcmp(first->name, name)) > 0) {
+        return false;
+    }
+    if(c == 0) {
+        *pipeId = first->pipeId;
+        return true;
+    }
+    return findNamedPipe(first->tail, name, pipeId);
+}
