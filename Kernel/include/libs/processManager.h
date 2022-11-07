@@ -37,7 +37,7 @@ typedef struct processData{
 
 pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 
-void exec(pid_t pid);
+void exec(uint64_t rip, int argc, char *argv[]);
 
 int64_t killProcess(pid_t pid);
 

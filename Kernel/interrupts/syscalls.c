@@ -38,7 +38,7 @@ pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * 
 void sysexit();
 
 // TODO: Remove this?
-void sysexec(pid_t pid);
+void sysexec(uint64_t rip, int argc, char *argv[]);
 void sysps();
 
 int64_t syskill(pid_t pid);
@@ -67,7 +67,6 @@ int64_t  syssemdestroy(sem_t sem);
 int64_t sysdup(pid_t pid, fd_t prev, fd_t new);
 int64_t syspipe(fd_t fd[2]);
 int64_t sysfork(uint64_t rip, uint64_t rsp);
-
 
 TSyscallHandler syscallHandlers[] = {
     //0x00
@@ -141,7 +140,11 @@ TSyscallHandler syscallHandlers[] = {
     //0x1F
     (TSyscallHandler) syspipe,
 
+    //0x20
     (TSyscallHandler) sysfork,
+
+    //0x21
+    (TSyscallHandler) sysexec,
 
 };
 
@@ -298,9 +301,8 @@ void sysexit(){
     yield();
 }
 
-void sysexec(pid_t pid){
-    exec(pid);
-    yield();
+void sysexec(uint64_t rip, int argc, char *argv[]){
+    exec(rip, argc, argv);
 }
 
 void sysps(){

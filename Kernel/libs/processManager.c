@@ -33,12 +33,7 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->argv[argc] = (void *)0;
     pcb->name = pcb->argv[0];
 
-
-    if(getActivePid()== KERNEL_PID)
-        pcb->status = READY;
-    else{
-        pcb->status = BLOCKED;
-    }
+    pcb->status = READY;
 
     pcb->priority = priority;
     pcb->pid = nextPid;
@@ -76,7 +71,30 @@ int64_t comparePid(void * pid1, void * pid2) {
     return (a > b) - (a < b);
 }
 
-void exec(pid_t pid){
+void exec(uint64_t rip, int argc, char *argv[]){
+
+    PCBType * process = getActiveProcess();
+
+    process->rip = rip;
+
+    for(int i = 0; i < process->argc; i++) {
+        free(process->argv[i]);
+    }
+    free(process->argv);
+    
+    process->argc = argc;
+    process->argv = malloc((argc + 1) * sizeof(char *));
+    for (int i = 0; i < argc; i++){
+        process->argv[i] = malloc(strlen(argv[i])+1);
+        strcpy(process->argv[i], argv[i]);
+    }
+    process->argv[argc] = (void *)0;
+    process->name = process->argv[0];
+
+    execProcess(process->stack_base, process->rip, process->argc, process->argv);   
+
+    yield();
+
 
     //Pdata process = {&pcb[pid], pcb[pid].pid};
     // PCBType * process = NULL;
@@ -239,11 +257,7 @@ int64_t fork(uint64_t rip, uint64_t rsp) {
     pcb->name = pcb->argv[0];
 
 
-    if(getActivePid()== KERNEL_PID)
-        pcb->status = READY;
-    else{
-        pcb->status = BLOCKED;
-    }
+    pcb->status = parent->status;
 
     pcb->priority = parent->priority;
     pcb->pid = nextPid;

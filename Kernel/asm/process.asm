@@ -1,5 +1,6 @@
 section .text
 global createProcess
+global execProcess
 
 entryWrapper:
     call rdx
@@ -53,4 +54,35 @@ createProcess:
     pop rbp
     ret
 
+execProcess:
+    push rbp
+    mov rbp, rsp
+
+    mov rsp, rdi ; stack base
+    and rsp, -16
+    push 0x0
+    push rdi
+    push 0x202
+    push 0x8
+    push entryWrapper
+
+   ;obs: rdi rsi , rdx and rcx have been swapped
+    ;for processes arguments
+	push rcx ; argv -> rsi
+	push rdx ; argc -> rdi
+
+	push rdi ; rbp -> rsp
+	push rsi ; rip (rdx)
+	push rdi ; stackbase (not necessary) (rcx)
+
+    mov al, 20h
+	out 20h, al
+
+	pop rcx
+	pop rdx
+	pop rbp
+	pop rdi
+	pop rsi
+
+    iretq
 

@@ -55,11 +55,12 @@ int main() {
     pid_t pid = sysfork();
     if(pid == 0) {
         pid = sysgetpid();
-        printf("soy el hijo con pid %d\n", pid);
-        sysblock(pid);
+        printf("soy el hijo con pid %d\nVoy a correr sync_test con 1000 y named\n", pid);
+        char * argv[] = {"synctest", "1000", "unnamed", NULL};
+        sysexec((uint64_t)synctest, 3, argv);
     }
     printf("Soy la shell con pid: %d\nchilds pid: %d\n", sysgetpid(), pid);
-    sysunblock(pid);
+    syswaitpid(pid);
     while (TRUE) {
         printf(CONSOLE_PROMPT);
         command_listener();
