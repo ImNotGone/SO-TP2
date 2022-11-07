@@ -284,17 +284,6 @@ void printProcess(PCBType * pcb){
     gNewline();
 }
 
-void freeProcess(PCBType * process){
-    for(int i = 0 ; i < process->argc ; i++){
-        free(process->argv[i]);
-    }
-
-    free(process->argv);
-    free((void *) process->stack_base - STACK_SIZE);
-    freeQueue(process->waiting_processes);
-    free(process);
-}
-
 PCBType * getActiveProcess(){
     return activeProcess;
 }

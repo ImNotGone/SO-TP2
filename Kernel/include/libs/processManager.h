@@ -23,8 +23,8 @@ typedef struct processData{
     char ** argv;
     char * name;
 
-    int fd[3];
-
+    fd_t * fd;
+    uint64_t fdQty;
     // Waiting Processes
     queueADT waiting_processes;
 }PCBType;
@@ -37,7 +37,7 @@ typedef struct processData{
 
 pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]);
 
-uint64_t exec(uint64_t rip, int argc, char *argv[]);
+uint64_t exec(uint64_t rip, int ground, int argc, char *argv[]);
 
 int64_t killProcess(pid_t pid);
 
@@ -60,6 +60,8 @@ void printAllProcess();
 int64_t comparePCB(void * pcb1, void * pcb2);
 
 int64_t fork(uint64_t rip, uint64_t rsp);
+
+void freeProcess(PCBType * process);
 
 #endif //PROCESSMANAGER_H
 

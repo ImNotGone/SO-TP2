@@ -52,15 +52,6 @@ static int builtinsDim = sizeof(builtins) / sizeof(builtins[0]);
 //--------------------- Main functions ----------------
 
 int main() {
-    pid_t pid = sysfork();
-    if(pid == 0) {
-        pid = sysgetpid();
-        printf("soy el hijo con pid %d\nVoy a correr sync_test con 1000 y named\n", pid);
-        char * argv[] = {"synctest", "1000", "unnamed", NULL};
-        sysexec((uint64_t)synctest, 3, argv);
-    }
-    printf("Soy la shell con pid: %d\nchilds pid: %d\n", sysgetpid(), pid);
-    syswaitpid(pid);
     while (TRUE) {
         printf(CONSOLE_PROMPT);
         command_listener();
@@ -135,8 +126,11 @@ static void command_listener() {
 
             uint64_t rip = (uint64_t)programs[i].exec;
 
-            pid_t pid = syscreateprocess(rip, leftIsBackground ? BACK : FORE, 1, leftArgc, leftArgs);
-            sysunblock(pid);
+            pid_t pid = sysfork();
+            if(pid == 0) {
+                sysexec(rip, leftIsBackground? BACK:FORE, leftArgc, leftArgs);
+                return;
+            }
 
             if (!leftIsBackground) {
                 syswaitpid(pid);
@@ -202,6 +196,7 @@ static void help() {
     for (i = 0; i < programsDim; i++) {
         printf("%d) %s: %s\n\n", i + 1, programs[i].name, programs[i].desc);
     }
+    puts("Builtins:");
     for(int j = 0; j < builtinsDim; j++, i++) {
         printf("%d) %s: %s\n\n", i + 1, builtins[j].name, builtins[j].desc);
     }

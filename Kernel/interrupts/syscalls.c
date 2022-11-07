@@ -38,7 +38,7 @@ pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * 
 void sysexit();
 
 // TODO: Remove this?
-uint64_t sysexec(uint64_t rip, int argc, char *argv[]);
+uint64_t sysexec(uint64_t rip, int ground, int argc, char *argv[]);
 void sysps();
 
 int64_t syskill(pid_t pid);
@@ -301,8 +301,8 @@ void sysexit(){
     yield();
 }
 
-uint64_t sysexec(uint64_t rip, int argc, char *argv[]){
-    return exec(rip, argc, argv);
+uint64_t sysexec(uint64_t rip, int ground, int argc, char *argv[]){
+    return exec(rip, ground, argc, argv);
 }
 
 void sysps(){
@@ -323,15 +323,15 @@ void sysnice(pid_t pid, int priority){
 
 int64_t sysblock(pid_t pid){
     return blockProcess(pid);
-};
+}
 
 int64_t sysunblock(pid_t pid){
     return unblockProcess(pid);
-};
+}
 
 int64_t syssleep(pid_t pid, uint64_t seconds){
     return sleepProcess(pid, seconds);
-};
+}
 
 void sysyield(){
     yield();

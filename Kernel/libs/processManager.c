@@ -43,6 +43,8 @@ pid_t newProcess(uint64_t rip, int ground, int priority, int argc, char * argv[]
     pcb->ppid = getActivePid();
     pcb->rsp = createProcess(pcb->stack_base, pcb->rip, pcb->argc, pcb->argv, false);
 
+    pcb->fd = malloc(sizeof(fd_t)*3);
+    pcb->fdQty = 3;
     pcb->fd[STDIN] = STDIN;
     pcb->fd[STDOUT] = STDOUT;
     pcb->fd[STDERR] = STDERR;
@@ -71,11 +73,12 @@ int64_t comparePid(void * pid1, void * pid2) {
     return (a > b) - (a < b);
 }
 
-uint64_t exec(uint64_t rip, int argc, char *argv[]){
+uint64_t exec(uint64_t rip, int ground, int argc, char *argv[]){
 
     PCBType * process = getActiveProcess();
 
     process->rip = rip;
+    process->ground = ground;
 
     for(int i = 0; i < process->argc; i++) {
         free(process->argv[i]);
@@ -248,12 +251,27 @@ int64_t fork(uint64_t rip, uint64_t rsp) {
     pcb->ppid = parent->pid;
     pcb->rsp = createProcess(pcb->stack_base - (parent->stack_base - rsp), rip, pcb->argc, pcb->argv, true);
     // TODO: CHANGE IF VARIABLE FDS
-    pcb->fd[STDIN] = parent->fd[STDIN];
-    pcb->fd[STDOUT] = parent->fd[STDOUT];
-    pcb->fd[STDERR] = parent->fd[STDERR];
+    pcb->fd = malloc(parent->fdQty * sizeof(*parent->fd));
+    for(int i = 0; i < parent->fdQty; i++) {
+        pcb->fd[i] = parent->fd[i];
+    }
+    pcb->fdQty = parent->fdQty;
 
     addToReadyQueue(&pcb);
 
     return nextPid++;
 
+}
+
+void freeProcess(PCBType * process){
+    for(int i = 0 ; i < process->argc ; i++){
+        free(process->argv[i]);
+    }
+
+    free(process->argv);
+    free((void *) (process->stack_base - STACK_SIZE));
+    free(process->fd);
+    freeQueue(process->waiting_processes);
+    free(process);
+    return;
 }

@@ -96,7 +96,7 @@ extern pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, 
 extern void sysexits();
 
 //executes process
-extern void sysexec(uint64_t rip, int argc, char * argv[]);
+extern void sysexec(uint64_t rip, int ground, int argc, char * argv[]);
 
 //prints out all process' data
 extern void sysps();
