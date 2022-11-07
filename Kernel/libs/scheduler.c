@@ -281,11 +281,14 @@ void printProcess(PCBType * pcb){
         // Iterate over waiting processes
         toBegin(pcb->waiting_processes);
         pid_t pid;
+        gPrint("{");
         while (hasNext(pcb->waiting_processes)) {
             next(pcb->waiting_processes, &pid);
+            gPrint(" ");
             gPrintDec(pid);
-            gPrint(" | ");
+            gPrint(" ");
         }
+        gPrint("}");
     }
     gNewline();
 }
