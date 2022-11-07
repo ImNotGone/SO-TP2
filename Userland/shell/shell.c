@@ -38,7 +38,7 @@ static command programs[] = {
     {"priotest", "Test priority", (commandfp)priotest},
     {"loop", "Prints a greeting and goes to sleep", (commandfp) loop},
     {"cat", "Prints stdin to stdout", (commandfp)cat},
-    {"wc", "Counts lines in stdin", (commandfp)wc},
+    {"wc", "Counts lines, words & bytes from stdin", (commandfp)wc},
     {"filter", "Filters out vowels from stdin", (commandfp)filter},
     {"phylo", "Emulates the classic philosophers problem", (commandfp)phylo},
 };
