@@ -24,11 +24,11 @@ int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
 void test_prio() {
     int64_t pids[TOTAL_PROCESSES];
-    char *argv[] = {0};
+    char *argv[] = {"endless_loop_print"};
     uint64_t i;
 
     for (i = 0; i < TOTAL_PROCESSES; i++) {
-        pids[i] = syscreateprocess((uint64_t)endless_loop_print, 1, 1, 0, argv);
+        pids[i] = syscreateprocess((uint64_t)endless_loop_print, 1, 1, 1, argv);
         sysunblock(pids[i]);
     }
 

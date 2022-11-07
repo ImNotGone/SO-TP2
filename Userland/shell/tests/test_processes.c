@@ -16,7 +16,7 @@ int64_t test_processes(uint64_t argc, char *argv[]){
   uint8_t alive = 0;
   uint8_t action;
   uint64_t max_processes;
-  char * argvAux[] = {0};
+  char * argvAux[] = {"endless_loop"};
 
   if (argc != 1) return -1;
 
@@ -28,7 +28,7 @@ int64_t test_processes(uint64_t argc, char *argv[]){
 
     // Create max_processes processes
     for(rq = 0; rq < max_processes; rq++){
-      p_rqs[rq].pid = syscreateprocess((uint64_t) endless_loop, 1, 1, 0, argvAux);
+      p_rqs[rq].pid = syscreateprocess((uint64_t) endless_loop, 1, 1, 1, argvAux);
       sysunblock(p_rqs[rq].pid);
 
       if (p_rqs[rq].pid == -1){
