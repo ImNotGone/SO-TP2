@@ -3,6 +3,7 @@
 #define LONG_MIN -1L
 
 #include <stdint.h>
+#include <syscalls.h>
 
 // Returns the length of the string
 uint64_t strlen(const char * str);
@@ -35,5 +36,10 @@ void * memset(void * ptr, int32_t c, uint64_t length);
 //https://opensource.apple.com/source/BerkeleyDB/BerkeleyDB-21/db/clib/strchr.c.auto.html
 char *strchr(const char *p, int ch);
 
+// Receives a number and returns an allocated string with the number in base 10
+char * itoa(int64_t num);
+
+// Reverse a string
+void reverse(char *str, int len);
 
 #endif//_STRING_H

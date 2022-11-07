@@ -26,10 +26,16 @@ void priotest();
 // Prints stdin to stdout
 void cat(int argc, char *argv[]);
 
+// Counts the number of lines in stdin
 void wc(int argc, char * argv[]);
+
+// Filters out vowels
+void filter(int argc, char * argv[]);
 
 // ==================== OTHER ====================
 
 void loop(int argc, char **argv);
+
+void phylo(int argc, char **argv);
 
 #endif

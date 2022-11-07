@@ -1,5 +1,9 @@
 #include <commands/programs.h>
 
+#define IS_VOWEL(c) ((c) == 'a' || (c) == 'e' || (c) == 'i' || (c) == 'o' || (c) == 'u' || \
+                    (c) == 'A' || (c) == 'E' || (c) == 'I' || (c) == 'O' || (c) == 'U')
+                
+#define INITIAL_PHYLOS 5
 
 // ====================== Tests ======================
 
@@ -81,6 +85,12 @@ void priotest(int argc, char *argv[]) {
 // ====================== Pipes ======================
 
 void cat(int argc, char *argv[]) {
+
+    if (argc != 1) {
+        fprintf(STDERR, "Usage: cat\n");
+        return;
+    }
+
     char c;
 
     // Use getchar
@@ -92,6 +102,12 @@ void cat(int argc, char *argv[]) {
 // reads from STDIN
 // prints the amount of lines
 void wc(int argc, char * argv[]) {
+
+    if (argc != 1) {
+        fprintf(STDERR, "Usage: wc\n");
+        return;
+    }
+
     uint64_t lines = 0;
     char c = 0;
     for(c = getchar(); c != EOF; c = getchar()) {
@@ -103,8 +119,28 @@ void wc(int argc, char * argv[]) {
     return;
 }
 
+
+// Reads from STDIN
+// Filters out all the vowels, and prints the rest
+void filter(int argc, char * argv[]) {
+
+    if (argc != 1) {
+        fprintf(STDERR, "Usage: filter\n");
+        return;
+    }
+
+    char c = 0;
+    for(c = getchar(); c != EOF; c = getchar()) {
+        if(!IS_VOWEL(c)) {
+            putchar(c);
+        }
+    }
+    return;
+}
+
 // ====================== Other ======================
 
+// Prints a greeting and then sleeps for n seconds, for eternity
 void loop(int argc, char **argv) {
 
     if (argc != 2) {
@@ -134,3 +170,4 @@ void loop(int argc, char **argv) {
         }
     }
 }
+

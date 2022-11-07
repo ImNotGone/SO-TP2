@@ -1,6 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <stdint.h>
+#include <_string.h>
 
 // ---- Auxiliary Macros for internal use ----------------------------
 #define IS_ALPHA(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
@@ -8,6 +8,8 @@
 #define TO_UPPER(c) ((c) - (((c) >= 'a' && (c) <= 'z') ? 'a'-'A' : 0))
 #define VALID_NUM_FOR_BASE(c, base) (((base) <= 10 && ((c) >= '0' && (c) < '0' + ((base) <= 10 ? (base) : 10))) || ((base) > 10 && (IS_DIGIT(c) || (((c) >= 'a' && (c) < 'a' + ((base) - 10)) || ((c) >= 'A' && (c) < 'A' + ((base) - 10))))))
 #define VALUE_OF(x) (TO_UPPER(x) - (IS_DIGIT(x) ? '0' : 55))
+
+#define BUFFER_SIZE 32
 
 uint64_t strlen(const char * str) {
     uint64_t i = 0;
@@ -171,5 +173,46 @@ char *strchr(const char *p, int ch)
 	/* NOTREACHED */
 }
 
+// Reverse a string
+void reverse(char *str, int len) {
+    int i = 0, j = len - 1, temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
+}
 
 
+// Receives a number and returns an allocated string with the number in base 10
+char * itoa(int64_t num) {
+    char * str = (char*)sysmalloc(BUFFER_SIZE);
+    int i = 0;
+    int isNegative = 0;
+    if (num == 0) {
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
+    }
+    if (num < 0) {
+        isNegative = 1;
+        num = -num;
+    }
+    while (num != 0) {
+        int rem = num % 10;
+        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
+        num = num/10;
+    }
+    if (isNegative)
+        str[i++] = '-';
+    str[i] = '\0';
+
+    int len = strlen(str);
+    reverse(str, len);
+
+    str = (char*)sysrealloc(str, len);
+
+    return str;
+}
