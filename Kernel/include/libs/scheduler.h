@@ -31,6 +31,8 @@ void setBlockedOnInput(PCBType * process);
 
 void wakeUpProcesses(); 
 
+void removeFromSleepingQueue(PCBType *process);
+
 // Adds a process to the sleeping queue
 void addToSleepingQueue(PCBType * process, uint64_t time);
 #endif //SCHEDULER_H

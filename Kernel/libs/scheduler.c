@@ -67,7 +67,7 @@ void wakeUpProcesses() {
         getElementsLessThan(sleepingQueue, &currentTime, &toWakeUpSize);
 
     for (int i = 0; i < toWakeUpSize; i++) {
-        if (toWakeUp[i]->status != KILLED) {
+        if (toWakeUp[i]->status == SLEEPING) {
             toWakeUp[i]->status = READY;
         }
     }
@@ -75,6 +75,17 @@ void wakeUpProcesses() {
     free(toWakeUp);
 }
 
+// Removes a process from the sleeping queue if it is there
+void removeFromSleepingQueue(PCBType *process) {
+    
+    if (process == NULL) {
+        return;
+    }
+
+    removePq(sleepingQueue, &process);
+}
+
+    
 // Iterates over the ready queue to see if there are any processes that are
 // ready to run
 int hasReadyProcess() {
@@ -148,7 +159,7 @@ uint64_t switchContext(uint64_t rsp) {
             activePid = activeProcess->pid;
             gusts = activeProcess->priority;
             // return activeProcess->rsp;
-        } else if (activeProcess->status == BLOCKED) {
+        } else if (activeProcess->status == BLOCKED || activeProcess->status == SLEEPING) {
             queue(processQueue, &activeProcess);
         } else if (activeProcess->status == KILLED) {
             freeProcess(activeProcess);

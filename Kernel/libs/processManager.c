@@ -163,7 +163,7 @@ int64_t sleepProcess(pid_t pid, uint64_t seconds) {
     }
 
     addToSleepingQueue(process, seconds);
-    process->status = BLOCKED;
+    process->status = SLEEPING;
 
     if (process->pid == getActivePid()) {
         yield();
@@ -176,8 +176,13 @@ int64_t blockProcess(pid_t pid) {
     PCBType * process = find(pid);
 
     // Validate if the process exists
-    if(process == NULL || process->status != READY) {
+    if(process == NULL || process->status == BLOCKED || process->status == KILLED) {
         return -1;
+    }
+
+    // If it was sleeping, remove it from the sleeping queue
+    if(process->status == SLEEPING) {
+        removeFromSleepingQueue(process);
     }
 
     process->status = BLOCKED;
@@ -200,8 +205,13 @@ int64_t unblockProcess(pid_t pid) {
     PCBType * process = find(pid);
 
     // Validate if the process exists
-    if (process == NULL || process->status == KILLED) {
+    if (process == NULL || process->status == KILLED || process->status == READY) {
         return -1;
+    }
+
+    // If it was sleeping, remove it from the sleeping queue
+    if(process->status == SLEEPING) {
+        removeFromSleepingQueue(process);
     }
 
     process->status = READY;

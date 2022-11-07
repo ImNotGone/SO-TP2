@@ -138,6 +138,48 @@ bool pushPq(pQueueADT pQueue, void * elem, void * priority) {
     return true;
 }
 
+// Remove an element from the queue
+bool removePq(pQueueADT pQueue, void * elem) {
+    Node *ptr = pQueue->front;
+    Node *prev = NULL;
+
+    if (pQueue->front == NULL) {
+        return false;
+    }
+
+    // If head node itself holds the element to be deleted
+    if (pQueue->compare(ptr->data, elem) == 0) {
+        pQueue->front = ptr->next;
+        free(ptr->data);
+        free(ptr->priority);
+        free(ptr);
+        return true;
+    }
+    else {
+        // Search for the element to be deleted,
+        // keep track of the previous node as we
+        // need to change 'prev->next'
+        while (ptr != NULL && pQueue->compare(ptr->data, elem) != 0) {
+            prev = ptr;
+            ptr = ptr->next;
+        }
+
+        // If element was not present in linked list
+        if (ptr == NULL) {
+            return false;
+        }
+
+        // Unlink the node from linked list
+        prev->next = ptr->next;
+
+        free(ptr->data);
+        free(ptr->priority);
+        free(ptr);
+
+        return true;
+    }
+}
+
 // Function to check is list is empty
 int isEmptyPq(pQueueADT pQueue) {
     return pQueue->front == NULL;

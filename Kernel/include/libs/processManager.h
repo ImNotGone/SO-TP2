@@ -12,6 +12,7 @@
 #define READY 0
 #define BLOCKED 1
 #define KILLED 2
+#define SLEEPING 3
 #define STACK_SIZE 4096
 
 typedef struct processData{
