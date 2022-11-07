@@ -58,7 +58,7 @@ static void printProcInfo(TProcInfo proc) {
 
     printf("PID: %d\n", proc.pid);
 
-    printf("Priority: %d | Stack base: %x | Stack pointer: %x | Ground: %s | Status: %s\n", proc.priority, proc.stackBase, proc.rsp, proc.ground == 0 ? "foreground" : "background", proc.status == 0 ? "Ready" : proc.status == 1 ? "Blocked" : "Killed");
+    printf("Priority: %d | Stack base: %x | Stack pointer: %x | Ground: %s | Status: %s\n", proc.priority, proc.stackBase, proc.rsp, proc.ground == 0 ? "foreground" : "background", proc.status == 0 ? "Ready" : proc.status == 1 ? "Blocked" : proc.status == 2 ? "Killed" : "Sleeping");
 
 
     if(proc.waitingProcessesSize > 0) {

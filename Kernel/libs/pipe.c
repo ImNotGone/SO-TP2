@@ -308,6 +308,10 @@ TPipeInfo *pipeDump(uint64_t *size) {
     // Allocate memory
     TPipeInfo *info = malloc(sizeof(TPipeInfo) * pipesize);
     if (info == NULL) {
+
+        free(pipes);
+        free(pipeIds);
+
         *size = 0;
         return NULL;
     }
@@ -330,6 +334,9 @@ TPipeInfo *pipeDump(uint64_t *size) {
     }
 
     *size = pipesize;
+
+    free(pipes);
+    free(pipeIds);
 
     return info;
 }

@@ -28,5 +28,8 @@ int isEmptyPq(pQueueADT pQueue);
 // Returns an array of the elements found
 // The size of the array is stored in the size parameter
 void * getElementsLessThan(pQueueADT pQueue, void * priority, uint64_t * size);
+
+// Remove an element from the queue
+bool removePq(pQueueADT pQueue, void * elem);
 #endif
 
