@@ -67,6 +67,15 @@ execProcess:
     push entryWrapper
 
    ;obs: rdi rsi , rdx and rcx have been swapped
+    push r15
+	push r14
+	push r13
+	push r12
+	push r11
+	push r10
+	push r9
+	push r8
+
     ;for processes arguments
 	push rcx ; argv -> rsi
 	push rdx ; argc -> rdi
@@ -74,15 +83,11 @@ execProcess:
 	push rdi ; rbp -> rsp
 	push rsi ; rip (rdx)
 	push rdi ; stackbase (not necessary) (rcx)
+	push rbx
+	push rax
 
-    mov al, 20h
-	out 20h, al
-
-	pop rcx
-	pop rdx
-	pop rbp
-	pop rdi
-	pop rsi
-
-    iretq
+    mov rax, rsp
+    mov rsp, rbp
+    pop rbp
+    ret
 

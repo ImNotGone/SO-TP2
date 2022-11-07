@@ -38,7 +38,7 @@ pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, char * 
 void sysexit();
 
 // TODO: Remove this?
-void sysexec(uint64_t rip, int argc, char *argv[]);
+uint64_t sysexec(uint64_t rip, int argc, char *argv[]);
 void sysps();
 
 int64_t syskill(pid_t pid);
@@ -301,8 +301,8 @@ void sysexit(){
     yield();
 }
 
-void sysexec(uint64_t rip, int argc, char *argv[]){
-    exec(rip, argc, argv);
+uint64_t sysexec(uint64_t rip, int argc, char *argv[]){
+    return exec(rip, argc, argv);
 }
 
 void sysps(){

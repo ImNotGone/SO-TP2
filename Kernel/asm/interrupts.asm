@@ -263,9 +263,21 @@ _syscallHandler:
 	mov rdx, rsi
 	mov rsi, rdi
 	mov rdi, rax
+	
+	push rdi
 	call syscallDispatcher
-
+	pop rdi
+	
 	push rax
+	
+	cmp rdi, 0x0C
+	je .postExec
+	jmp .exit
+
+.postExec:
+	mov rsp, rax
+
+.exit:
 	popState
 	iretq
 

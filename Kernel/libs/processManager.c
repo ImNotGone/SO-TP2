@@ -71,7 +71,7 @@ int64_t comparePid(void * pid1, void * pid2) {
     return (a > b) - (a < b);
 }
 
-void exec(uint64_t rip, int argc, char *argv[]){
+uint64_t exec(uint64_t rip, int argc, char *argv[]){
 
     PCBType * process = getActiveProcess();
 
@@ -91,28 +91,9 @@ void exec(uint64_t rip, int argc, char *argv[]){
     process->argv[argc] = (void *)0;
     process->name = process->argv[0];
 
-    execProcess(process->stack_base, process->rip, process->argc, process->argv);   
-
-    yield();
-
-
-    //Pdata process = {&pcb[pid], pcb[pid].pid};
-    // PCBType * process = NULL;
-    // process = listfind(pcbs, pid);
-
-    // //que hacemos si no lo encuentra?
-
-    // //toSend = {process, process->pid};
-
-    // //addToReadyQueue(process);
-    // addToReadyQueue(process);
-
-    // //si es foreground:
-    // if(process->ground == 0){
-    //     block(process->ppid);
-    // }
-    //addToReadyQueue(&pcb);
-
+    
+    process->rsp = execProcess(process->stack_base, process->rip, process->argc, process->argv);   
+    return process->rsp;
 }
 
 int64_t killProcess(pid_t pid) {
