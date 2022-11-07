@@ -65,7 +65,7 @@ static void printProcInfo(TProcInfo proc) {
 
         printf("%d | ", proc.waitingProcesses[i]);
     }
-    puts("");
+    printf("\n\n");
 }
 
 void ps() {
@@ -121,7 +121,12 @@ void kill(int argc, char * argv[]){
         return;
     }
 
-    syskill(pid);
+     if (syskill(pid) == -1) {
+        fprintf(STDERR, "Process not found\n");
+        return;
+    }
+
+    printf("[%d] Killed\n", pid);
 }
 
 void block(int argc, char * argv[]){
