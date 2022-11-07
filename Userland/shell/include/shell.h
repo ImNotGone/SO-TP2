@@ -30,6 +30,7 @@ typedef void (*commandfp)(int argc, char *argv[]);
 
 typedef struct command {
     char * name;
+    char * args;
     char * desc;
     commandfp exec;
 } command;
