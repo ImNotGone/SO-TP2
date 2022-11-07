@@ -321,7 +321,6 @@ TPipeInfo *pipeDump(uint64_t *size) {
         info[i].writerOffset = (*pipes[i])->writerOff;
 
         // Get pipe name
-        pipe_t pipeId;
         info[i].name = getPipeName(NPList, *pipeIds[i]);
 
         // Get waiting processes
@@ -343,8 +342,14 @@ static tList addNamedPipe(tList first, const char *name, uint64_t *pipeId,
     int c = 0;
     if (first == NULL || (c = strcmp(first->name, name)) > 0) {
         tList new = malloc(sizeof(tNode));
+
+        if (new == NULL) {
+            *flag = MEMERROR;
+            return first;
+        }
+
         new->name = malloc(strlen((char *) name) + 1);
-        if (new == NULL || new->name == NULL) {
+        if (new->name == NULL) {
             free(new);
             *flag = MEMERROR;
             return first;

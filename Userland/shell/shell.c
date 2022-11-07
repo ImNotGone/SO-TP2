@@ -59,7 +59,7 @@ int main() {
 }
 
 static void command_listener() {
-    char commandBuffer[COMMAND_BUFFER_SIZE];
+    char commandBuffer[COMMAND_BUFFER_SIZE + 1];
     int i;
     scanf(CMD_BUFF_FORMAT, commandBuffer);
 
@@ -99,6 +99,8 @@ static void command_listener() {
     // Check there is a command on each side of the pipe
     if (pipeLocation != NULL && (rightArgs == NULL || leftArgs == NULL)) {
         fprintf(STDERR, "Usage: command1 | command2\n");
+        return;
+    } else if (leftArgs == NULL) {
         return;
     }
 
