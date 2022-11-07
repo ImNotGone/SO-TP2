@@ -13,7 +13,7 @@
 void memtest(int argc, char * argv[]) {
 
     if (argc != 2) {
-        fprintf(STDERR, "Usage: %s <size>Mb\n", argv[0]);
+        fprintf(STDERR, "Usage: %s <size>MB\n", argv[0]);
         return;
     }
 
@@ -30,7 +30,7 @@ void memtest(int argc, char * argv[]) {
 
     int testResult = test_mm(1, testParams);
 
-    printf("Memory test %s\nTested using %sMb\n",
+    printf("Memory test %s\nTested using %sMB\n",
            testResult == 0 ? "passed" : "failed", argv[1]);
 }
 
@@ -38,7 +38,7 @@ void synctest(int argc, char *argv[]) {
 
     if (argc != 3) {
         fprintf(STDERR,
-                "Usage: test_sync <n> <use_sem>[named | unnamed | no-sem]\n");
+                "Usage: synctest <n> <use_sem>[named || unnamed || no-sem]\n");
         return;
     }
 
@@ -65,12 +65,12 @@ void synctest(int argc, char *argv[]) {
 void processtest(int argc, char *argv[]) {
 
     if (argc != 2) {
-        fprintf(STDERR, "Usage: test_process <number_of_process>\n");
+        fprintf(STDERR, "Usage: proctest <number_of_processes>\n");
         return;
     }
 
     if (satoi(argv[1]) <= 0) {
-        fprintf(STDERR, "Invalid number of process, it must be greater than 0\n");
+        fprintf(STDERR, "Number of processes must be greater than 0\n");
         return;
     }
 
@@ -97,7 +97,7 @@ void cat(int argc, char *argv[]) {
     char c;
 
     // Use getchar
-    while ((c = getchar(STDIN)) != -1) {
+    while ((c = getchar(STDIN)) != EOF) {
         putchar(c);
     }
 }
@@ -162,7 +162,7 @@ void filter(int argc, char * argv[]) {
 void loop(int argc, char **argv) {
 
     if (argc != 2) {
-        fprintf(STDERR, "Usage: loop <number of seconds>\n");
+        fprintf(STDERR, "Usage: loop <sleep_seconds>\n");
         return;
     }
 

@@ -86,7 +86,7 @@ void *philosopher(int argc, char *argv[]) {
 
 
     while (1) {
-        
+
         syssleep(sysgetpid(), 1);
 
         take_fork(philoId);
@@ -103,7 +103,7 @@ void *philosopher(int argc, char *argv[]) {
 void createPhilosophers() {
 
     printf("Creating %d philosophers\n", philosopherCount);
-   
+
     // initialize the semaphores
     forkMutex = sysseminit(1);
 
@@ -169,9 +169,9 @@ void phylo(int argc, char *argv[]) {
                 return;
             }
 
-            fprintf(STDERR, "Invalid command. Use 'q' to quit, 'a' to add a philosopher or 'd' to remove one philosopher\n");
+            fprintf(STDERR, "Invalid command. Use 'q' to quit, 'a' to add a philosopher or 'r' to remove one philosopher\n");
         }
-                    
+
 
         if (c == 'q') {
             break;
@@ -182,12 +182,16 @@ void phylo(int argc, char *argv[]) {
         if (c == 'a') {
             if (philosopherCount < maxPhylos) {
                 philosopherCount++;
+            }else{
+                fprintf(STDERR, "Max philosophers reached\n");
             }
         }
 
         if (c == 'r') {
-            if (philosopherCount > 0) {
+            if (philosopherCount > 5) {
                 philosopherCount--;
+            }else{
+                fprintf(STDERR, "You can't remove more philosophers\n");
             }
         }
 
