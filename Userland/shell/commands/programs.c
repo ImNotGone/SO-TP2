@@ -199,31 +199,32 @@ static void pipeWriter(int argc, char * argv[]) {
 void fifotest(int argc, char * argv[]) {
 
     if (argc != 1) {
-        fprintf(STDERR, "Usage: pipe_test\n");
+        fprintf(STDERR, "Usage: fifotest\n");
         return;
     }
 
     fd_t pipe_fd[2];
-    
+
     if (sysmkfifo(PIPE_NAME, pipe_fd) != 0) {
         fprintf(STDERR, "Error creating pipe\n");
         return;
     }
 
-    
+
     pid_t pids[INITIAL_PHYLOS];
 
     int i;
+    char * child_letter[] = {"A", "B", "C", "D", "E"};
     for (i = 0; i < PIPE_WRITERS; i++) {
-        char * child_argv[] = { "pipe_test_child" , i == 0 ? "A" : i == 1 ? "B" : i == 2 ? "C" : i == 3 ? "D" : "E" };
-        
+        char * child_argv[] = { "fifotestChild" , child_letter[i] };
+
 
         pids[i] = syscreateprocess((uint64_t) pipeWriter, 1, 1, 2, child_argv);
 
         sysunblock(pids[i]);
     }
 
-    
+
 
     // Read from pipe
     char c;

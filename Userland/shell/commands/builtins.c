@@ -98,12 +98,30 @@ void ps() {
 // ==================== Process Control ====================
 
 void nice(int argc, char * argv[]){
+
+    if(argc != 3){
+        fprintf(STDERR,"Usage: nice <pid> <priority>[1-10]\n");
+        return;
+    }
+
     //pasar a dec
     const char * endptr;
     pid_t pid = strtol(argv[1], &endptr, 10);
     int priority = strtol(argv[2], &endptr, 10);
 
-    sysnice(pid, priority);
+    if (pid < 1) {
+        fprintf(STDERR, "Invalid pid\n");
+        return;
+    }
+
+    if(priority < 1 || priority > 10){
+        fprintf(STDERR, "1 <= priority <= 10\n");
+        return;
+    }
+
+    if(sysnice(pid, priority)<0){
+        fprintf(STDERR, "Error changing priority\n");
+    }
 }
 
 void kill(int argc, char * argv[]){
