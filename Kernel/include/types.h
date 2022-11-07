@@ -57,4 +57,16 @@ typedef struct procinfo {
 
 } TProcInfo;
 
+// Pipe Info structure
+typedef struct pipeinfo {
+    const char *name;
+    uint64_t size;
+
+    uint64_t readerOffset;
+    uint64_t writerOffset;
+
+    pid_t *waitingProcesses;
+    uint64_t waitingProcessesSize;
+} TPipeInfo;
+
 #endif//_TYPES_H

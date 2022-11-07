@@ -17,4 +17,5 @@ int64_t namedPipe(const char *name, fd_t pipefd[2]);
 
 int64_t unlinkpipe(const char *name);
 
+TPipeInfo *pipeDump(uint64_t *size);
 #endif//PIPE_H

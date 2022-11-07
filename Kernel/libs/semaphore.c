@@ -126,6 +126,11 @@ TSemInfo *sem_info(uint64_t *size) {
     return semCollectionInfo(semCollection, size);
 }
 
+// Returns the waiting queue of the given semaphore
+pid_t *sem_waiting_queue(sem_t sem, uint64_t *size) {
+    return getWaitingQueue(semCollection, sem, size);
+}
+
 // --------------------- Unnamed Semaphores ---------------------
 // Creates a new unnamed semaphore with the given initial value
 // Returns the semaphore id

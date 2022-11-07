@@ -55,6 +55,7 @@ int64_t syspipe(fd_t fd[2]);
 int64_t sysclose(fd_t fd);
 int64_t sysmkfifo(const char * name, fd_t fd[2]);
 int64_t sysunlink(const char * name);
+TPipeInfo *syspipeinfo(uint64_t *size);
 
 
 
@@ -127,6 +128,8 @@ TSyscallHandler syscallHandlers[] = {
     (TSyscallHandler) sysmkfifo,
     //0x1F
     (TSyscallHandler) sysunlink,
+    //0x20
+    (TSyscallHandler) syspipeinfo,
 
 
 };
@@ -345,4 +348,8 @@ int64_t sysunlink(const char * name){
     }
 
     return unlinkpipe(name);
+}
+
+TPipeInfo * syspipeinfo(uint64_t * size){
+    return pipeDump(size);
 }

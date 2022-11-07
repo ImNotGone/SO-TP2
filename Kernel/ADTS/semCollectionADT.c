@@ -245,6 +245,37 @@ int getWaitingQueueSize(semCollectionADT semCollection, sem_t sem) {
     return semCollection->semaphores[sem]->waitingQueueSize;
 };
 
+// Returns a copy of the waiting queue
+pid_t * getWaitingQueue(semCollectionADT semCollection, sem_t sem, uint64_t *size) {
+
+    // Check if the semaphore exists
+    if (!semExists(semCollection, sem)) {
+        return NULL;
+    }
+
+    // Get the queue size
+    *size = semCollection->semaphores[sem]->waitingQueueSize;
+
+    // Create a copy of the queue
+    pid_t *queue = calloc(*size, sizeof(pid_t));
+
+    if (queue == NULL) {
+        *size = 0;
+        return NULL;
+    }
+
+    pid_t *queueIter = queue;
+    
+    toBegin(semCollection->semaphores[sem]->waitingQueue);
+    pid_t pid;
+    while (hasNext(semCollection->semaphores[sem]->waitingQueue)) {
+        next(semCollection->semaphores[sem]->waitingQueue, &pid);
+        *queueIter = pid;
+        queueIter++;
+    }
+
+    return queue;
+}
 // ------------------- Setters -------------------
 
 // Increment the semaphore value

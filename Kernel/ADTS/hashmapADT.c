@@ -179,6 +179,40 @@ void freeHashMap(hashMapADT hm) {
     free(hm);
 }
 
+void ** valuesHm(hashMapADT hm, uint64_t * size) {
+    void ** values = malloc(sizeof(void *) * hm->totalSize);
+    if(values == NULL) return NULL;
+    uint64_t j = 0;
+    for(uint64_t i = 0; i < hm->lookupSize; i++) {
+        entry * aux = &hm->lookup[i];
+        if(aux->status == USED) {
+            values[j] = aux->value;
+            j++;
+        }
+    }
+
+    *size = j;
+
+    return values;
+}
+
+void ** keysHm(hashMapADT hm, uint64_t * size) {
+    void ** keys = malloc(sizeof(void *) * hm->totalSize);
+    if(keys == NULL) return NULL;
+    uint64_t j = 0;
+    for(uint64_t i = 0; i < hm->lookupSize; i++) {
+        entry * aux = &hm->lookup[i];
+        if(aux->status == USED) {
+            keys[j] = aux->key;
+            j++;
+        }
+    }
+
+    *size = j;
+
+    return keys;
+}
+
 // ================== AUX ======================
 
 uint64_t hashInt(void * key) {

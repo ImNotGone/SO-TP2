@@ -26,6 +26,7 @@ static command builtins[] = {
     {"mem", "", "Prints memory manager status", memManagerDump},
     {"ps", "", "Prints all processes information", ps},
     {"sem", "", "Prints semaphores info", semDump},
+    {"pipe", "", "Prints pipes info", pipeDump},
     {"kill","<pid>", "Kills a process given the pid", (commandfp)kill},
     {"nice","<pid> <priority>[1-10]" ,"Changes priority to pid", (commandfp)nice},
     {"block","<pid>", "Toggles a process between blocked and unblocked given the pid", (commandfp)block},
@@ -58,7 +59,7 @@ int main() {
 }
 
 static void command_listener() {
-    char commandBuffer[COMMAND_BUFFER_SIZE];
+    char commandBuffer[COMMAND_BUFFER_SIZE + 1];
     int i;
     scanf(CMD_BUFF_FORMAT, commandBuffer);
 
@@ -98,6 +99,8 @@ static void command_listener() {
     // Check there is a command on each side of the pipe
     if (pipeLocation != NULL && (rightArgs == NULL || leftArgs == NULL)) {
         fprintf(STDERR, "Usage: command1 | command2\n");
+        return;
+    } else if (leftArgs == NULL) {
         return;
     }
 
