@@ -17,7 +17,8 @@ typedef struct node {
 typedef struct pQueueCDT {
     Node* front;
 
-    compareFp compare;
+    compareFp comparePrio;
+    compareFp compareElem;
 
     uint64_t elementSize;
     uint64_t prioritySize;
@@ -26,7 +27,7 @@ typedef struct pQueueCDT {
 } pQueueCDT;
 
 // Function to Create A New priorityQueue
-pQueueADT newPQueue(compareFp compare, uint64_t elementSize, uint64_t prioritySize) {
+pQueueADT newPQueue(compareFp comparePrio, compareFp compareElem, uint64_t elementSize, uint64_t prioritySize) {
     pQueueADT pQueue = calloc(1, sizeof(pQueueCDT));
 
     if (pQueue == NULL) {
@@ -34,7 +35,8 @@ pQueueADT newPQueue(compareFp compare, uint64_t elementSize, uint64_t prioritySi
     }
 
     pQueue->front = NULL;
-    pQueue->compare = compare;
+    pQueue->comparePrio = comparePrio;
+    pQueue->compareElem = compareElem;
     pQueue->elementSize = elementSize;
     pQueue->prioritySize = prioritySize;
 
@@ -115,7 +117,7 @@ bool pushPq(pQueueADT pQueue, void * elem, void * priority) {
     // Special Case: The head of list has lesser
     // priority than new node. So insert new
     // node before head node and change head node.
-    if (pQueue->front == NULL || pQueue->compare(priority, pQueue->front->priority) < 0) {
+    if (pQueue->front == NULL || pQueue->comparePrio(priority, pQueue->front->priority) < 0) {
 
         // Insert New Node before head
         temp->next = pQueue->front;
@@ -126,7 +128,7 @@ bool pushPq(pQueueADT pQueue, void * elem, void * priority) {
         // Traverse the list and find a
         // position to insert new node
         while (start->next != NULL &&
-               pQueue->compare(priority, start->next->priority) >= 0) {
+               pQueue->comparePrio(priority, start->next->priority) >= 0) {
             start = start->next;
         }
 
@@ -148,7 +150,7 @@ bool removePq(pQueueADT pQueue, void * elem) {
     }
 
     // If head node itself holds the element to be deleted
-    if (pQueue->compare(ptr->data, elem) == 0) {
+    if (pQueue->compareElem(ptr->data, elem) == 0) {
         pQueue->front = ptr->next;
         free(ptr->data);
         free(ptr->priority);
@@ -159,7 +161,7 @@ bool removePq(pQueueADT pQueue, void * elem) {
         // Search for the element to be deleted,
         // keep track of the previous node as we
         // need to change 'prev->next'
-        while (ptr != NULL && pQueue->compare(ptr->data, elem) != 0) {
+        while (ptr != NULL && pQueue->compareElem(ptr->data, elem) != 0) {
             prev = ptr;
             ptr = ptr->next;
         }
@@ -198,7 +200,7 @@ void * getElementsLessThan(pQueueADT pQueue, void * priority, uint64_t * size) {
     }
 
     // Count the number of elements that are less than or equal to the given priority
-    while (start != NULL && pQueue->compare(priority, start->priority) >= 0) {
+    while (start != NULL && pQueue->comparePrio(priority, start->priority) >= 0) {
         count++;
         start = start->next;
     }

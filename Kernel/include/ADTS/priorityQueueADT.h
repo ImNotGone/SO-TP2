@@ -9,7 +9,7 @@ typedef struct pQueueCDT * pQueueADT;
 typedef int64_t (*compareFp)(void * e1, void * e2);
 
 // Function to Create A New priorityQueue
-pQueueADT newPQueue(compareFp compare, uint64_t elementSize, uint64_t prioritySize);
+pQueueADT newPQueue(compareFp comparePrio, compareFp compareElem, uint64_t elementSize, uint64_t prioritySize);
 
 // Return the value at head
 bool peekPq(pQueueADT pQueue, void* element);

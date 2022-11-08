@@ -35,7 +35,7 @@ void freeProcess(PCBType *process);
 void startScheduler() {
     started = 1;
     processQueue = newQueue(sizeof(PCBType *), comparePCB);
-    sleepingQueue = newPQueue(compareTime, sizeof(PCBType *), sizeof(uint64_t));
+    sleepingQueue = newPQueue(compareTime, comparePCB, sizeof(PCBType *), sizeof(uint64_t));
 
     // Create idle process
     newProcess((uint64_t)idle, 1, 1, 0, NULL);

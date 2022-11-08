@@ -118,7 +118,7 @@ void createPhilosophers() {
 
         sysunblock(philosophers[i]);
 
-        sysfree(arg[0]);
+        sysfree(arg[1]);
     }
 
 }
