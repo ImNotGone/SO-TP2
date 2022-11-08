@@ -22,7 +22,7 @@ typedef int lock_t;
 typedef int64_t pid_t;
 
 typedef int fd_t;
-//
+
 // MemInfo structure defined in memoryManager.h
 typedef struct meminfo {
     uint64_t total;

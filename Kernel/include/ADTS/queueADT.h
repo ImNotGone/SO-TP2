@@ -37,4 +37,4 @@ bool next(queueADT q, void * out);
 
 uint64_t size(queueADT q);
 
-#endif //PI_QUEUEADT_H
+#endif //QUEUEADT_H
