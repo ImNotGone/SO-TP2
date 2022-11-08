@@ -77,7 +77,7 @@ void wakeUpProcesses() {
 
 // Removes a process from the sleeping queue if it is there
 void removeFromSleepingQueue(PCBType *process) {
-    
+
     if (process == NULL) {
         return;
     }
@@ -85,7 +85,7 @@ void removeFromSleepingQueue(PCBType *process) {
     removePq(sleepingQueue, &process);
 }
 
-    
+
 // Iterates over the ready queue to see if there are any processes that are
 // ready to run
 int hasReadyProcess() {
@@ -118,7 +118,6 @@ uint64_t switchContext(uint64_t rsp) {
     if (activePid == KERNEL_PID) {
         activePid = 0;
         // shell
-        //  a lo mejor conviene hacer peek aca
         dequeue(processQueue, &activeProcess);
 
         // If its idle, ignore it
@@ -144,9 +143,7 @@ uint64_t switchContext(uint64_t rsp) {
     }
 
     while (!gusts) {
-        if (!dequeue(processQueue, &activeProcess)) {
-            // maybe do something?
-        }
+        dequeue(processQueue, &activeProcess);
 
         if (activeProcess->status == READY) {
 

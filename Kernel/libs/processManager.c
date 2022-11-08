@@ -1,6 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include "ADTS/queueADT.h"
+#include <ADTS/queueADT.h>
 #include <libs/processManager.h>
 #include <libs/scheduler.h>
 
@@ -100,33 +100,16 @@ int64_t comparePid(void * pid1, void * pid2) {
     return (a > b) - (a < b);
 }
 
-void exec(pid_t pid){
-
-    //Pdata process = {&pcb[pid], pcb[pid].pid};
-    // PCBType * process = NULL;
-    // process = listfind(pcbs, pid);
-
-    // //que hacemos si no lo encuentra?
-
-    // //toSend = {process, process->pid};
-
-    // //addToReadyQueue(process);
-    // addToReadyQueue(process);
-
-    // //si es foreground:
-    // if(process->ground == 0){
-    //     block(process->ppid);
-    // }
-    //addToReadyQueue(&pcb);
-
-}
-
 int64_t killProcess(pid_t pid) {
     PCBType * process = removeProcess(pid);
 
     // Validate if the process exists
     if(process == NULL) {
         return -1;
+    }
+
+    if(process->status == SLEEPING) {
+        removeFromSleepingQueue(process);
     }
 
     process->status = KILLED;
@@ -245,9 +228,7 @@ int64_t waitProcess(pid_t pid) {
     // Add the current process to the waiting queue of the process
     queue(process->waiting_processes, &activePid);
 
-    // if(process->status != KILLED) {
-         blockProcess(activePid);
-    // }
+    blockProcess(activePid);
 
     return 0;
 }
@@ -266,10 +247,6 @@ int64_t changePriority(pid_t pid, int priority) {
 }
 
 int dup(pid_t pid, fd_t prev, fd_t new){
-    // if(prev != STDOUT && new != STDIN){
-    //     return -1;
-    // }
-
     PCBType * process = findProcess(pid);
     process->fd[prev] = new;
 

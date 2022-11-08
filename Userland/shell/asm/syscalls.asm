@@ -10,7 +10,6 @@ section .data
 
     syscallcreateprocess equ 7
     syscallexit     equ 8
-    syscallexec     equ 9
     syscallps       equ 10
     syscallkill     equ 11
     syscallwaitpid  equ 12
@@ -50,7 +49,6 @@ global sysmeminfo
 
 global syscreateprocess
 global sysexits
-global sysexec
 global sysps
 global syskill
 global syswaitpid
@@ -131,10 +129,6 @@ syscreateprocess:
 
 sysexits:
     syscallHandler syscallexit
-
-;rdi -> pid
-sysexec:
-    syscallHandler syscallexec
 
 sysps:
     syscallHandler syscallps

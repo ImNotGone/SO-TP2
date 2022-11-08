@@ -87,9 +87,6 @@ extern pid_t syscreateprocess(uint64_t rip, int ground, int priority, int argc, 
 //exits process
 extern void sysexits();
 
-//executes process
-extern void sysexec();
-
 //prints out all process' data
 extern TProcInfo *sysps(uint64_t *size);
 

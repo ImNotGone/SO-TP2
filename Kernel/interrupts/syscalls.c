@@ -236,11 +236,6 @@ void sysexit(){
     yield();
 }
 
-void sysexec(pid_t pid){
-    exec(pid);
-    yield();
-}
-
 TProcInfo * sysps(uint64_t * size){
     return procDump(size);
 }
